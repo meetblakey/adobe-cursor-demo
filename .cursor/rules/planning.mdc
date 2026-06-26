@@ -1,0 +1,47 @@
+---
+description: Plan in Jira, document in Confluence — every build task is driven through the Atlassian MCP
+alwaysApply: true
+---
+
+# Planning & docs — run the build through Atlassian (MCP)
+
+The build is plan-first. Jira is the backlog and system of record; Confluence is the living
+design docs. Full backlog + space layout: `docs/PLAN.md`.
+
+**Two interfaces, different jobs** (see `docs/TEAMWORK-SKILLS.md`):
+- **Atlassian MCP** — for deterministic *writes* in the build loop: create/transition/comment/
+  link a story, create/update a Confluence page. This is the default for `/start-ticket` and
+  `/ship-ticket`.
+- **`twg` skills** (`~/.claude/skills/twg*`, scanned by Cursor) — reach for the *narrowest* one
+  when you need *synthesis/discovery* over work-data: `twg-context-discovery` ("catch me up" /
+  project-to-repo), `twg-engineering-work` (PR/review queues), `twg-operational-health`
+  (incident review), `twg-status-rollups` (leadership rollup). Resolve IDs first; scope to the
+  **PIG** project / **Pigment** space; never guess keys.
+
+## Every build task starts from a Jira story
+- **Pull first.** Before writing code for a phase, `getJiraIssue` (or `searchJiraIssuesUsingJql`
+  for the next To Do story in epic PIG). Read the acceptance criteria and the linked Confluence
+  page. Never start from a blank prompt when a story exists.
+- **Plan back.** Post your Plan-mode plan as a comment with `addCommentToJiraIssue`, then move
+  the story to In Progress with `transitionJiraIssue` (look up valid transitions first with
+  `getTransitionsForJiraIssue`).
+
+## As you build
+- Keep the story honest: log effort with `addWorklogToJiraIssue`; comment material decisions or
+  blockers.
+- **Write decisions to Confluence.** Append a short ADR (what you chose + why) to the
+  **Decision Log** page via `updateConfluencePage`, and update the **Design System Spec** /
+  **SDLC Pipeline** page if the phase changed it.
+
+## On completion
+- Link the PR to the story with `createIssueLink`; transition the story to Done.
+- A production fix (from Sentry) is a NEW story — create it with `createJiraIssue` in epic PIG,
+  don't reopen the shipped one.
+
+## Guardrails
+- Scope strictly to the **PIG** Jira project and **Pigment** Confluence space. Never read or
+  write other projects/spaces.
+- Never invent issue keys or page IDs — always create/look up via the MCP and use the returned
+  identifiers.
+- This is a real Teamwork site: prefer comments/ADRs over editing acceptance criteria; don't
+  delete issues or pages.

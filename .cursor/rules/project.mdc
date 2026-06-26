@@ -1,0 +1,37 @@
+---
+description: Pigment architecture & conventions — stack, structure, RSC boundaries, test discipline
+alwaysApply: true
+---
+
+# Pigment — architecture & conventions
+
+Stack: **Next.js 16 App Router · TypeScript · Tailwind v4 · shadcn/ui · Base UI
+(`@base-ui/react`) · Supabase (`@supabase/ssr`) · Vercel · Vitest.** Read
+`node_modules/next/dist/docs/` before using Next APIs — this version has breaking changes.
+
+## Structure & ownership (the 100+-team model)
+- `components/ui/*`, `lib/`, `app/globals.css`, `.cursor/` — **platform team** (design system + gates).
+- `app/campaigns/*`, `components/campaigns/*` — **a product team** (consumes the system).
+- Ownership is enforced by `CODEOWNERS`; don't blur the boundary.
+
+## Rendering
+- Default to **Server Components**; fetch data in `lib/` from RSCs. Mark only interactive
+  files `'use client'` (theme, filter, anything with state/handlers).
+- Server Supabase client uses async `cookies()` with `getAll`/`setAll` (`setAll` wrapped in
+  try/catch for read-only RSC contexts).
+
+## Conventions
+- Tokens/system components only — see `.cursor/rules/design-system.mdc`.
+- Keep `npm test`, `npm run typecheck`, and `npm run build` green on `main`.
+- Smallest change that satisfies the request + its test. No speculative abstractions.
+- Never write `.env*`; never inline secrets; never call the network from client components.
+
+## Agent permissions (headless / cursor-agent)
+The allow/deny posture is enforced deterministically by the `beforeShellExecution` hook
+(`.cursor/hooks/guard-shell.sh`), not just convention — it fires in the editor, the `cursor`
+CLI, and cloud/CI agents. Intent the agent should respect even before the hook:
+- **Allow:** read anywhere; edit under `app/**` / `components/**` / `lib/**`; run `npm test`,
+  `npm run typecheck`, `npm run build`.
+- **Deny:** `git` mutations (push/commit/reset/rebase/checkout), `rm -rf`, writes to `.env*`,
+  edits to `.github/**`, and outbound network (`curl`/`wget`). A denied action is a signal to
+  re-scope, not to retry.

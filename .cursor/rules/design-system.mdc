@@ -1,0 +1,33 @@
+---
+description: Pigment design-system conventions — how the platform team keeps 100+ product engineers consistent, on-brand, and accessible
+globs: ["app/**/*.tsx", "components/**/*.tsx", "lib/**/*.ts"]
+alwaysApply: false
+---
+
+# Pigment design-system standard
+
+One platform team writes these once; every agent edit across 200+ product surfaces inherits
+them. The linter can't express "on-brand"; the rule can. Bugbot reviews against it on every PR.
+
+## Tokens & system components, never literals
+- Use the shadcn/Pigment components (`@/components/ui/*`) and the theme tokens
+  (`bg-primary`, `text-muted-foreground`, the `Button` `variant` prop, `StatusBadge`).
+- **Never hardcode a Tailwind color literal** (`bg-pink-500`, `text-[#...]`, raw hex) in a
+  product surface under `app/` or `components/campaigns/`. A literal color there bypasses the
+  design system — flag it and replace with the right token/variant.
+- New semantic values are added to the token source by the platform team (`globals.css`,
+  `components/ui/status-badge.tsx`), not inlined by a product team.
+
+## Accessibility is a contract
+- Status/text color pairs must meet WCAG AA (4.5:1). `components/ui/status-badge.test.ts`
+  enforces it in CI for every status in both light and dark themes.
+- Interactive elements keep a visible focus ring.
+
+## Reuse before authoring
+- Compose existing `@/components/ui` components before adding new ones. A one-off styled
+  element that duplicates a system component is drift.
+
+## Bugbot review posture
+- Run LEFT of the human reviewer and the CI gate. Prefer a few high-confidence, cross-file
+  findings (token drift, a11y regressions, duplicated components) over many shallow nits.
+  Cite `file:line` and the rule violated.

@@ -1,0 +1,13 @@
+# The 100+-engineer model, in miniature. Ownership boundaries the platform team
+# governs — Bugbot + the rules enforce that product teams don't cross them.
+
+# Platform team owns the design system + the gates
+/components/ui/        @pigment/platform
+/lib/contrast.ts       @pigment/platform
+/app/globals.css       @pigment/platform
+/.cursor/              @pigment/platform
+/AGENTS.md             @pigment/platform
+
+# Product teams own their surfaces (but consume the system)
+/app/campaigns/        @pigment/growth
+/components/campaigns/ @pigment/growth
