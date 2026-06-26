@@ -32,6 +32,5 @@ The allow/deny posture is enforced deterministically by the `beforeShellExecutio
 CLI, and cloud/CI agents. Intent the agent should respect even before the hook:
 - **Allow:** read anywhere; edit under `app/**` / `components/**` / `lib/**`; run `npm test`,
   `npm run typecheck`, `npm run build`.
-- **Deny:** `git` mutations (push/commit/reset/rebase/checkout), `rm -rf`, writes to `.env*`,
-  edits to `.github/**`, and outbound network (`curl`/`wget`). A denied action is a signal to
-  re-scope, not to retry.
+- **Deny:** `rm -rf`, writes to `.env*`, edits to `.github/**`, and outbound network
+  (`curl`/`wget`). A denied action is a signal to re-scope, not to retry.
