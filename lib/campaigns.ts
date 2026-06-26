@@ -19,8 +19,14 @@ const SEED: Campaign[] = [
   { id: 'c6', name: 'Enterprise Onboarding', owner: 'Experience Cloud', status: 'draft', updatedAt: '2026-06-19' },
 ];
 
+function hasSupabaseEnv(): boolean {
+  return Boolean(
+    process.env.NEXT_PUBLIC_SUPABASE_URL && process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
+  );
+}
+
 export async function getCampaigns(): Promise<Campaign[]> {
-  if (!process.env.NEXT_PUBLIC_SUPABASE_URL) return SEED;
+  if (!hasSupabaseEnv()) return SEED;
 
   const supabase = await createClient();
   const { data, error } = await supabase
