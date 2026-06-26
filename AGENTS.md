@@ -59,3 +59,19 @@ Confluence (space **Pigment**) is the living design docs. Drive both through the
 - Scope strictly to **PIG** / **Pigment**; never invent keys or page IDs. Full backlog + space
   layout in `docs/PLAN.md`; rule in `.cursor/rules/planning.mdc`; commands `/bootstrap-plan`,
   `/start-ticket`, `/ship-ticket`.
+
+## Cursor Cloud specific instructions
+Dependencies are refreshed automatically on startup (`npm install`). Standard commands live in
+**Build, test, run** above — reuse them; don't duplicate. Non-obvious caveats for this VM:
+- **Runs with zero config on seed data.** No `.env*` is required. `getCampaigns()` in
+  `lib/campaigns.ts` returns hardcoded `SEED` rows unless `NEXT_PUBLIC_SUPABASE_URL` is set, and
+  it still falls back to seed on any Supabase error. So `/campaigns` works offline. Supabase,
+  Sentry, and Vercel are all optional — only Supabase changes behavior (live DB vs seed).
+- **`.env.example` referenced in the README does not exist** (it's gitignored). The `cp .env.example .env.local`
+  step is optional and will fail with "No such file" — skip it; the app needs no env vars to run/test/build.
+- **`npm run dev` serves `/` → redirects to `/campaigns`** on http://localhost:3000 (Turbopack).
+- **`npm run lint` fails (exit 1) on a pre-existing error in `decks/build.js` plus ~136 warnings
+  in `.cursor/skills/impeccable/scripts/**`** — these are tooling/skill files, not the app. To
+  lint only product code, run `npx eslint app components lib` (clean). Don't "fix" the skill files.
+- **Sentry DSN is hardcoded** in `sentry.*.config.ts` / `instrumentation-client.ts`, so the app
+  attempts telemetry by default; this is non-blocking if Sentry is unreachable.
