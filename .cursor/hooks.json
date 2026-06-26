@@ -6,6 +6,11 @@
         "command": "./.cursor/hooks/a11y-gate.sh"
       }
     ],
+    "beforeShellExecution": [
+      {
+        "command": "./.cursor/hooks/guard-shell.sh"
+      }
+    ],
     "preToolUse": [
       {
         "command": "node \".cursor/skills/impeccable/scripts/hook-before-edit.mjs\"",
