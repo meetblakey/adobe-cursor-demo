@@ -26,10 +26,13 @@ verified reference scaffold is included, but the spec docs are the source of tru
 | [`docs/CURSOR-SETUP.md`](docs/CURSOR-SETUP.md) | why each Cursor primitive is used as it is — verified rule types, hook events, subagent fields |
 | [`docs/TEAMWORK-SKILLS.md`](docs/TEAMWORK-SKILLS.md) | the installed `twg` Teamwork-Graph skills mapped to the loop (synthesis layer over the MCP) |
 | [`docs/TOOLCHAIN.md`](docs/TOOLCHAIN.md) | one tool per SDLC stage (MCP/CLI/skill) — and what's deliberately excluded |
+| [`docs/AGENT-OPS.md`](docs/AGENT-OPS.md) | the governed setup for Cloud Agents · Bugbot · Security Agents · Approval Agents |
 | `AGENTS.md` · `.cursor/rules/*.mdc` | durable context + rules: `project`/`planning` (Always) + `design-system` (Auto-Attach via globs) |
 | `.cursor/skills/*` · `.cursor/agents/*` | skills (impeccable, **add-migration**) the agent auto-reaches; the readonly **`/reviewer`** subagent |
 | `.cursor/commands/*` | slash commands: new-component, a11y-audit, fix-ci, bootstrap-plan, start-ticket, ship-ticket |
-| `.cursor/hooks.json` · `.cursor/mcp.json` | hooks: a11y-gate (afterFileEdit) + **governance gate (beforeShellExecution)** + impeccable (preToolUse); Supabase & Atlassian MCP |
+| `.cursor/hooks.json` · `.cursor/mcp.json` | hooks: a11y-gate (afterFileEdit) + **governance gate (beforeShellExecution)** + impeccable (preToolUse); Supabase/Atlassian/Vercel/Sentry MCP |
+| `.cursor/permissions.json` · `environment.json` · `BUGBOT.md` | agent execution perms · cloud-agent env · Bugbot review rules |
+| `APPROVAL_POLICY.md` · `.cursor/approval-policies/ROUTING.md` | Approval Agent policy + routing (product→policy) per the docs format |
 | `CODEOWNERS` · `supabase/migrations/*` | platform/product ownership + DB schema |
 
 ## Stack

@@ -14,7 +14,10 @@ extend it, or to rehearse the build itself as part of the demo. Spec = [`PRD.md`
   + "plan phase" stories and the **Pigment** Confluence space via the MCP. This is Phase 0; the
   build then walks the backlog. Full layout: [`PLAN.md`](PLAN.md).
 - **Hooks:** review `.cursor/hooks.json` (runs the a11y gate after edits). Adjust to taste.
-- **CI secret:** add `CURSOR_API_KEY` to GitHub repo secrets for the `cursor-agent` CI job.
+- **CI secret:** add a **team service-account** `CURSOR_API_KEY` (not a personal key) for the
+  headless **`cursor-agent -p`** CI job, so PRs/usage are governed and attributable. Cloud-agent
+  env (`.cursor/environment.json`) + Bugbot / Security Agents / Approval Agents config:
+  [`AGENT-OPS.md`](AGENT-OPS.md).
 - **Supabase + Vercel:** create the project, run `supabase/migrations/0001_campaigns.sql`,
   set `NEXT_PUBLIC_SUPABASE_URL` / `NEXT_PUBLIC_SUPABASE_ANON_KEY`, deploy on Vercel.
 

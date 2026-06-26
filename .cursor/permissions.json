@@ -1,0 +1,26 @@
+{
+  "terminalAllowlist": [
+    "npm test",
+    "npm run typecheck",
+    "npm run build",
+    "npm run lint",
+    "npm run dev",
+    "npm install"
+  ],
+  "mcpAllowlist": [
+    "supabase:*",
+    "atlassian:get*",
+    "atlassian:search*",
+    "sentry:get*"
+  ],
+  "autoRun": {
+    "block_instructions": [
+      "git mutations (push, commit, reset, rebase, checkout) or rewriting history",
+      "reading or writing secrets, credentials, or any .env* file",
+      "editing CI/workflow files under .github/",
+      "running production database migrations",
+      "modifying cloud infrastructure (aws, gcloud, terraform)",
+      "making outbound network requests (curl, wget)"
+    ]
+  }
+}

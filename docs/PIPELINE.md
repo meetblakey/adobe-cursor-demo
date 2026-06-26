@@ -31,6 +31,14 @@ The full *tool per stage* (MCP / CLI / skill) — and what's deliberately exclud
 [`TOOLCHAIN.md`](TOOLCHAIN.md). `.cursor/mcp.json` declares the four servers the loop touches:
 supabase (data), atlassian (plan), vercel (deploy), sentry (observe).
 
+At the **Review/Approve** gate, three agents stack as defense-in-depth (full setup in
+[`AGENT-OPS.md`](AGENT-OPS.md)): **Bugbot** (general correctness, grounded in `.cursor/BUGBOT.md`)
+and the **Security Reviewer** (security classes; can block, never auto-fixes) review every PR in
+parallel; the **Approval Agent** (`APPROVAL_POLICY.md`) then auto-approves low-risk policy-compliant
+PRs or routes the rest to humans. A **Vulnerability Scanner** cron feeds the at-rest baseline into
+the Sentry→Jira leg. Cloud Agents author + self-verify; nothing in the chain merges or deploys
+autonomously — a human owns the merge and the deploy gate.
+
 ## The Teamwork work-data layer (twg skills)
 On top of the MCP CRUD, the agent can reach the installed **`twg`** Teamwork-Graph skills (in
 `~/.claude/skills/`, scanned by Cursor) for *synthesized* work-data at each stage — used **when
