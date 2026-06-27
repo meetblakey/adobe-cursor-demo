@@ -1,0 +1,27 @@
+# Belt-and-suspenders checks for the branch → PR → main flow.
+# Primary enforcement is the GitHub ruleset (.github/rulesets/main-branch.json).
+
+name: Branch policy
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
+
+permissions:
+  contents: read
+
+jobs:
+  validate-pr-source:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Reject PRs whose head branch is main
+        if: github.head_ref == 'main'
+        run: |
+          echo "::error::Pull requests must come from a feature branch. The head branch cannot be main."
+          exit 1
+
+      - name: Reject PRs that target a non-main base (unexpected in this repo)
+        if: github.base_ref != 'main'
+        run: |
+          echo "::error::Pull requests must target main (got base '${{ github.base_ref }}')."
+          exit 1

@@ -20,6 +20,14 @@ Stack: **Next.js 16 App Router · TypeScript · Tailwind v4 · shadcn/ui · Base
 - Server Supabase client uses async `cookies()` with `getAll`/`setAll` (`setAll` wrapped in
   try/catch for read-only RSC contexts).
 
+## Branching (enforced)
+- **All work on a feature branch** named after the Jira key (e.g. `PIG-8`). Never commit or
+  push directly to `main`.
+- **`main` is merge-only:** open a PR → CI `check` green → merge. GitHub ruleset
+  (`.github/rulesets/main-branch.json`) blocks direct pushes; `guard-shell.sh` blocks
+  `git push … main` in the editor.
+- Apply or refresh the ruleset: `.github/scripts/apply-branch-protection.sh`.
+
 ## Conventions
 - Tokens/system components only — see `.cursor/rules/design-system.mdc`.
 - Keep `npm test`, `npm run typecheck`, and `npm run build` green on `main`.
@@ -30,9 +38,9 @@ Stack: **Next.js 16 App Router · TypeScript · Tailwind v4 · shadcn/ui · Base
 The allow/deny posture is enforced deterministically by the `beforeShellExecution` hook
 (`.cursor/hooks/guard-shell.sh`) — it fires in the editor, the `cursor` CLI, and cloud/CI
 agents. Policy is **context-split**:
-- **Editor / local chat:** allow `git add`, `commit`, `push`, `pull` (ship from chat); deny
-  destructive git (`reset`, `clean`, force push, `branch -D`), `rm -rf`, writes to `.env*`, and
-  outbound `curl`/`wget`.
+- **Editor / local chat:** allow `git add`, `commit`, `push`, `pull` on **feature branches**
+  (ship from chat); deny pushes targeting `main`, destructive git (`reset`, `clean`, force push,
+  `branch -D`), `rm -rf`, writes to `.env*`, and outbound `curl`/`wget`.
 - **CI / headless (`GITHUB_ACTIONS` / `CI=true`):** deny **all** git shell — workflow steps
   own commit/push (INJURY B demo). Agent may still edit files under `app/**` /
   `components/**` / `lib/**` and run `npm test` / `typecheck` / `build`.

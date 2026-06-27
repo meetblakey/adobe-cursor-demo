@@ -35,8 +35,14 @@ if [ -n "${GITHUB_ACTIONS:-}" ] || [ "${CI:-}" = "true" ]; then
   exit 0
 fi
 
-# Editor / local chat: allow ship commands; block destructive git
+# Editor / local chat: allow ship commands on feature branches; block destructive git
+# and any push that targets main (main only receives merges via PR — see .github/rulesets/).
 if printf '%s' "$cmd" | grep -Eq 'git[[:space:]]+reset|git[[:space:]]+clean|git[[:space:]]+push[^|]*(-f|--force)|git[[:space:]]+push[^|]*--force-with-lease|git[[:space:]]+branch[[:space:]]+-D'; then
+  printf '%s' "$deny_msg"
+  exit 0
+fi
+
+if printf '%s' "$cmd" | grep -Eq 'git[[:space:]]+push([^|]*[[:space:]]+)?(origin[[:space:]]+)?(HEAD:)?main([^a-zA-Z0-9_-]|$)|git[[:space:]]+push[^|]*:[[:space:]]*main([^a-zA-Z0-9_-]|$)|git[[:space:]]+push[^|]*[[:space:]]+main([^a-zA-Z0-9_-]|$)'; then
   printf '%s' "$deny_msg"
   exit 0
 fi

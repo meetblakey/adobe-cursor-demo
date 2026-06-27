@@ -1,5 +1,8 @@
 name: CI
 
+# Runs on PRs (feature branch → main) and on merges to main. Direct pushes to main are blocked
+# by the GitHub ruleset (.github/rulesets/main-branch.json).
+
 on:
   push:
     branches: [main]

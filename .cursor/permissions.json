@@ -25,6 +25,7 @@
   "autoRun": {
     "block_instructions": [
       "destructive git (reset, clean, force push, branch -D) or rewriting history",
+      "pushing directly to main (use a feature branch and open a PR)",
       "reading or writing secrets, credentials, or any .env* file",
       "editing CI/workflow files under .github/",
       "running production database migrations",
