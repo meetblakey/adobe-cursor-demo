@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
+import { FirstFlagDemo } from '@/components/campaigns/first-flag-demo';
 import { StatusFilter } from '@/components/campaigns/status-filter';
 import { CampaignCard } from '@/components/campaigns/campaign-card';
 import { CampaignsTable } from '@/components/campaigns/campaigns-table';
@@ -35,6 +36,8 @@ export function CampaignsView({ campaigns }: { campaigns: Campaign[] }) {
       <div className="rounded-xl border">
         <CampaignsTable campaigns={filtered} />
       </div>
+
+      <FirstFlagDemo />
     </div>
   );
 }
