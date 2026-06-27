@@ -37,7 +37,7 @@ a merge-ready PR. The **same** agent runs headless as the **`cursor-agent`** CLI
 ## 2. Bugbot — AI PR review *(LIVE for the demo — but kept OFF during the build; see the cost note)*
 On the **Individual plan** the *only* rules layer is the in-repo **`.cursor/BUGBOT.md`** (plain
 markdown, no frontmatter, root + optional nested files — already on disk, grounded in the same
-tokens/a11y/RSC/test standard as the editor agent and `/reviewer`). No Team Rules, no learned/manual
+tokens/a11y/RSC/test standard as the editor agent and **`/review-bugbot`**). No Team Rules, no learned/manual
 dashboard rules, no analytics (Teams-only).
 - **Settings (in `cursor.com/dashboard/bugbot`, when you enable it):** install the GitHub App at
   **org/repo** scope (enterprise-account scope means PR webhooks never fire). Effort = **Default**
@@ -116,11 +116,15 @@ Separate from Bugbot. Two Cursor-managed agents on the Automations platform (run
 ## How they compose (concentric, around the PR)
 1. **Before code:** Run Mode + `permissions.json` + `beforeShellExecution` fence what *any* agent
    (local, cloud, or headless CI) may execute.
-2. **Author:** a Cloud Agent / `cursor-agent` writes on a branch, self-verifies in its VM, opens a PR.
-3. **Review (parallel):** Bugbot (correctness, grounded in `.cursor/BUGBOT.md`) + the Security
-   Reviewer (security classes, can block). Vulnerability Scanner cron = continuous at-rest baseline.
-4. **Approve/route:** the Approval Agent auto-clears low-risk policy-compliant PRs, escalates the
-   rest to humans per `APPROVAL_POLICY.md`.
+2. **Author:** Agent/Cloud Agent writes on a feature branch; local gates (`npm test`, etc.).
+3. **IDE review (pre-push):** **`/review-bugbot`** on `branch changes` vs `main` (patch ID syncs
+   with PR Bugbot); **`/review-security`** when touching platform/auth/supabase paths. See
+   **`/open-pr`** command.
+4. **PR review (parallel):** Bugbot (correctness, `.cursor/BUGBOT.md`) + Security Reviewer
+   (security classes, can block). Vulnerability Scanner cron = continuous at-rest baseline.
+5. **Approve/route:** Approval Agent waits on Bugbot/Security context when enabled; auto-clears
+   low-risk policy-compliant PRs, escalates the rest per `APPROVAL_POLICY.md`.
+6. **Human merge** — then **`/ship-ticket`** closes Jira/Confluence.
 **Who approves what:** the permission layer auto-clears safe shell/MCP actions; Bugbot/Security
 auto-flag defects + risk; the Approval Agent auto-approves only low-risk PRs with no open findings;
 everything risky escalates to a human — who alone merges and alone promotes to prod. **Nothing in
@@ -136,8 +140,9 @@ Cursor touches stages 1–4 and 6 but **never the deploy gate (5) and never the 
 ## Accuracy notes (state carefully / verify day-of)
 - **Cloud = Background Agents** (renamed) — one product. Headless binary is **`cursor-agent`** (use
   `cursor-agent -p`); `agent` is only an alias.
-- **`.cursor/BUGBOT.md`** (with the `.cursor/` prefix), not a repo-root `BUGBOT.md`. Triggers are
-  `cursor review` / `bugbot run` (PR comments), distinct from the in-editor `/review`.
+- **`.cursor/BUGBOT.md`** (with the `.cursor/` prefix), not a repo-root `BUGBOT.md`. IDE:
+  **`/review-bugbot`** / **`/review-security`**. PR: automatic review or `cursor review` /
+  `bugbot run` comments — distinct from the in-editor `/review` skill.
 - Don't quote the unverified Bugbot stats ("~90s", "Composer 2.5", "10% more bugs") — not in docs.
   Autofix needs usage pricing + storage (blocked in Legacy Privacy Mode).
 - **Security Review is beta**, report/block (no auto-fix), each agent needs ≥1 MCP, Team/Enterprise.

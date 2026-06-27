@@ -23,6 +23,9 @@
     },
     "Sentry": {
       "url": "https://mcp.sentry.dev/mcp/adobe-cursor-demo/sentry-cerulean-flask"
+    },
+    "launchdarkly": {
+      "url": "https://mcp.launchdarkly.com/mcp/launchdarkly"
     }
   }
 }

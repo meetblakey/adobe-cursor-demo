@@ -28,6 +28,6 @@ them. The linter can't express "on-brand"; the rule can. Bugbot reviews against 
   element that duplicates a system component is drift.
 
 ## Bugbot review posture
-- Run LEFT of the human reviewer and the CI gate. Prefer a few high-confidence, cross-file
+- Run LEFT of PR Bugbot and the human merge gate. Prefer a few high-confidence, cross-file
   findings (token drift, a11y regressions, duplicated components) over many shallow nits.
   Cite `file:line` and the rule violated.

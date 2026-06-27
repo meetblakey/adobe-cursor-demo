@@ -24,6 +24,9 @@ Cursor across the SDLC: in the editor, on the PR (Bugbot), in CI (`cursor-agent`
 - **Respect RSC boundaries.** Server Components fetch data (`lib/`); mark interactive files
   `'use client'`.
 - **No secrets / no network from client code.** Never write `.env*`.
+- **Flag-first shipping.** Wrap new product features behind LaunchDarkly flags (default **OFF**
+  in production). See `.cursor/rules/launchdarkly.mdc`, [`docs/LAUNCHDARKLY.md`](docs/LAUNCHDARKLY.md),
+  [`docs/ENVIRONMENTS.md`](docs/ENVIRONMENTS.md).
 
 ## Build, test, run
 ```
@@ -39,14 +42,18 @@ npm run typecheck && npm run build
 - Fixing a failing CI job: read the vitest output, fix the root cause (e.g. restore a status
   token to a passing value in `components/ui/status-badge.tsx`); do NOT delete the assertion.
 - **Branch → PR → main.** Work on a feature branch (e.g. `PIG-8`); never push to `main` directly.
-  GitHub ruleset + `guard-shell.sh` enforce merge-only on `main`.
+  GitHub ruleset + `guard-shell.sh` enforce merge-only on `main`. **`/sync-main`** (or
+  `.github/scripts/sync-main-into-branch.sh`) merges latest `main` into your branch at the
+  start of each session — run automatically via **`/start-ticket`** on existing branches.
 - The **`beforeShellExecution` hook** (`.cursor/hooks/guard-shell.sh`) is a real allow/deny
   gate: editor chat may `git commit`/`push` on feature branches; CI/headless runs deny all git
   shell (workflow owns git); both deny pushes to `main`, `rm -rf`, `.env*` writes, and outbound
   `curl`/`wget`.
-- Before opening a PR, run the readonly **`/reviewer`** subagent to verify the diff against the
-  rules (it shifts the design-system check left of Bugbot). Use the **`add-migration`** skill
-  for any schema change.
+- Before push/PR: run **`/review-bugbot`** (required — syncs with PR Bugbot via patch ID);
+  run **`/review-security`** when the diff touches `lib/**`, `supabase/**`, `.cursor/**`,
+  `.github/**`, or API/auth paths. Use **`/open-pr`** to push, open the PR, and wait for checks.
+  After merge: **`/release-flag`** (flag-gated work) → **`/ship-ticket`**. Use the
+  **`add-migration`** skill for any schema change.
 
 ## Planning & docs (Atlassian MCP)
 The build is plan-first: Jira (project **PIG**) is the backlog and system of record;
@@ -60,15 +67,14 @@ Confluence (space **Pigment**) is the living design docs. Drive both through the
   fix is a NEW story, not a reopen.
 - Scope strictly to **PIG** / **Pigment**; never invent keys or page IDs. Full backlog + space
   layout in `docs/PLAN.md`; rule in `.cursor/rules/planning.mdc`; commands `/bootstrap-plan`,
-  `/start-ticket`, `/ship-ticket`.
+  `/start-ticket`, `/open-pr`, `/release-flag`, `/ship-ticket`.
 
 ## Cursor Cloud specific instructions
 Dependencies are refreshed automatically on startup (`npm install`). Standard commands live in
 **Build, test, run** above — reuse them; don't duplicate. Non-obvious caveats for this VM:
-- **Runs with zero config on seed data.** No `.env*` is required. `getCampaigns()` in
-  `lib/campaigns.ts` returns hardcoded `SEED` rows unless `NEXT_PUBLIC_SUPABASE_URL` is set, and
-  it still falls back to seed on any Supabase error. So `/campaigns` works offline. Supabase,
-  Sentry, and Vercel are all optional — only Supabase changes behavior (live DB vs seed).
+- **Runs with zero config on seed data.** No `.env*` is required. `getCampaigns()` uses in-app
+  `SEED` in local/preview when Supabase is unset or errors; production requires live Supabase
+  (see `lib/supabase/env.ts`). LaunchDarkly degrades gracefully without keys.
 - **`.env.example` referenced in the README does not exist** (it's gitignored). The `cp .env.example .env.local`
   step is optional and will fail with "No such file" — skip it; the app needs no env vars to run/test/build.
 - **`npm run dev` serves `/` → redirects to `/campaigns`** on http://localhost:3000 (Turbopack).

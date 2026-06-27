@@ -18,16 +18,17 @@ extend it, or to rehearse the build itself as part of the demo. Spec = [`PRD.md`
   headless **`cursor-agent -p`** CI job, so PRs/usage are governed and attributable. Cloud-agent
   env (`.cursor/environment.json`) + Bugbot / Security Agents / Approval Agents config:
   [`AGENT-OPS.md`](AGENT-OPS.md).
-- **Supabase + Vercel:** create the project, run `supabase/migrations/0001_campaigns.sql`,
-  set `NEXT_PUBLIC_SUPABASE_URL` / `NEXT_PUBLIC_SUPABASE_ANON_KEY`, deploy on Vercel.
+- **Supabase + Vercel + LaunchDarkly:** create Supabase projects (dev/staging/prod per
+  [`ENVIRONMENTS.md`](ENVIRONMENTS.md)), run `supabase/migrations/0001_campaigns.sql`, set tier-scoped
+  env vars on Vercel, authenticate **LaunchDarkly MCP** (OAuth). See [`LAUNCHDARKLY.md`](LAUNCHDARKLY.md).
 
 ## 1. Build phases (each is a Jira "plan phase" story)
 Each phase below maps to a story in epic **PIG** (PIG-2…PIG-7), created by `/bootstrap-plan`.
-Run every phase plan-first: **`/start-ticket PIG-N`** (pull the story, post the plan back, move
-to In Progress) → the prompt below → **`/ship-ticket PIG-N`** (append an ADR to the Confluence
-Decision Log, link the PR, transition to Done). The rules + AGENTS.md keep Agent on-spec, so the
-prompts stay short — that's the point you're demonstrating, and the Jira/Confluence trail is the
-real Plan stage of the loop.
+Run every phase plan-first: **`/start-ticket PIG-N`** (sync with latest `main`, pull the story,
+post the plan back, move to In Progress) → build (wrap features behind LD flags) → **`/open-pr`**
+(review-bugbot, push, PR, preview flag validation, merge) → **`/release-flag`** (prod rollout via
+LaunchDarkly) → **`/ship-ticket PIG-N`** (ADR, link PR, Done). Between sessions, run **`/sync-main`**
+daily. **PIG-16** adds the flag-driven SDLC spine.
 
 **Phase 0 — bootstrap the plan (PIG-1).** `/bootstrap-plan` — create the epic, the plan-phase
 stories, and the Confluence space via the Atlassian MCP (see Setup + `PLAN.md`).
@@ -64,8 +65,8 @@ stories, and the Confluence space via the Atlassian MCP (see Setup + `PLAN.md`).
 > permission rules; deny `Shell(git)` and `Write(.env*)`)." *(You finalise the exact
 > `cursor-agent` Action invocation against current Cursor docs.)*
 
-**Phase 6 — verify.** `npm test && npm run typecheck && npm run build`, then push and confirm
-the Vercel preview + that Bugbot reviews the PR.
+**Phase 6 — verify.** `npm test && npm run typecheck && npm run build`, then **`/open-pr`**
+( `/review-bugbot` → push → PR → merge) and confirm the Vercel preview + Bugbot on the PR.
 
 ## 2. The Cursor surfaces this demonstrates (201 spine)
 > Why each primitive is used the way it is (rule types, hook events, subagent fields), verified
@@ -74,10 +75,10 @@ the Vercel preview + that Bugbot reviews the PR.
 | Surface | File(s) here | What it proves |
 |---|---|---|
 | **Rules** | `.cursor/rules/*.mdc` | conventions by apply-mode: `project`/`planning` Always, `design-system` Auto-Attach on `.tsx` edits |
-| **Skills** | `.cursor/skills/*` | procedures the agent auto-reaches (impeccable craft; `add-migration` with a deterministic script) — run in the CLI too |
-| **Subagents** | `.cursor/agents/reviewer.md` | a readonly `/reviewer` verifies the diff left of Bugbot; built-in Explore/Bash/Browser cited, not reinvented |
+| **Skills** | `.cursor/skills/*` | procedures the agent auto-reaches (`impeccable`, `add-migration`, **`review-bugbot`**, **`review-security`**) — run in the CLI too |
+| **Review (IDE + PR)** | `.cursor/BUGBOT.md` + Bugbot dashboard | **`/review-bugbot`** pre-push (syncs with PR Bugbot); PR Bugbot + Security + Approval on merge gate |
 | **AGENTS.md** | `AGENTS.md` | durable project memory the agent reads |
-| **Slash commands** | `.cursor/commands/*.md` | a senior's multi-step sequence, one human trigger |
+| **Slash commands** | `.cursor/commands/*.md` | plan-first sequence: **`/start-ticket`** → build → **`/open-pr`** → merge → **`/ship-ticket`** |
 | **Hooks** | `.cursor/hooks.json` | deterministic gates: a11y (`afterFileEdit`) + governance allow/deny (`beforeShellExecution`) — fire in CI/cloud agents too |
 | **MCP** | `.cursor/mcp.json` | Agent grounded in live Supabase schema + Jira/Confluence |
 | **Bugbot** | (configured in Cursor) | semantic PR review at 100+-dev scale |

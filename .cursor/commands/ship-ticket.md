@@ -2,6 +2,11 @@
 
 Close out a story honestly after the work passes. Argument: the story key (e.g. `PIG-3`).
 
+0. **Prerequisites** — the PR is **merged** to `main` and PR checks were green (`check`,
+   `Cursor Bugbot`, Security/Approval when configured). Run **`/open-pr`** first if the PR
+   is not yet merged. For **flag-gated features**, run **`/release-flag`** first (or document
+   "dark ship only" in the closing comment if prod rollout is deferred).
+
 1. Confirm the gates are green: `npm run typecheck && npm test && npm run build`.
 2. **Document the decision.** Append a short ADR (what you chose + why, one paragraph) to the
    Confluence **Decision Log** with `updateConfluencePage`. If this phase changed the design

@@ -1,8 +1,9 @@
 # Bugbot review guide — Pigment
 
-Review PRs against the same standard the editor agent, the `/reviewer` subagent, and
-`.cursor/rules/design-system.mdc` already enforce — so author and review share one standard.
-Prefer a few high-confidence findings over many nits; cite `file:line` and the rule violated.
+Review PRs against the same standard the editor agent, **`/review-bugbot`** (IDE pre-push),
+and `.cursor/rules/design-system.mdc` already enforce — so author and review share one
+standard. Prefer a few high-confidence findings over many nits; cite `file:line` and the rule
+violated.
 
 ## Flag
 - **Tokens, never literals** — a hardcoded Tailwind color (`bg-pink-500`) or raw hex outside the

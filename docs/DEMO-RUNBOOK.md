@@ -61,23 +61,24 @@ across the SDLC.*
 > that flows into them. Two insertions: the PR, and the CI job."
 
 1. **Map to the pipeline — the LOOP, not a line** (diagram; see [`PIPELINE.md`](PIPELINE.md)):
-   **Jira** ticket → **Cursor** (Plan→Agent, Rules+AGENTS+MCP) → **PR + Bugbot** → **GitHub
-   Actions + `cursor-agent`** → **Vercel** → **Sentry** → Sentry files the next Jira ticket.
-   Cursor touches every stage *except* the deploy gate and the human approver — say that; it's
-   the governance point. (Adobe mapping: Jira → Bitbucket/GitHub → Jenkins → Spinnaker → K8s,
-   observed by Datadog + Sentry.)
+   **Jira** ticket → **Cursor** (Plan→Agent, **behind LD flag**) → **`/review-bugbot`** → **PR +
+   Bugbot** → **GitHub Actions + `cursor-agent`** → **Vercel** (preview + auto prod, **dark**) →
+   **`/release-flag`** (LaunchDarkly prod rollout) → **Sentry** (LD kill switch) → next Jira ticket.
+   Human owns PR merge and LD prod rollout — not Vercel promote.
 2. **Plan: pull the ticket** — the Atlassian MCP brings the Jira ticket + acceptance criteria
    **and its linked Confluence design doc** into the agent; the agent posts its plan back as a
    comment. Flex: this whole backlog + the Confluence docs were authored by Cursor as it built
    Pigment (see [`PLAN.md`](PLAN.md)) — the Plan stage is real history, not a mockup.
-3. **Bugbot as the governance gate** — LIVE: open a PR with **INJURY A** on
-   `components/campaigns/campaign-card.tsx`. Bugbot comments, cites
-   `.cursor/rules/design-system`, BEFORE the human + CI gate. Consistency at a scale no
-   reviewer team can staff.
+3. **Bugbot as the governance gate** — optionally show **`/review-bugbot`** catching INJURY A
+   before push; LIVE on PR: open a PR with **INJURY A** on `components/campaigns/campaign-card.tsx`.
+   Bugbot comments, cites `.cursor/BUGBOT.md` / design-system rules, BEFORE the human + CI gate.
 4. **`cursor-agent` headless in CI — fix the red build** — LIVE: open a PR with **INJURY B** on
    `components/ui/status-badge.tsx` (the "In review" chip). `npm test`/CI goes red; the
    `cursor-agent` job reads the failing test, restores a passing token, comments the PR —
    bounded by allow/deny rules (deny `Shell(git)`, `Write(.env*)`). Green-build time + MTTR.
+4b. **Flag-driven release (`/release-flag`)** — show `my-first-flag` on `/campaigns`. Merge ships
+   code **dark** (prod flag OFF). Toggle ON in LD **test** on preview; then narrate prod rollout
+   via LaunchDarkly MCP. Instant rollback = flag OFF (kill switch).
 5. **Close the loop with Sentry** — a prod error in Sentry → Seer/MCP pulls it into Cursor →
    fix re-enters at code. **Sentry leads** (Next.js/Vercel fit + closes the loop); name
    **Datadog** as the enterprise complement (APM/SLOs across Adobe's backend), not a live beat.

@@ -8,10 +8,10 @@ demo's three beats (plan-first build, the two injuries, 100+-dev governance).
 | Primitive | On disk | Use for | Not for |
 |---|---|---|---|
 | **Rules** `.cursor/rules/*.mdc` | project · design-system · planning | always-in-force conventions ("wear the seatbelt") | deterministic checks (→ hooks/CI); multi-step procedures (→ skills) |
-| **Skills** `.cursor/skills/<name>/SKILL.md` | impeccable (installed) · add-migration | on-demand procedures the agent auto-reaches by description; run in the CLI too | always-on constraints (→ rule); hard enforcement (→ hook) |
-| **Subagents** `.cursor/agents/*.md` | reviewer | isolated-context specialists (a readonly verifier; heavy research) | reinventing built-ins; Claude-Code `tools:`/`color:` fields |
+| **Skills** `.cursor/skills/<name>/SKILL.md` | impeccable · add-migration · review-bugbot · review-security | on-demand procedures the agent auto-reaches by description; run in the CLI too | always-on constraints (→ rule); hard enforcement (→ hook) |
+| **Subagents** (built-in) | bugbot · security-review · explore · bash · browser | Cursor-managed review + context isolation | reinventing built-ins; custom duplicate reviewers |
 | **Hooks** `.cursor/hooks.json` | afterFileEdit · beforeShellExecution · preToolUse | deterministic, fail-loud gates that fire even in CI/cloud agents | advisory guidance (→ rule); user macros (→ command) |
-| **Commands** `.cursor/commands/*.md` | bootstrap/start/ship-ticket · new-component · a11y-audit · fix-ci | human-triggered job macros (human owns the timing) | things the agent should auto-reach (→ skill) |
+| **Commands** `.cursor/commands/*.md` | bootstrap/start/sync-main/open-pr/**release-flag**/ship-ticket · new-component · a11y-audit · fix-ci | human-triggered job macros | things the agent should auto-reach (→ skill) |
 
 ## Rules — correct apply modes (set by frontmatter, nothing else)
 - **`project.mdc`** — `alwaysApply: true` (Always). The project constitution: stack, RSC
@@ -40,15 +40,15 @@ demo's three beats (plan-first build, the two injuries, 100+-dev governance).
   MCP — review queues, incident reviews, status rollups, "catch me up". The agent reaches for the
   narrowest one when needed; full loop map + guardrails in `docs/TEAMWORK-SKILLS.md`.
 
-## Subagents — isolated specialists
-- **reviewer** (added, `.cursor/agents/reviewer.md`) — `readonly: true`, `model: inherit`.
-  Invoked `/reviewer` (forward slash). Verifies a finished diff against the design-system +
-  project rules **before** the PR — same standard as Bugbot, shifted one step left. Clean
-  context window: pass it the diff.
+- **review-bugbot** (`.cursor/skills/review-bugbot/SKILL.md`) — launches Cursor's built-in
+  **`bugbot`** subagent on `branch changes` vs `main` **before push**. Syncs patch ID with PR
+  Bugbot (same diff may skip duplicate remote review). Invoked `/review-bugbot`.
+- **review-security** (`.cursor/skills/review-security/SKILL.md`) — launches **`security-review`**
+  subagent before push when touching platform/auth/supabase paths. Invoked `/review-security`.
 - Cursor's **built-in** Explore / Bash / Browser subagents cover research/shell/browser
   zero-config — cite them rather than authoring equivalents.
-- Cursor frontmatter is `name · description · model · readonly · is_background` only —
-  **never** Claude-Code's `tools:` or `color:`.
+- Do **not** author a custom pre-PR reviewer — `.cursor/BUGBOT.md` is the single standard for
+  both `/review-bugbot` (IDE) and PR Bugbot.
 
 ## Hooks — deterministic gates (the "same standard in three places")
 - **afterFileEdit** → `a11y-gate.sh` — editor-time a11y/contrast gate (the leftmost catch of
