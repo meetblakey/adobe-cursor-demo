@@ -1,6 +1,7 @@
 import { Suspense } from 'react';
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
+import { PageContent } from '@/components/page-content';
 import { CampaignDetailLoading } from '@/components/campaigns/detail/campaign-detail-loading';
 import { CampaignDetailPageView } from '@/components/campaigns/detail/campaign-detail-page';
 import { getAllCampaignSlugs, getCampaignDetail } from '@/lib/campaign-details';
@@ -33,10 +34,12 @@ export default function CampaignDetailPage({
   params: Promise<{ slug: string }>;
 }) {
   return (
-    <main className="mx-auto w-full max-w-5xl px-6 py-8">
-      <Suspense fallback={<CampaignDetailLoading />}>
-        <CampaignDetailContent params={params} />
-      </Suspense>
+    <main>
+      <PageContent>
+        <Suspense fallback={<CampaignDetailLoading />}>
+          <CampaignDetailContent params={params} />
+        </Suspense>
+      </PageContent>
     </main>
   );
 }

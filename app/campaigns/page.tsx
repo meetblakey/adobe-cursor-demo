@@ -1,5 +1,6 @@
 import { Suspense } from 'react';
 import type { Metadata } from 'next';
+import { PageContent } from '@/components/page-content';
 import { getCampaigns } from '@/lib/campaigns';
 import { CampaignsView } from '@/components/campaigns/campaigns-view';
 import { CampaignsLoading } from '@/components/campaigns/campaigns-loading';
@@ -15,10 +16,12 @@ async function CampaignsPageContent() {
 
 export default function CampaignsPage() {
   return (
-    <main className="mx-auto w-full max-w-5xl px-6 py-8">
-      <Suspense fallback={<CampaignsLoading />}>
-        <CampaignsPageContent />
-      </Suspense>
+    <main>
+      <PageContent>
+        <Suspense fallback={<CampaignsLoading />}>
+          <CampaignsPageContent />
+        </Suspense>
+      </PageContent>
     </main>
   );
 }
