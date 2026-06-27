@@ -2,7 +2,10 @@ import { withSentryConfig } from "@sentry/nextjs";
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  /* config options here */
+  env: {
+    // Expose Vercel deployment tier to client bundles for LaunchDarkly context.
+    NEXT_PUBLIC_VERCEL_ENV: process.env.VERCEL_ENV ?? 'development',
+  },
 };
 
 export default withSentryConfig(nextConfig, {
