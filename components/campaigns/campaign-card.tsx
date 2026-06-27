@@ -1,7 +1,18 @@
-import Image from 'next/image';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import Link from 'next/link';
+import {
+  Card,
+  CardAction,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { StatusBadge } from '@/components/ui/status-badge';
+import { CampaignCoverImage } from '@/components/campaigns/campaign-cover-image';
+import { CampaignMetaChips } from '@/components/campaigns/campaign-meta-chips';
+import { CampaignOwnerAvatar } from '@/components/campaigns/campaign-owner-avatar';
 import type { Campaign } from '@/lib/campaigns';
 
 export function CampaignCard({
@@ -12,34 +23,41 @@ export function CampaignCard({
   priority?: boolean;
 }) {
   return (
-    <Card className="gap-0 py-0">
-      <div className="relative aspect-4/3 overflow-hidden rounded-t-xl bg-muted">
-        <Image
-          src={campaign.image.src}
-          alt={campaign.image.alt}
-          fill
-          sizes="(min-width: 1024px) 30vw, (min-width: 640px) 45vw, 100vw"
-          priority={priority}
-          className="object-cover"
-        />
-      </div>
-      <CardHeader className="pt-4">
+    <Card className="overflow-hidden pt-0">
+      <CampaignCoverImage
+        src={campaign.coverImage}
+        alt={`${campaign.name} cover`}
+        className="aspect-2/1 w-full"
+        sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+        priority={priority}
+      />
+      <CardHeader>
         <CardTitle>{campaign.name}</CardTitle>
-        <div className="col-start-2 row-span-2 row-start-1 self-start justify-self-end">
+        <CardDescription className="line-clamp-2">{campaign.summary}</CardDescription>
+        <CardAction>
           <StatusBadge status={campaign.status} />
-        </div>
+        </CardAction>
       </CardHeader>
-      <CardContent className="flex flex-col gap-3 pb-4">
-        <p className="text-sm text-muted-foreground">{campaign.owner} team</p>
-        <div className="flex gap-2">
-          <Button variant="outline" size="sm">
-            Open
-          </Button>
-          <Button variant="ghost" size="sm">
-            Duplicate
-          </Button>
+      <CardContent className="flex flex-col gap-3">
+        <div className="flex items-center gap-2 text-sm text-muted-foreground">
+          <CampaignOwnerAvatar owner={campaign.owner} />
+          <span>{campaign.owner} team</span>
         </div>
+        <CampaignMetaChips campaignType={campaign.campaignType} channels={campaign.channels} />
       </CardContent>
+      <CardFooter className="gap-2 border-t-0 bg-transparent">
+        <Button
+          variant="outline"
+          size="sm"
+          render={<Link href={`/campaigns/${campaign.slug}`} />}
+          nativeButton={false}
+        >
+          Open
+        </Button>
+        <Button variant="ghost" size="sm">
+          Duplicate
+        </Button>
+      </CardFooter>
     </Card>
   );
 }
