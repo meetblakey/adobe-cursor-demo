@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { Suspense } from "react";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { getLaunchDarklyBootstrap } from "@/lib/launchdarkly/edge-bootstrap";
@@ -21,26 +22,30 @@ export const metadata: Metadata = {
   description: "A design system at 100+-engineer scale.",
 };
 
-export default async function RootLayout({
+export default function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const bootstrap = await getLaunchDarklyBootstrap();
-
   return (
     <html
       lang="en"
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col">
-        <LaunchDarklyProvider bootstrap={bootstrap}>
-          <ThemeProvider>
-            <SiteHeader />
-            {children}
-          </ThemeProvider>
-        </LaunchDarklyProvider>
+        <ThemeProvider>
+          <SiteHeader />
+          <Suspense fallback={children}>
+            <LaunchDarklyLayout>{children}</LaunchDarklyLayout>
+          </Suspense>
+        </ThemeProvider>
       </body>
     </html>
   );
+}
+
+async function LaunchDarklyLayout({ children }: { children: React.ReactNode }) {
+  const bootstrap = await getLaunchDarklyBootstrap();
+
+  return <LaunchDarklyProvider bootstrap={bootstrap}>{children}</LaunchDarklyProvider>;
 }

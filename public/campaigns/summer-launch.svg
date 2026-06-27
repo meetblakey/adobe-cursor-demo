@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="640" height="320" viewBox="0 0 640 320" fill="none" role="img" aria-label="Summer Launch creative placeholder">
+  <rect width="640" height="320" fill="#E8EEF5"/>
+  <rect x="48" y="48" width="200" height="120" rx="12" fill="#C5D4E8"/>
+  <rect x="280" y="72" width="312" height="16" rx="8" fill="#A8BED6"/>
+  <rect x="280" y="108" width="240" height="12" rx="6" fill="#B8C9DE"/>
+  <circle cx="560" cy="240" r="48" fill="#D4E2F0"/>
+  <text x="48" y="260" fill="#5A6F88" font-family="system-ui,sans-serif" font-size="28" font-weight="600">Summer Launch</text>
+</svg>

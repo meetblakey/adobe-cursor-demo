@@ -1,24 +1,32 @@
-import { createClient } from '@/lib/supabase/server';
 import { allowsSeedFallback, hasSupabaseEnv } from '@/lib/supabase/env';
-import type { CampaignStatus } from '@/components/ui/status-badge';
+import { CAMPAIGN_SEED } from '@/lib/campaigns-seed';
+import { enrichCampaign } from '@/lib/campaigns-query';
+import { getCachedCampaigns } from '@/lib/campaigns-cache';
+import { queryCampaignsFromSupabase } from '@/lib/campaigns-query';
 
-export type Campaign = {
-  id: string;
-  name: string;
-  owner: string;
-  status: CampaignStatus;
-  updatedAt: string;
-};
+export type { Campaign } from '@/lib/campaigns-types';
 
-// Seed data so the app renders before Supabase is configured (non-production tiers only).
-const SEED: Campaign[] = [
-  { id: 'c1', name: 'Summer Launch', owner: 'Growth', status: 'live', updatedAt: '2026-06-24' },
-  { id: 'c2', name: 'Brand Refresh 2026', owner: 'Design', status: 'review', updatedAt: '2026-06-23' },
-  { id: 'c3', name: 'APJ Expansion', owner: 'Field', status: 'draft', updatedAt: '2026-06-22' },
-  { id: 'c4', name: 'Acrobat AI Upsell', owner: 'Document Cloud', status: 'live', updatedAt: '2026-06-21' },
-  { id: 'c5', name: 'Firefly Holiday Push', owner: 'Creative Cloud', status: 'review', updatedAt: '2026-06-20' },
-  { id: 'c6', name: 'Enterprise Onboarding', owner: 'Experience Cloud', status: 'draft', updatedAt: '2026-06-19' },
-];
+import type { Campaign } from '@/lib/campaigns-types';
+
+const SEED: Campaign[] = CAMPAIGN_SEED.map((row) =>
+  enrichCampaign({
+    id: row.id,
+    name: row.name,
+    owner: row.owner,
+    status: row.status,
+    updated_at: row.updatedAt,
+    summary: row.summary,
+    channels: row.channels,
+    campaign_type: row.campaignType,
+  }),
+);
+
+async function loadCampaignsFromSupabase(): Promise<Campaign[]> {
+  if (process.env.NODE_ENV === 'test') {
+    return queryCampaignsFromSupabase();
+  }
+  return getCachedCampaigns();
+}
 
 export async function getCampaigns(): Promise<Campaign[]> {
   if (!hasSupabaseEnv()) {
@@ -28,33 +36,13 @@ export async function getCampaigns(): Promise<Campaign[]> {
   }
 
   try {
-    const supabase = await createClient();
-    const { data, error } = await supabase
-      .from('campaigns')
-      .select('id, name, owner, status, updated_at')
-      .order('updated_at', { ascending: false });
-
-    if (error) {
-      if (allowsSeedFallback()) return SEED;
-      console.error('[campaigns] Supabase query failed in production:', error.message);
-      return [];
-    }
-
-    if (!data?.length) {
-      if (allowsSeedFallback()) return SEED;
-      return [];
-    }
-
-    return data.map((r) => ({
-      id: r.id,
-      name: r.name,
-      owner: r.owner,
-      status: r.status as CampaignStatus,
-      updatedAt: r.updated_at,
-    }));
+    return await loadCampaignsFromSupabase();
   } catch (err) {
     if (allowsSeedFallback()) return SEED;
-    console.error('[campaigns] Supabase client error in production:', err);
+    const message = err instanceof Error ? err.message : String(err);
+    console.error('[campaigns] Supabase query failed in production:', message);
     return [];
   }
 }
+
+export { CAMPAIGN_SEED } from '@/lib/campaigns-seed';
