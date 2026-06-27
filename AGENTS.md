@@ -38,10 +38,9 @@ npm run typecheck && npm run build
 - Smallest change that satisfies the request + its test.
 - Fixing a failing CI job: read the vitest output, fix the root cause (e.g. restore a status
   token to a passing value in `components/ui/status-badge.tsx`); do NOT delete the assertion.
-- Headless `cursor-agent` runs are bounded by the **`beforeShellExecution` hook**
-  (`.cursor/hooks/guard-shell.sh`) — a real, deterministic allow/deny gate (deny `rm -rf`,
-  `.env`/`.github` writes, network), not just convention. It fires in the editor, the CLI, and
-  cloud/CI agents.
+- The **`beforeShellExecution` hook** (`.cursor/hooks/guard-shell.sh`) is a real allow/deny
+  gate: editor chat may `git commit`/`push`; CI/headless runs deny all git shell (workflow owns
+  git); both deny `rm -rf`, `.env*` writes, and outbound `curl`/`wget`.
 - Before opening a PR, run the readonly **`/reviewer`** subagent to verify the diff against the
   rules (it shifts the design-system check left of Bugbot). Use the **`add-migration`** skill
   for any schema change.

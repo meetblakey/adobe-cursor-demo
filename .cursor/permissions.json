@@ -5,7 +5,16 @@
     "npm run build",
     "npm run lint",
     "npm run dev",
-    "npm install"
+    "npm install",
+    "git status",
+    "git diff",
+    "git log",
+    "git add",
+    "git commit",
+    "git push",
+    "git pull",
+    "gh pr create",
+    "gh pr view"
   ],
   "mcpAllowlist": [
     "supabase:*",
@@ -15,7 +24,7 @@
   ],
   "autoRun": {
     "block_instructions": [
-      "git mutations (push, commit, reset, rebase, checkout) or rewriting history",
+      "destructive git (reset, clean, force push, branch -D) or rewriting history",
       "reading or writing secrets, credentials, or any .env* file",
       "editing CI/workflow files under .github/",
       "running production database migrations",

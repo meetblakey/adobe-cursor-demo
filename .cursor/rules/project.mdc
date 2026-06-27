@@ -26,11 +26,13 @@ Stack: **Next.js 16 App Router · TypeScript · Tailwind v4 · shadcn/ui · Base
 - Smallest change that satisfies the request + its test. No speculative abstractions.
 - Never write `.env*`; never inline secrets; never call the network from client components.
 
-## Agent permissions (headless / cursor-agent)
+## Agent permissions (editor vs headless)
 The allow/deny posture is enforced deterministically by the `beforeShellExecution` hook
-(`.cursor/hooks/guard-shell.sh`), not just convention — it fires in the editor, the `cursor`
-CLI, and cloud/CI agents. Intent the agent should respect even before the hook:
-- **Allow:** read anywhere; edit under `app/**` / `components/**` / `lib/**`; run `npm test`,
-  `npm run typecheck`, `npm run build`.
-- **Deny:** `rm -rf`, writes to `.env*`, edits to `.github/**`, and outbound network
-  (`curl`/`wget`). A denied action is a signal to re-scope, not to retry.
+(`.cursor/hooks/guard-shell.sh`) — it fires in the editor, the `cursor` CLI, and cloud/CI
+agents. Policy is **context-split**:
+- **Editor / local chat:** allow `git add`, `commit`, `push`, `pull` (ship from chat); deny
+  destructive git (`reset`, `clean`, force push, `branch -D`), `rm -rf`, writes to `.env*`, and
+  outbound `curl`/`wget`.
+- **CI / headless (`GITHUB_ACTIONS` / `CI=true`):** deny **all** git shell — workflow steps
+  own commit/push (INJURY B demo). Agent may still edit files under `app/**` /
+  `components/**` / `lib/**` and run `npm test` / `typecheck` / `build`.

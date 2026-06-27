@@ -1,0 +1,92 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - run: npm ci
+      - run: npm run typecheck
+      - run: npm test
+      - run: npm run build
+
+  fix-ci:
+    needs: check
+    if: failure() && github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.head_ref }}
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - run: npm ci
+
+      - name: Capture CI failure output
+        continue-on-error: true
+        run: |
+          (npm run typecheck && npm test && npm run build) > ci-failure.log 2>&1 || true
+
+      - name: Install Cursor CLI
+        run: |
+          curl https://cursor.com/install -fsS | bash
+          echo "$HOME/.cursor/bin" >> "$GITHUB_PATH"
+
+      - name: Run cursor-agent fix
+        id: agent
+        env:
+          CURSOR_API_KEY: ${{ secrets.CURSOR_API_KEY }}
+        run: |
+          agent -p --force --output-format text \
+            "The CI pipeline failed. The failure log is in @ci-failure.log. Follow the fix-ci procedure:
+            1. Read the failing output — start with the Vitest report and typecheck/build errors.
+            2. Identify the root cause. For an a11y-gate failure, fix the token in components/ui/status-badge.tsx (or app/globals.css) to restore WCAG AA (≥4.5:1) while staying on-brand.
+            3. Do NOT weaken or delete the failing assertion.
+            4. Make the smallest change, run npm run typecheck && npm test && npm run build, and write a one-paragraph diagnosis + fix summary to fix-summary.md.
+            Stay within governance: no git shell commands, no writes to .env*, no edits under .github/."
+
+      - name: Verify fix
+        run: npm run typecheck && npm test && npm run build
+
+      - name: Commit and push fix
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          git config user.name "cursor-agent[bot]"
+          git config user.email "cursor-agent[bot]@users.noreply.github.com"
+          if git diff --quiet; then
+            echo "No changes to commit."
+            exit 0
+          fi
+          git add -A
+          git commit -m "fix(ci): restore passing typecheck, test, and build"
+          git push origin "HEAD:${{ github.head_ref }}"
+
+      - name: Comment on PR
+        if: hashFiles('fix-summary.md') != ''
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh pr comment "${{ github.event.pull_request.number }}" --body-file fix-summary.md
