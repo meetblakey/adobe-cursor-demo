@@ -177,6 +177,10 @@ describe('getCampaigns with live Supabase data', () => {
         owner: 'Growth',
         status: 'live',
         updatedAt: '2026-06-25',
+        image: {
+          src: '/campaigns/brand-refresh.png',
+          alt: 'A refined design studio wall covered with campaign planning materials.',
+        },
       },
     ]);
   });
