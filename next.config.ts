@@ -4,7 +4,7 @@ import type { NextConfig } from "next";
 const nextConfig: NextConfig = {
   env: {
     // Expose Vercel deployment tier to client bundles for LaunchDarkly context.
-    NEXT_PUBLIC_VERCEL_ENV: process.env.VERCEL_ENV ?? 'development',
+    NEXT_PUBLIC_VERCEL_ENV: process.env.VERCEL_ENV ?? 'local',
   },
 };
 
