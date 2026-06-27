@@ -36,6 +36,25 @@ segments_match() {
   return 1
 }
 
+# git push rules apply only to segments that actually run git push (not quoted prose in gh/heredocs).
+git_push_segments_match() {
+  local pattern="$1" text="$2" segment
+  text="${text//&&/$'\n'}"
+  text="${text//;/$'\n'}"
+  while IFS= read -r segment; do
+    segment="${segment#"${segment%%[![:space:]]*}"}"
+    segment="${segment%"${segment##*[![:space:]]}"}"
+    [ -z "$segment" ] && continue
+    if ! printf '%s' "$segment" | grep -Eq '^[[:space:]]*(cd[^;&|]+&&[[:space:]]*)*git[[:space:]]+push'; then
+      continue
+    fi
+    if printf '%s' "$segment" | grep -Eq "$pattern"; then
+      return 0
+    fi
+  done <<< "$text"
+  return 1
+}
+
 # Shared denials (every context)
 if printf '%s' "$cmd" | grep -Eq 'rm[[:space:]]+-rf|>[[:space:]]*\.env|tee[[:space:]]+\.env|(^|[[:space:]])(curl|wget)[[:space:]]'; then
   printf '%s' "$deny_msg"
@@ -59,12 +78,12 @@ destructive_git_re='git[[:space:]]+reset|git[[:space:]]+clean|git[[:space:]]+bra
 force_push_re='git[[:space:]]+push([^|]*[[:space:]]--force-with-lease([[:space:]]|$)|[^|]*[[:space:]]--force([[:space:]]|$)|[^|]*[[:space:]]-f([[:space:]]|$))'
 push_main_re='git[[:space:]]+push([^|]*[[:space:]]+)?(origin[[:space:]]+)?(HEAD:)?main([^a-zA-Z0-9_-]|$)|git[[:space:]]+push[^|]*:[[:space:]]*main([^a-zA-Z0-9_-]|$)|git[[:space:]]+push[^|]*[[:space:]]+main([^a-zA-Z0-9_-]|$)'
 
-if segments_match "$destructive_git_re" "$cmd" || segments_match "$force_push_re" "$cmd"; then
+if segments_match "$destructive_git_re" "$cmd" || git_push_segments_match "$force_push_re" "$cmd"; then
   printf '%s' "$deny_msg"
   exit 0
 fi
 
-if segments_match "$push_main_re" "$cmd"; then
+if git_push_segments_match "$push_main_re" "$cmd"; then
   printf '%s' "$deny_msg"
   exit 0
 fi
