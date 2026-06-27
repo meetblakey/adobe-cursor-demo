@@ -1,13 +1,16 @@
 # The 100+-engineer model, in miniature. Ownership boundaries the platform team
 # governs — Bugbot + the rules enforce that product teams don't cross them.
+#
+# Solo demo: @meetblakey owns all paths below (one person playing platform + product).
+# Org narrative: substitute @pigment/platform and @pigment/growth GitHub teams.
 
 # Platform team owns the design system + the gates
-/components/ui/        @pigment/platform
-/lib/contrast.ts       @pigment/platform
-/app/globals.css       @pigment/platform
-/.cursor/              @pigment/platform
-/AGENTS.md             @pigment/platform
+/components/ui/        @meetblakey
+/lib/contrast.ts       @meetblakey
+/app/globals.css       @meetblakey
+/.cursor/              @meetblakey
+/AGENTS.md             @meetblakey
 
 # Product teams own their surfaces (but consume the system)
-/app/campaigns/        @pigment/growth
-/components/campaigns/ @pigment/growth
+/app/campaigns/        @meetblakey
+/components/campaigns/ @meetblakey
