@@ -1,8 +1,0 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="640" height="320" viewBox="0 0 640 320" fill="none" role="img" aria-label="Brand Refresh creative placeholder">
-  <rect width="640" height="320" fill="#F0EBF5"/>
-  <rect x="40" y="40" width="160" height="240" rx="16" fill="#D9CDE8"/>
-  <rect x="224" y="56" width="376" height="20" rx="10" fill="#C4B4D9"/>
-  <rect x="224" y="96" width="280" height="14" rx="7" fill="#D2C4E3"/>
-  <rect x="224" y="160" width="320" height="96" rx="12" fill="#E5DBF0"/>
-  <text x="224" y="292" fill="#6B5A7A" font-family="system-ui,sans-serif" font-size="24" font-weight="600">Brand Refresh</text>
-</svg>

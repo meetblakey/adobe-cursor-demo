@@ -1,7 +1,0 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="640" height="320" viewBox="0 0 640 320" fill="none" role="img" aria-label="Firefly Holiday creative placeholder">
-  <rect width="640" height="320" fill="#F3EEF8"/>
-  <path d="M80 240 L200 80 L320 240 Z" fill="#D8C8EA"/>
-  <path d="M280 240 L400 96 L520 240 Z" fill="#C9B4E0"/>
-  <rect x="88" y="256" width="464" height="12" rx="6" fill="#BFA8D4"/>
-  <text x="88" y="228" fill="#6A5580" font-family="system-ui,sans-serif" font-size="24" font-weight="600">Firefly Holiday Push</text>
-</svg>

@@ -1,8 +1,0 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="640" height="320" viewBox="0 0 640 320" fill="none" role="img" aria-label="APJ Expansion creative placeholder">
-  <rect width="640" height="320" fill="#EAF3EE"/>
-  <circle cx="120" cy="160" r="72" fill="#C5DFD0"/>
-  <rect x="220" y="64" width="360" height="24" rx="12" fill="#A8CBB8"/>
-  <rect x="220" y="112" width="280" height="16" rx="8" fill="#B8D5C4"/>
-  <rect x="220" y="180" width="180" height="56" rx="10" fill="#D4EADF"/>
-  <text x="220" y="276" fill="#4A6B58" font-family="system-ui,sans-serif" font-size="24" font-weight="600">APJ Expansion</text>
-</svg>

@@ -1,7 +1,0 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="640" height="320" viewBox="0 0 640 320" fill="none" role="img" aria-label="Enterprise Onboarding creative placeholder">
-  <rect width="640" height="320" fill="#ECEFF5"/>
-  <rect x="48" y="56" width="544" height="48" rx="10" fill="#CED8E8"/>
-  <rect x="48" y="128" width="544" height="48" rx="10" fill="#D8E0ED"/>
-  <rect x="48" y="200" width="360" height="48" rx="10" fill="#E2E8F2"/>
-  <text x="48" y="284" fill="#556680" font-family="system-ui,sans-serif" font-size="24" font-weight="600">Enterprise Onboarding</text>
-</svg>

@@ -52,8 +52,8 @@ export function CampaignsView({ campaigns }: { campaigns: Campaign[] }) {
           </div>
 
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {filtered.map((c) => (
-              <CampaignCard key={c.id} campaign={c} />
+            {filtered.map((c, index) => (
+              <CampaignCard key={c.id} campaign={c} priority={index === 0} />
             ))}
           </div>
         </>

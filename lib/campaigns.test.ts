@@ -62,8 +62,8 @@ afterEach(() => {
 
 describe('campaign presentation helpers', () => {
   it('maps known campaign names to local cover assets', () => {
-    expect(getCampaignCoverUrl('Summer Launch')).toBe('/campaigns/summer-launch.svg');
-    expect(getCampaignCoverUrl('Unknown')).toBe('/campaigns/campaign-default.svg');
+    expect(getCampaignCoverUrl('Summer Launch')).toBe('/campaigns/summer-launch.png');
+    expect(getCampaignCoverUrl('Unknown')).toBe('/campaigns/brand-refresh.png');
   });
 
   it('formats updated dates for display', () => {
@@ -79,7 +79,7 @@ describe('getCampaigns seed fallback policy', () => {
     const campaigns = await getCampaigns();
 
     expect(campaigns.map((c) => c.id)).toEqual(SEED_IDS);
-    expect(campaigns[0]?.coverImage).toBe('/campaigns/summer-launch.svg');
+    expect(campaigns[0]?.coverImage).toBe('/campaigns/summer-launch.png');
     expect(campaigns[0]?.updatedAtLabel).toBe('Jun 24, 2026');
     expect(createAnonClientMock).not.toHaveBeenCalled();
   });
@@ -217,7 +217,7 @@ describe('getCampaigns with live Supabase data', () => {
         summary: 'Test summary.',
         channels: ['Email'],
         campaignType: 'Product launch',
-        coverImage: '/campaigns/campaign-default.svg',
+        coverImage: '/campaigns/brand-refresh.png',
       },
     ]);
   });

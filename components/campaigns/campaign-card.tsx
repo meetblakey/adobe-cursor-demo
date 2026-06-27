@@ -15,7 +15,13 @@ import { CampaignMetaChips } from '@/components/campaigns/campaign-meta-chips';
 import { CampaignOwnerAvatar } from '@/components/campaigns/campaign-owner-avatar';
 import type { Campaign } from '@/lib/campaigns';
 
-export function CampaignCard({ campaign }: { campaign: Campaign }) {
+export function CampaignCard({
+  campaign,
+  priority = false,
+}: {
+  campaign: Campaign;
+  priority?: boolean;
+}) {
   return (
     <Card className="overflow-hidden pt-0">
       <CampaignCoverImage
@@ -23,6 +29,7 @@ export function CampaignCard({ campaign }: { campaign: Campaign }) {
         alt={`${campaign.name} cover`}
         className="aspect-2/1 w-full"
         sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+        priority={priority}
       />
       <CardHeader>
         <CardTitle>{campaign.name}</CardTitle>

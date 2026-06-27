@@ -24,7 +24,6 @@ export function CampaignCoverImage({
       height={320}
       sizes={sizes}
       priority={priority}
-      unoptimized
       className={cn('bg-muted object-cover', className)}
     />
   );
