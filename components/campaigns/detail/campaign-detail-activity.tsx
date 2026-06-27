@@ -1,31 +1,35 @@
-import { Separator } from '@/components/ui/separator';
+import { HistoryIcon } from 'lucide-react';
+import { CampaignDetailEmpty } from '@/components/campaigns/detail/campaign-detail-empty';
 import { CampaignDetailPanel } from '@/components/campaigns/detail/campaign-detail-panel';
 import type { CampaignActivity } from '@/lib/campaigns-types';
 
 export function CampaignDetailActivity({ activity }: { activity: CampaignActivity[] }) {
   if (activity.length === 0) {
     return (
-      <CampaignDetailPanel className="p-6">
-        <p className="text-sm text-muted-foreground">No recent activity.</p>
-      </CampaignDetailPanel>
+      <CampaignDetailEmpty
+        icon={HistoryIcon}
+        title="No recent activity"
+        description="Updates from owners and reviewers will appear here as the campaign moves forward."
+      />
     );
   }
 
   return (
-    <CampaignDetailPanel className="px-4">
-      <ul className="flex flex-col">
-      {activity.map((event, index) => (
-        <li key={`${event.at}-${event.actor}`}>
-          <div className="flex flex-col gap-0.5 py-3">
-            <div className="flex flex-wrap items-baseline gap-x-2 gap-y-0.5 text-sm">
-              <span className="font-medium">{event.actor}</span>
-              <span className="text-muted-foreground">{event.action}</span>
+    <CampaignDetailPanel className="divide-y divide-border px-4 sm:px-5">
+      <ul>
+        {activity.map((event) => (
+          <li key={`${event.at}-${event.actor}-${event.action}`}>
+            <div className="flex flex-col gap-1 py-4">
+              <p className="text-sm text-pretty">
+                <span className="font-medium">{event.actor}</span>{' '}
+                <span className="text-muted-foreground">{event.action}</span>
+              </p>
+              <time className="text-xs text-muted-foreground" dateTime={event.at}>
+                {event.atLabel}
+              </time>
             </div>
-            <span className="text-xs text-muted-foreground">{event.atLabel}</span>
-          </div>
-          {index < activity.length - 1 ? <Separator /> : null}
-        </li>
-      ))}
+          </li>
+        ))}
       </ul>
     </CampaignDetailPanel>
   );

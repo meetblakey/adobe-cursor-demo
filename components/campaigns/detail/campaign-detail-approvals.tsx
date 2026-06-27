@@ -13,19 +13,16 @@ export function CampaignDetailApprovals({ approvals }: { approvals: CampaignAppr
   }
 
   return (
-    <ul className="flex flex-col gap-3">
+    <ul className="divide-y divide-border">
       {approvals.map((approval) => (
-        <li
-          key={approval.step}
-          className="flex flex-col gap-1 rounded-lg border px-3 py-2 text-sm"
-        >
-          <div className="flex items-center justify-between gap-2">
-            <span className="font-medium">{approval.step}</span>
-            <Badge {...approvalBadgeProps(approval.status)}>
+        <li key={approval.step} className="flex flex-col gap-1.5 py-3 first:pt-0 last:pb-0">
+          <div className="flex items-start justify-between gap-2">
+            <span className="text-sm font-medium">{approval.step}</span>
+            <Badge {...approvalBadgeProps(approval.status)} className="shrink-0">
               {STATUS_LABELS[approval.status]}
             </Badge>
           </div>
-          <span className="text-muted-foreground">{approval.owner}</span>
+          <span className="text-sm text-muted-foreground">{approval.owner}</span>
           {approval.dueDateLabel ? (
             <span className="text-xs text-muted-foreground">Due {approval.dueDateLabel}</span>
           ) : null}

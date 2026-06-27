@@ -1,6 +1,7 @@
 'use client';
 
 import { Select } from '@base-ui/react/select';
+import { cn } from '@/lib/utils';
 
 const ITEMS = [
   { value: 'all', label: 'All statuses' },
@@ -18,7 +19,12 @@ export function StatusFilter({
 }) {
   return (
     <Select.Root items={ITEMS} value={value} onValueChange={(v) => onChange(v as string)}>
-      <Select.Trigger className="inline-flex h-8 min-w-44 items-center justify-between gap-2 rounded-lg border bg-background px-3 text-sm outline-none focus-visible:ring-3 focus-visible:ring-ring/50 data-popup-open:bg-muted">
+      <Select.Trigger
+        aria-label="Filter by status"
+        className={cn(
+          'inline-flex h-9 w-auto min-w-[9rem] shrink-0 items-center justify-between gap-2 rounded-lg border bg-background px-3 text-sm outline-none focus-visible:ring-3 focus-visible:ring-ring/50 data-popup-open:bg-muted',
+        )}
+      >
         <Select.Value />
         <Select.Icon className="text-muted-foreground">▾</Select.Icon>
       </Select.Trigger>

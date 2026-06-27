@@ -23,7 +23,7 @@ export function CampaignCard({
   priority?: boolean;
 }) {
   return (
-    <Card className="overflow-hidden pt-0">
+    <Card className="overflow-hidden pt-0 motion-safe:transition-colors hover:bg-muted/30">
       <CampaignCoverImage
         src={campaign.coverImage}
         alt={`${campaign.name} cover`}
@@ -45,16 +45,17 @@ export function CampaignCard({
         </div>
         <CampaignMetaChips campaignType={campaign.campaignType} channels={campaign.channels} />
       </CardContent>
-      <CardFooter className="gap-2 border-t-0 bg-transparent">
+      <CardFooter className="flex-col gap-2 border-t-0 bg-transparent sm:flex-row">
         <Button
           variant="outline"
           size="sm"
+          className="h-11 w-full sm:h-8 sm:w-auto"
           render={<Link href={`/campaigns/${campaign.slug}`} />}
           nativeButton={false}
         >
           Open
         </Button>
-        <Button variant="ghost" size="sm">
+        <Button variant="ghost" size="sm" className="h-11 w-full sm:h-8 sm:w-auto">
           Duplicate
         </Button>
       </CardFooter>
