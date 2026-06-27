@@ -2,6 +2,10 @@ name: CI
 
 # Runs on PRs (feature branch → main) and on merges to main. Direct pushes to main are blocked
 # by the GitHub ruleset (.github/rulesets/main-branch.json).
+#
+# CI runs without LaunchDarkly or Supabase secrets — seed data + LD graceful defaults.
+# Preview deploys (Vercel) use LD test + optional Supabase staging vars.
+# Production auto-deploys on merge to main; features ship dark until /release-flag rollout.
 
 on:
   push:

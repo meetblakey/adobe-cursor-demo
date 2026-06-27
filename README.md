@@ -19,7 +19,9 @@ verified reference scaffold is included, but the spec docs are the source of tru
 | [`STRATEGY.md`](STRATEGY.md) | the Adobe-first demo strategy (source of record) |
 | [`docs/PRD.md`](docs/PRD.md) | product requirements (PM perspective) |
 | [`docs/BUILD-PLAN.md`](docs/BUILD-PLAN.md) | how to build it *in Cursor*, phase by phase, with prompts |
-| [`docs/PIPELINE.md`](docs/PIPELINE.md) | the total SDLC loop — Jira → Cursor → PR/Bugbot → CI → Vercel → Sentry → Jira |
+| [`docs/PIPELINE.md`](docs/PIPELINE.md) | the total SDLC loop — Jira → Cursor → PR/Bugbot → CI → Vercel → **LaunchDarkly** → Sentry → Jira |
+| [`docs/ENVIRONMENTS.md`](docs/ENVIRONMENTS.md) | Dev · Preview · Production tier matrix (Vercel, Supabase, LaunchDarkly) |
+| [`docs/LAUNCHDARKLY.md`](docs/LAUNCHDARKLY.md) | LaunchDarkly SDK setup, Edge Config, flag evaluation |
 | [`docs/PLAN.md`](docs/PLAN.md) | the build as a live Jira backlog + Confluence space, driven via the Atlassian MCP |
 | [`docs/DEMO-RUNBOOK.md`](docs/DEMO-RUNBOOK.md) | 101 + 201 run-of-show + "say this, not that" |
 | [`docs/INJURIES.md`](docs/INJURIES.md) | the two **specific** failure→fix scenarios (exact diffs + prompts) |
@@ -28,9 +30,9 @@ verified reference scaffold is included, but the spec docs are the source of tru
 | [`docs/TOOLCHAIN.md`](docs/TOOLCHAIN.md) | one tool per SDLC stage (MCP/CLI/skill) — and what's deliberately excluded |
 | [`docs/AGENT-OPS.md`](docs/AGENT-OPS.md) | the governed setup for Cloud Agents · Bugbot · Security Agents · Approval Agents |
 | `AGENTS.md` · `.cursor/rules/*.mdc` | durable context + rules: `project`/`planning` (Always) + `design-system` (Auto-Attach via globs) |
-| `.cursor/skills/*` · `.cursor/agents/*` | skills (impeccable, **add-migration**) the agent auto-reaches; the readonly **`/reviewer`** subagent |
-| `.cursor/commands/*` | slash commands: new-component, a11y-audit, fix-ci, bootstrap-plan, start-ticket, ship-ticket |
-| `.cursor/hooks.json` · `.cursor/mcp.json` | hooks: a11y-gate (afterFileEdit) + **governance gate (beforeShellExecution)** + impeccable (preToolUse); Supabase/Atlassian/Vercel/Sentry MCP |
+| `.cursor/skills/*` | skills the agent auto-reaches: impeccable, **add-migration**, **review-bugbot**, **review-security** |
+| `.cursor/commands/*` | slash commands: bootstrap-plan, start-ticket, sync-main, open-pr, **release-flag**, ship-ticket |
+| `.cursor/hooks.json` · `.cursor/mcp.json` | hooks + Supabase/Atlassian/Vercel/Sentry/**LaunchDarkly** MCP |
 | `.cursor/permissions.json` · `environment.json` · `BUGBOT.md` | agent execution perms · cloud-agent env · Bugbot review rules |
 | `APPROVAL_POLICY.md` · `.cursor/approval-policies/ROUTING.md` | Approval Agent policy + routing (product→policy) per the docs format |
 | `CODEOWNERS` · `supabase/migrations/*` | platform/product ownership + DB schema |
@@ -59,8 +61,9 @@ npm run typecheck && npm run build
 | `.cursor/rules/`, `AGENTS.md`, `CODEOWNERS` | **platform team** | governance pushed to every engineer + agent |
 
 ## Supabase
-Schema + seed in `supabase/migrations/0001_campaigns.sql`. The app reads from Supabase when
-`NEXT_PUBLIC_SUPABASE_URL` is set, otherwise falls back to seed data so it always renders.
+Schema + seed in `supabase/migrations/0001_campaigns.sql`. Tier-scoped env vars per
+[`docs/ENVIRONMENTS.md`](docs/ENVIRONMENTS.md). Local/preview fall back to seed data when unset;
+production requires live Supabase.
 
 ## Demoing
 Keep `main` green. Introduce the seeded regressions live — exact diffs, the precise Cursor

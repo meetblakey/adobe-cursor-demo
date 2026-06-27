@@ -15,5 +15,8 @@ is here; the must-be-identical scaffolding is in `scripts/new-migration.sh`.
 4. Keep the app in sync: update `CampaignStatus` in `components/ui/status-badge.tsx` (add the
    `STATUS_TOKENS` pair — light + dark, both WCAG AA so `status-badge.test.ts` stays green) and
    the type in `lib/campaigns.ts`.
-5. Per `.cursor/rules/planning.mdc`, note the change as an ADR on the Confluence Design System
+5. **Apply across tiers** (see `docs/ENVIRONMENTS.md`): run the migration against the **staging**
+   Supabase project first, validate on a Vercel preview, then apply to **production** — never
+   skip staging.
+6. Per `.cursor/rules/planning.mdc`, note the change as an ADR on the Confluence Design System
    Spec, and keep `npm test` green.

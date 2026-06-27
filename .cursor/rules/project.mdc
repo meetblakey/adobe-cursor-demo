@@ -26,10 +26,15 @@ Stack: **Next.js 16 App Router · TypeScript · Tailwind v4 · shadcn/ui · Base
 - **`main` is merge-only:** open a PR → CI `check` green → merge. GitHub ruleset
   (`.github/rulesets/main-branch.json`) blocks direct pushes; `guard-shell.sh` blocks
   `git push … main` in the editor.
+- **Stay synced with `main`:** at the start of each session (or when running
+  **`/start-ticket`** on an existing branch), run **`/sync-main`** or
+  `./.github/scripts/sync-main-into-branch.sh` — checkout `main`, pull, merge into your
+  feature branch. Catch conflicts locally in small pieces.
 - Apply or refresh the ruleset: `.github/scripts/apply-branch-protection.sh`.
 
 ## Conventions
 - Tokens/system components only — see `.cursor/rules/design-system.mdc`.
+- Environment tiers (Dev · Preview · Production): see [`docs/ENVIRONMENTS.md`](../../docs/ENVIRONMENTS.md).
 - Keep `npm test`, `npm run typecheck`, and `npm run build` green on `main`.
 - Smallest change that satisfies the request + its test. No speculative abstractions.
 - Never write `.env*`; never inline secrets; never call the network from client components.
