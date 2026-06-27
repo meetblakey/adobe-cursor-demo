@@ -13,7 +13,6 @@ type CampaignRow = {
   summary?: string | null;
   channels?: string[] | null;
   campaign_type?: string | null;
-  detail?: Record<string, unknown> | null;
 };
 
 export function mergeCampaignDetail(
@@ -40,9 +39,7 @@ export async function queryCampaignDetailFromSupabase(
   const supabase = createAnonClient();
   const { data, error } = await supabase
     .from('campaigns')
-    .select(
-      'id, name, owner, status, updated_at, summary, channels, campaign_type, detail',
-    )
+    .select('id, name, owner, status, updated_at, summary, channels, campaign_type')
     .eq('name', name)
     .maybeSingle();
 
