@@ -1,23 +1,9 @@
 'use client';
 
-import { asyncWithLDProvider } from 'launchdarkly-react-client-sdk';
-import { useEffect, useState, type ComponentType, type ReactNode } from 'react';
+import { LDProvider } from 'launchdarkly-react-client-sdk';
+import type { ReactNode } from 'react';
 
-function getClientContext() {
-  const deployment =
-    process.env.NEXT_PUBLIC_VERCEL_ENV?.trim() ||
-    (process.env.NODE_ENV === 'production' ? 'production' : 'local');
-
-  return {
-    kind: 'user' as const,
-    key: 'anonymous',
-    anonymous: true,
-    custom: {
-      deployment,
-      launchDarklyTier: deployment === 'production' ? 'production' : 'test',
-    },
-  };
-}
+import { buildClientLDContext } from '@/lib/launchdarkly/context';
 
 export function LaunchDarklyProvider({
   children,
@@ -26,26 +12,18 @@ export function LaunchDarklyProvider({
   children: ReactNode;
   bootstrap?: Record<string, unknown>;
 }) {
-  const [LDProvider, setLDProvider] = useState<ComponentType<{ children: ReactNode }> | null>(
-    null,
+  const clientSideID = process.env.NEXT_PUBLIC_LAUNCHDARKLY_CLIENT_SIDE_ID?.trim();
+  if (!clientSideID) return children;
+
+  return (
+    <LDProvider
+      clientSideID={clientSideID}
+      context={buildClientLDContext()}
+      timeout={5}
+      reactOptions={{ useCamelCaseFlagKeys: true }}
+      options={bootstrap ? { bootstrap } : undefined}
+    >
+      {children}
+    </LDProvider>
   );
-
-  useEffect(() => {
-    const clientSideID = process.env.NEXT_PUBLIC_LAUNCHDARKLY_CLIENT_SIDE_ID?.trim();
-    if (!clientSideID) return;
-
-    void (async () => {
-      const Provider = await asyncWithLDProvider({
-        clientSideID,
-        context: getClientContext(),
-        timeout: 5,
-        reactOptions: { useCamelCaseFlagKeys: true },
-        ...(bootstrap ? { bootstrap } : {}),
-      });
-      setLDProvider(() => Provider);
-    })();
-  }, [bootstrap]);
-
-  if (!LDProvider) return children;
-  return <LDProvider>{children}</LDProvider>;
 }

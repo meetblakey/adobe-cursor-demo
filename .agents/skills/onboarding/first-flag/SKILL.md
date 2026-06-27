@@ -258,14 +258,7 @@ function FeatureFlagDemo() {
   if (!myFirstFlag) return null;
 
   return (
-    <div style={{
-      padding: '12px 20px',
-      backgroundColor: '#405BFF',
-      color: 'white',
-      borderRadius: '8px',
-      margin: '16px 0',
-      fontWeight: 500
-    }}>
+    <div className="my-4 rounded-lg bg-primary px-5 py-3 font-medium text-primary-foreground">
       LaunchDarkly is working — this banner is controlled by a feature flag
     </div>
   );

@@ -16,6 +16,15 @@ export function getLaunchDarklyDeployment(): LaunchDarklyDeployment {
   return 'local';
 }
 
+/** Client-safe mirror of {@link getLaunchDarklyDeployment} for browser bundles. */
+export function getClientLaunchDarklyDeployment(): LaunchDarklyDeployment {
+  const vercelEnv = process.env.NEXT_PUBLIC_VERCEL_ENV?.trim();
+  if (vercelEnv === 'production' || vercelEnv === 'preview' || vercelEnv === 'development') {
+    return vercelEnv;
+  }
+  return 'local';
+}
+
 export function getLaunchDarklyConfig() {
   return {
     sdkKey: process.env.LAUNCHDARKLY_SDK_KEY?.trim() ?? '',

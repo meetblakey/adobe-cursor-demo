@@ -1,6 +1,9 @@
 import type { LDContext } from '@launchdarkly/node-server-sdk';
 
-import { getLaunchDarklyConfig } from '@/lib/launchdarkly/config';
+import {
+  getClientLaunchDarklyDeployment,
+  getLaunchDarklyConfig,
+} from '@/lib/launchdarkly/config';
 
 export function buildLDContext(overrides?: Partial<LDContext>): LDContext {
   const { deployment, tier } = getLaunchDarklyConfig();
@@ -14,6 +17,21 @@ export function buildLDContext(overrides?: Partial<LDContext>): LDContext {
       deployment,
       launchDarklyTier: tier,
       ...(typeof overrides?.custom === 'object' ? overrides.custom : {}),
+    },
+  };
+}
+
+export function buildClientLDContext() {
+  const deployment = getClientLaunchDarklyDeployment();
+  const tier = deployment === 'production' ? 'production' : 'test';
+
+  return {
+    kind: 'user' as const,
+    key: 'anonymous',
+    anonymous: true,
+    custom: {
+      deployment,
+      launchDarklyTier: tier,
     },
   };
 }

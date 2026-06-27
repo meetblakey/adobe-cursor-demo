@@ -19,6 +19,42 @@ except Exception: print("")' 2>/dev/null || true)"
 
 deny_msg='{"permission":"deny","user_message":"Blocked by Pigment governance hook.","agent_message":"Denied by guard-shell.sh. A denial means re-scope, not retry."}'
 
+# Match a regex against each && / ; segment so later clauses (e.g. gh pr create --base main)
+# do not false-positive git push rules.
+segments_match() {
+  local pattern="$1" text="$2" segment
+  text="${text//&&/$'\n'}"
+  text="${text//;/$'\n'}"
+  while IFS= read -r segment; do
+    segment="${segment#"${segment%%[![:space:]]*}"}"
+    segment="${segment%"${segment##*[![:space:]]}"}"
+    [ -z "$segment" ] && continue
+    if printf '%s' "$segment" | grep -Eq "$pattern"; then
+      return 0
+    fi
+  done <<< "$text"
+  return 1
+}
+
+# git push rules apply only to segments that actually run git push (not quoted prose in gh/heredocs).
+git_push_segments_match() {
+  local pattern="$1" text="$2" segment
+  text="${text//&&/$'\n'}"
+  text="${text//;/$'\n'}"
+  while IFS= read -r segment; do
+    segment="${segment#"${segment%%[![:space:]]*}"}"
+    segment="${segment%"${segment##*[![:space:]]}"}"
+    [ -z "$segment" ] && continue
+    if ! printf '%s' "$segment" | grep -Eq '^[[:space:]]*(cd[^;&|]+&&[[:space:]]*)*git[[:space:]]+push'; then
+      continue
+    fi
+    if printf '%s' "$segment" | grep -Eq "$pattern"; then
+      return 0
+    fi
+  done <<< "$text"
+  return 1
+}
+
 # Shared denials (every context)
 if printf '%s' "$cmd" | grep -Eq 'rm[[:space:]]+-rf|>[[:space:]]*\.env|tee[[:space:]]+\.env|(^|[[:space:]])(curl|wget)[[:space:]]'; then
   printf '%s' "$deny_msg"
@@ -37,12 +73,17 @@ fi
 
 # Editor / local chat: allow ship commands on feature branches; block destructive git
 # and any push that targets main (main only receives merges via PR — see .github/rulesets/).
-if printf '%s' "$cmd" | grep -Eq 'git[[:space:]]+reset|git[[:space:]]+clean|git[[:space:]]+push[^|]*(-f|--force)|git[[:space:]]+push[^|]*--force-with-lease|git[[:space:]]+branch[[:space:]]+-D'; then
+destructive_git_re='git[[:space:]]+reset|git[[:space:]]+clean|git[[:space:]]+branch[[:space:]]+-D'
+# Force flags must be standalone git options — not substrings in branch names (e.g. -fixes, -feature).
+force_push_re='git[[:space:]]+push([^|]*[[:space:]]--force-with-lease([[:space:]]|$)|[^|]*[[:space:]]--force([[:space:]]|$)|[^|]*[[:space:]]-f([[:space:]]|$))'
+push_main_re='git[[:space:]]+push([^|]*[[:space:]]+)?(origin[[:space:]]+)?(HEAD:)?main([^a-zA-Z0-9_-]|$)|git[[:space:]]+push[^|]*:[[:space:]]*main([^a-zA-Z0-9_-]|$)|git[[:space:]]+push[^|]*[[:space:]]+main([^a-zA-Z0-9_-]|$)'
+
+if segments_match "$destructive_git_re" "$cmd" || git_push_segments_match "$force_push_re" "$cmd"; then
   printf '%s' "$deny_msg"
   exit 0
 fi
 
-if printf '%s' "$cmd" | grep -Eq 'git[[:space:]]+push([^|]*[[:space:]]+)?(origin[[:space:]]+)?(HEAD:)?main([^a-zA-Z0-9_-]|$)|git[[:space:]]+push[^|]*:[[:space:]]*main([^a-zA-Z0-9_-]|$)|git[[:space:]]+push[^|]*[[:space:]]+main([^a-zA-Z0-9_-]|$)'; then
+if git_push_segments_match "$push_main_re" "$cmd"; then
   printf '%s' "$deny_msg"
   exit 0
 fi
