@@ -4,10 +4,11 @@
 
 export type CampaignStatus = 'draft' | 'live' | 'review';
 
-// Source of truth for the LEGACY StatusBadge (flag OFF). Each pair must clear
-// WCAG AA in BOTH themes; status-badge.test.ts enforces it. This is the
-// hand-authored hex map whose failure mode INJURY B exploits — and which the
-// Spectrum path (flag ON) makes obsolete.
+// Source of truth for the legacy StatusBadge path — now the pre-hydration SSR
+// fallback, since Spectrum is the default. Each pair must clear WCAG AA in BOTH
+// themes; status-badge.test.ts enforces it. This is the hand-authored hex map
+// whose failure mode INJURY B exploits — and which the rendered Spectrum path
+// makes obsolete.
 export const STATUS_TOKENS: Record<
   CampaignStatus,
   { label: string; light: { bg: string; fg: string }; dark: { bg: string; fg: string } }
@@ -17,11 +18,22 @@ export const STATUS_TOKENS: Record<
   review: { label: 'In review', light: { bg: '#FFF1D6', fg: '#8A4B00' }, dark: { bg: '#3A2A12', fg: '#E0A24E' } },
 };
 
-// Spectrum path (flag ON): semantic StatusLight variants, pre-validated AA in
-// light + dark by Spectrum — there is no hand-authored hex left to get wrong.
-// status-badge.spectrum.test.ts asserts these stay semantic (no literal hex).
+// Spectrum path (the rendered default): semantic StatusLight variants,
+// pre-validated AA in light + dark by Spectrum — there is no hand-authored hex
+// left to get wrong. status-badge.spectrum.test.ts asserts these stay semantic.
 export const SPECTRUM_STATUS: Record<CampaignStatus, 'neutral' | 'positive' | 'notice'> = {
   draft: 'neutral',
   live: 'positive',
   review: 'notice',
 };
+
+// Filter options + human labels are DERIVED from STATUS_TOKENS — the one
+// exhaustive, compiler-checked source of truth. Adding a status there is forced
+// to add its token + Spectrum entry, and it then propagates to the filter and
+// labels automatically, so there is no second place to forget.
+export const CAMPAIGN_STATUSES = Object.keys(STATUS_TOKENS) as CampaignStatus[];
+
+export const STATUS_FILTER_OPTIONS: { value: string; label: string }[] = [
+  { value: 'all', label: 'All statuses' },
+  ...CAMPAIGN_STATUSES.map((status) => ({ value: status, label: STATUS_TOKENS[status].label })),
+];
