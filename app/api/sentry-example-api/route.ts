@@ -8,15 +8,15 @@ class SentryExampleAPIError extends Error {
   }
 }
 
-/** Demo-only intentional throw; production returns 503 unless ?demo=1 */
+/** Demo-only intentional throw; returns 503 unless ?demo=1 */
 export async function GET(request: Request) {
   await connection();
   const { searchParams } = new URL(request.url);
   const isDemoTrigger = searchParams.get("demo") === "1";
 
-  if (!isDemoTrigger && process.env.NODE_ENV === "production") {
+  if (!isDemoTrigger) {
     return Response.json(
-      { error: "Sentry example disabled in production. Use ?demo=1 for demo trigger." },
+      { error: "Sentry example disabled. Use ?demo=1 for demo trigger." },
       { status: 503 },
     );
   }
