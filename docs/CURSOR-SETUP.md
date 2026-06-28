@@ -63,8 +63,8 @@ demo's three beats (plan-first build, the two injuries, 100+-dev governance).
   so we log and fail safe. Say this honestly when presenting governance.
 
 ## Verify on the demo machine, day-of
-- Cursor version ≥ **2.4** (Skills + custom Subagents; Jan 2026) and ≥ **2.5** for one-level
-  subagent nesting. Confirm Skills/Subagents load in-app.
+- Cursor **3.x** (current). Skills + custom Subagents landed in 2.4 and one-level subagent
+  nesting in 2.5 — all standard in 3.x; just confirm Skills/Subagents load in-app.
 - Re-check the **hooks stdout field casing** on cursor.com/docs (snake_case verified at build
   time, but it's the one contract worth eyeballing live).
 - Confirm `design-system.mdc` Auto-Attaches on a `.tsx` edit and the three rules show under

@@ -9,9 +9,10 @@
 The Field Engineer demo must *sell to Adobe*, not tour Cursor's features. Pigment is the
 stage: a small, visual product surface where one platform team's design system is consumed by
 "200+ product teams." It exists so the audience can **see pain → solution** — an off-brand or
-inaccessible change shipping, then Cursor catching/fixing it across the SDLC. Code is
-deliberately simple; the value is the *workflow at 100+-engineer scale*. Full strategy in
-[`STRATEGY.md`](../STRATEGY.md).
+inaccessible change shipping, then Cursor catching/fixing it across the SDLC. The app is small
+but real (a campaigns console over a shared component/token system, with a detail route and a
+live a11y gate) — scoped to stay legible in the room; the value is the *workflow at
+100+-engineer scale*, not lines of code. Full strategy in [`STRATEGY.md`](../STRATEGY.md).
 
 ## 2. Goals / non-goals
 **Goals**

@@ -31,7 +31,7 @@ function CampaignGrid({ campaigns }: { campaigns: Campaign[] }) {
 
 export function CampaignsView({ campaigns }: { campaigns: Campaign[] }) {
   const [status, setStatus] = useState('all');
-  const [viewMode, setViewMode] = useState<ViewMode>('table');
+  const [viewMode, setViewMode] = useState<ViewMode>('grid');
   const filtered = status === 'all' ? campaigns : campaigns.filter((c) => c.status === status);
   const statusLabel = STATUS_LABELS[status] ?? status;
 

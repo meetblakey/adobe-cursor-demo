@@ -15,22 +15,26 @@ campaign card.
 
 **Apply (on a branch / PR):**
 ```diff
--          <Button variant="ghost" size="sm">
--            Duplicate
--          </Button>
-+          <button className="h-7 rounded-md bg-pink-500 px-2.5 text-[0.8rem] font-medium text-white hover:bg-pink-600">
-+            Duplicate
-+          </button>
+-        <Button variant="ghost" size="sm" className="h-11 w-full sm:h-8 sm:w-auto">
+-          Duplicate
+-        </Button>
++        <button className="h-11 w-full rounded-md bg-pink-500 px-2.5 text-[0.8rem] font-medium text-white hover:bg-pink-600 sm:h-8 sm:w-auto">
++          Duplicate
++        </button>
 ```
+(Same sizing as the real control — only the design-token violation changes: a hardcoded
+`bg-pink-500` literal instead of the `Button` variant, so it bypasses the system and won't theme.)
+
 **What the room sees:** a magenta "Duplicate" button on every card, clashing with the indigo
 brand — and it won't respond to dark mode. "One product engineer's shortcut, multiplied by
-200 teams."
+200 teams." `/campaigns` opens on the **grid** view, so the cards (and the off-brand button)
+are on screen the moment you load the page.
 
 **The exact prompt to type into Cursor (Cmd+K on the file, or chat):**
 > "In `components/campaigns/campaign-card.tsx`, the **Duplicate** action is a raw `<button>`
 > using `bg-pink-500 hover:bg-pink-600`. That bypasses the Pigment design system and won't
-> theme. Replace it with our `<Button variant="ghost" size="sm">` so it inherits the design
-> tokens, per `.cursor/rules/design-system`."
+> theme. Replace it with our `<Button variant="ghost" size="sm" className="h-11 w-full sm:h-8 sm:w-auto">`
+> so it inherits the design tokens, per `.cursor/rules/design-system`."
 
 **What Bugbot should comment on the PR (rehearse that it does):**
 > `components/campaigns/campaign-card.tsx` — hardcoded color `bg-pink-500` bypasses the design

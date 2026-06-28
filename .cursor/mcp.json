@@ -19,9 +19,6 @@
       "url": "https://mcp.vercel.com"
     },
     "sentry": {
-      "url": "https://mcp.sentry.dev/mcp"
-    },
-    "Sentry": {
       "url": "https://mcp.sentry.dev/mcp/adobe-cursor-demo/sentry-cerulean-flask"
     },
     "launchdarkly": {
