@@ -27,6 +27,7 @@ verified reference scaffold is included, but the spec docs are the source of tru
 | [`docs/PLAN.md`](docs/PLAN.md) | the build as a live Jira backlog + Confluence space, driven via the Atlassian MCP |
 | [`docs/DEMO-RUNBOOK.md`](docs/DEMO-RUNBOOK.md) | 101 + 201 run-of-show + "say this, not that" |
 | [`docs/INJURIES.md`](docs/INJURIES.md) | the two **specific** failure→fix scenarios (exact diffs + prompts) |
+| [`docs/DEMO-INJURIES.md`](docs/DEMO-INJURIES.md) | apply / rehearse / reset injuries (`/apply-injury-a`, `/rehearse-injury-b`, `/demo-reset`) |
 | [`docs/CURSOR-SETUP.md`](docs/CURSOR-SETUP.md) | why each Cursor primitive is used as it is — verified rule types, hook events, subagent fields |
 | [`docs/TEAMWORK-SKILLS.md`](docs/TEAMWORK-SKILLS.md) | the installed `twg` Teamwork-Graph skills mapped to the loop (synthesis layer over the MCP) |
 | [`docs/TOOLCHAIN.md`](docs/TOOLCHAIN.md) | one tool per SDLC stage (MCP/CLI/skill) — and what's deliberately excluded |

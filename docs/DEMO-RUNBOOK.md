@@ -19,8 +19,9 @@ every stage of the SDLC — the rules in the editor, Bugbot on the PR, the agent
       `./.github/scripts/disable-preview-sso.sh` so preview URLs are public in the browser; keep
       `./.github/scripts/enable-preview-protection-bypass.sh` for CI when SSO is re-enabled
       post-demo.
-- [ ] Rehearse both **injuries** (`docs/INJURIES.md`) — apply, show the break, fix, reset.
-      Confirm Bugbot actually comments on INJURY A and CI actually goes red on INJURY B.
+- [ ] Rehearse both **injuries** (`docs/INJURIES.md`) — **`/rehearse-injury-a`** and
+      **`/rehearse-injury-b`**; confirm Bugbot on INJURY A and `fix-ci` on INJURY B. Between
+      runs: **`/demo-reset`**. Guide: [`docs/DEMO-INJURIES.md`](DEMO-INJURIES.md).
 - [ ] **Cloud Agent + Sentry Automation** ([`docs/DASHBOARD-SETUP.md`](DASHBOARD-SETUP.md)):
       VM snapshot saved; Sentry Automation enabled (`SentryExampleAPIError` filter); Atlassian +
       Sentry MCP authenticated in dashboard; fallback **video** of trigger → Jira → draft PR.
