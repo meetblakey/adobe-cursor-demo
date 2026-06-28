@@ -28,8 +28,8 @@ on_main() {
 }
 
 baseline_ref() {
-  git -C "$ROOT" rev-parse --verify main >/dev/null 2>&1 && echo "main" && return
   git -C "$ROOT" rev-parse --verify origin/main >/dev/null 2>&1 && echo "origin/main" && return
+  git -C "$ROOT" rev-parse --verify main >/dev/null 2>&1 && echo "main" && return
   die "need main or origin/main to restore baseline"
 }
 
@@ -93,6 +93,7 @@ case "$cmd" in
     echo "→ Tagged HEAD as $INJURY_B_TAG (reset-branch-b can replay INJURY B after fix-ci)."
     ;;
   reset-branch-b)
+    on_main && die "refuse to reset-branch-b on main — checkout demo/injury-b first"
     git -C "$ROOT" rev-parse --verify "$INJURY_B_TAG" >/dev/null 2>&1 \
       || die "missing tag $INJURY_B_TAG — run tag-broken after applying INJURY B on demo/injury-b"
     git -C "$ROOT" reset --hard "$INJURY_B_TAG"
