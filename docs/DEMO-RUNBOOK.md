@@ -14,7 +14,11 @@ across the SDLC.*
 - [ ] `npm install && npm run dev` → `/campaigns` renders; toggle light/dark.
 - [ ] `npm test` green on `main`; push to a **private GitHub repo**; Actions enabled; **Bugbot
       enabled**; `CURSOR_API_KEY` repo secret for the CI agent job; Supabase project + env set
-      (or leave seed data) ; deploy preview on **Vercel**.
+      (or leave seed data); deploy preview on **Vercel**.
+- [ ] **Preview SSO bypass** for LD demo ([`ENVIRONMENTS.md`](ENVIRONMENTS.md)): run
+      `./.github/scripts/disable-preview-sso.sh` so preview URLs are public in the browser; keep
+      `./.github/scripts/enable-preview-protection-bypass.sh` for CI when SSO is re-enabled
+      post-demo.
 - [ ] Rehearse both **injuries** (`docs/INJURIES.md`) — apply, show the break, fix, reset.
       Confirm Bugbot actually comments on INJURY A and CI actually goes red on INJURY B.
 - [ ] **Cloud Agent + Sentry Automation** ([`docs/DASHBOARD-SETUP.md`](DASHBOARD-SETUP.md)):
