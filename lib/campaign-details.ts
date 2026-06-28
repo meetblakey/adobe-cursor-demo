@@ -3,7 +3,6 @@ import { getCampaignNameBySlug } from '@/lib/campaign-slugs';
 import { CAMPAIGN_SEED } from '@/lib/campaigns-seed';
 import { enrichCampaign } from '@/lib/campaigns-query';
 import { getDetailSeedBySlug } from '@/lib/campaign-details-seed';
-import { getCachedCampaignDetail } from '@/lib/campaign-details-cache';
 import { queryCampaignDetailFromSupabase } from '@/lib/campaign-details-query';
 import type { CampaignDetail } from '@/lib/campaigns-types';
 
@@ -29,13 +28,6 @@ function buildDetailFromSeed(slug: string): CampaignDetail | null {
   return { ...base, slug, ...detailSeed };
 }
 
-async function loadCampaignDetailFromSupabase(slug: string): Promise<CampaignDetail | null> {
-  if (process.env.NODE_ENV === 'test') {
-    return queryCampaignDetailFromSupabase(slug);
-  }
-  return getCachedCampaignDetail(slug);
-}
-
 export async function getCampaignDetail(slug: string): Promise<CampaignDetail | null> {
   if (!hasSupabaseEnv()) {
     if (allowsSeedFallback()) return buildDetailFromSeed(slug);
@@ -44,7 +36,7 @@ export async function getCampaignDetail(slug: string): Promise<CampaignDetail | 
   }
 
   try {
-    return await loadCampaignDetailFromSupabase(slug);
+    return await queryCampaignDetailFromSupabase(slug);
   } catch (err) {
     if (allowsSeedFallback()) return buildDetailFromSeed(slug);
     const message = err instanceof Error ? err.message : String(err);

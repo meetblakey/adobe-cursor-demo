@@ -5,6 +5,7 @@ import "./globals.css";
 import { getLaunchDarklyBootstrap } from "@/lib/launchdarkly/edge-bootstrap";
 import { LaunchDarklyProvider } from "@/components/launchdarkly-provider";
 import { ThemeProvider } from "@/components/theme-provider";
+import { SpectrumProvider } from "@/components/spectrum-provider";
 import { AppShell } from "@/components/app-shell";
 import { AppSidebarLayout } from "@/components/app-sidebar-layout";
 import { SiteHeader } from "@/components/site-header";
@@ -41,14 +42,19 @@ export default function RootLayout({
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
       <body className={`${geistSans.className} flex min-h-dvh flex-col`}>
+        {/* Spectrum is the default design system (no flag), client-only. It wraps
+            the whole app — chrome and content — inside ThemeProvider, so every
+            Layer-1 component renders Spectrum under one root Provider. */}
         <ThemeProvider>
-          <AppSidebarLayout>
-            <AppShell header={<SiteHeader />}>
-              <Suspense fallback={<LaunchDarklyProvider>{children}</LaunchDarklyProvider>}>
-                <LaunchDarklyLayout>{children}</LaunchDarklyLayout>
-              </Suspense>
-            </AppShell>
-          </AppSidebarLayout>
+          <SpectrumProvider>
+            <AppSidebarLayout>
+              <AppShell header={<SiteHeader />}>
+                <Suspense fallback={<LaunchDarklyProvider>{children}</LaunchDarklyProvider>}>
+                  <LaunchDarklyLayout>{children}</LaunchDarklyLayout>
+                </Suspense>
+              </AppShell>
+            </AppSidebarLayout>
+          </SpectrumProvider>
         </ThemeProvider>
       </body>
     </html>

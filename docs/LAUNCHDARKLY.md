@@ -121,6 +121,13 @@ function MyComponent() {
 
 See `components/campaigns/first-flag-demo.tsx` on `/campaigns` for a live demo.
 
+### Note — the React Spectrum design system is **not** flag-gated
+
+Layer 1 is Adobe React Spectrum **by default in production**, with no LaunchDarkly flag. The
+migration is the design system now, not a gated experiment, so there is no `spectrum-design-system`
+flag to evaluate. Spectrum renders client-only (`components/spectrum-provider.tsx`); see
+[`PLAN-ADOBE-NATIVE-FRAMING-AND-SPECTRUM.md`](PLAN-ADOBE-NATIVE-FRAMING-AND-SPECTRUM.md).
+
 ## Next Steps
 
 ### Feature Flag Best Practices

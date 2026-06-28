@@ -13,6 +13,13 @@ Page under demo for both: **`/campaigns`** → `app/campaigns/page.tsx`.
 **Where:** `components/campaigns/campaign-card.tsx` — the **`Duplicate` button** on every
 campaign card.
 
+> **Spectrum-world framing (since Layer 1 is React Spectrum).** The design system used to be a
+> convention you could ignore; now it's the component contract. You can't put a Tailwind color
+> on a Spectrum `Button` — so to go off-brand the engineer had to **abandon the system
+> component entirely** and hand-roll a raw `<button>`. The smell is louder, not quieter, and
+> the rule + Bugbot catch it the moment they fight the system. The fix is the same: use the
+> Pigment `<Button variant="ghost">` (which now renders Spectrum when the flag is on).
+
 **Apply (on a branch / PR):**
 ```diff
 -        <Button variant="ghost" size="sm" className="h-11 w-full sm:h-8 sm:w-auto">
@@ -45,7 +52,18 @@ are on screen the moment you load the page.
 
 ## INJURY B — unreadable "In review" badge in dark mode → **`cursor-agent` in CI**
 
-**Where:** `components/ui/status-badge.tsx` — the **`review`** status token, **dark** theme.
+**Where:** `components/ui/status-tokens.ts` — the **`review`** status token, **dark** theme.
+(This is the hand-authored hex map that powers the **legacy** StatusBadge — now the
+pre-hydration SSR fallback, since Spectrum is client-only.)
+
+> **Spectrum-world framing.** This is the *old* failure mode — a human picking a hex that fails
+> contrast — and the a11y gate (`status-badge.test.ts`) still catches it in CI, because the
+> legacy hex map is the SSR fallback. The hydrated UI is Spectrum: `StatusLight` with **semantic**
+> variants (`neutral` / `positive` / `notice`) that Spectrum pre-validates AA in light *and* dark.
+> There is no hand-authored hex in the rendered Spectrum chip to get wrong — the failure mode is
+> **structurally impossible** there, and `components/ui/status-badge.spectrum.test.ts` asserts the
+> mapping stays semantic. The demo is now CI-driven: the regression turns the build red and
+> `cursor-agent` restores the token.
 
 **Apply (on a branch / PR):**
 ```diff
@@ -58,13 +76,13 @@ are on screen the moment you load the page.
 the actual ratio, ~1.7:1, vs the 4.5:1 bar).
 
 **What `cursor-agent` does in the CI job** (headless, from the failing pipeline):
-> reads the vitest failure → identifies `components/ui/status-badge.tsx`, `review.dark.fg` →
+> reads the vitest failure → identifies `components/ui/status-tokens.ts`, `review.dark.fg` →
 > chooses an on-brand amber that clears 4.5:1 on `#3A2A12` (restores `#E0A24E`) → pushes the
 > fix and comments the PR. Bounded by allow/deny rules (deny `Shell(git)`, `Write(.env*)`).
 
 **The exact prompt** (if you drive it in the editor instead of CI):
 > "`components/ui/status-badge.test.ts` is failing: the **StatusBadge 'In review'** chip fails
-> WCAG AA in dark mode — `components/ui/status-badge.tsx`, `review.dark.fg = #6A4A1E` on
+> WCAG AA in dark mode — `components/ui/status-tokens.ts`, `review.dark.fg = #6A4A1E` on
 > `#3A2A12`. Pick a foreground that clears 4.5:1 on that background and keep the chip
 > on-brand amber. Don't touch the test."
 
@@ -87,5 +105,5 @@ Full loop (tag/force-push for INJURY B replay, branch names, verify commands):
 Quick local undo (same as reset script):
 
 ```
-git checkout main -- components/campaigns/campaign-card.tsx components/ui/status-badge.tsx
+git checkout main -- components/campaigns/campaign-card.tsx components/ui/status-tokens.ts
 ```

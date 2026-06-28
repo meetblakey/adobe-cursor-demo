@@ -14,6 +14,12 @@ but real (a campaigns console over a shared component/token system, with a detai
 live a11y gate) — scoped to stay legible in the room; the value is the *workflow at
 100+-engineer scale*, not lines of code. Full strategy in [`STRATEGY.md`](../STRATEGY.md).
 
+**Adobe-native framing.** Pigment stands in for an **Adobe App Builder add-on built on React
+Spectrum**; Layer 1 is now literally `@adobe/react-spectrum` (flag-gated, default OFF), and the
+pitch cites three verified Adobe proof points — React Spectrum, the `@adobe/express-developer-mcp`
+server, and Adobe GPM Ruben Rincon's Cursor write-up. See
+[`PLAN-ADOBE-NATIVE-FRAMING-AND-SPECTRUM.md`](PLAN-ADOBE-NATIVE-FRAMING-AND-SPECTRUM.md).
+
 ## 2. Goals / non-goals
 **Goals**
 - A digestible, visual web app a mixed (exec + engineer) room understands in seconds.
@@ -74,7 +80,7 @@ comment in [`INJURIES.md`](INJURIES.md).
 | # | Surface | The drift | The fix | Caught by |
 |---|---|---|---|---|
 | A | `components/campaigns/campaign-card.tsx`, Duplicate button on `/campaigns` | hardcoded `bg-pink-500` (off-brand, won't theme) | `<Button variant="ghost">` | **Bugbot** on the PR |
-| B | `components/ui/status-badge.tsx`, `review.dark` token | foreground fails WCAG AA in dark mode | restore an on-brand amber ≥4.5:1 | **`cursor-agent`** in CI (test goes red) |
+| B | `components/ui/status-tokens.ts`, `review.dark` token (legacy flag-OFF path) | foreground fails WCAG AA in dark mode | restore an on-brand amber ≥4.5:1 | **`cursor-agent`** in CI (test goes red) |
 
 These are non-negotiable: the demo's credibility depends on the fix calling out a *named
 component, on a named page, in specific language*. The app must be built so both are true.

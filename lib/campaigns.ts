@@ -1,7 +1,6 @@
 import { allowsSeedFallback, hasSupabaseEnv } from '@/lib/supabase/env';
 import { CAMPAIGN_SEED } from '@/lib/campaigns-seed';
 import { enrichCampaign } from '@/lib/campaigns-query';
-import { getCachedCampaigns } from '@/lib/campaigns-cache';
 import { queryCampaignsFromSupabase } from '@/lib/campaigns-query';
 
 export type { Campaign } from '@/lib/campaigns-types';
@@ -21,13 +20,6 @@ const SEED: Campaign[] = CAMPAIGN_SEED.map((row) =>
   }),
 );
 
-async function loadCampaignsFromSupabase(): Promise<Campaign[]> {
-  if (process.env.NODE_ENV === 'test') {
-    return queryCampaignsFromSupabase();
-  }
-  return getCachedCampaigns();
-}
-
 export async function getCampaigns(): Promise<Campaign[]> {
   if (!hasSupabaseEnv()) {
     if (allowsSeedFallback()) return SEED;
@@ -36,7 +28,7 @@ export async function getCampaigns(): Promise<Campaign[]> {
   }
 
   try {
-    return await loadCampaignsFromSupabase();
+    return await queryCampaignsFromSupabase();
   } catch (err) {
     if (allowsSeedFallback()) return SEED;
     const message = err instanceof Error ? err.message : String(err);

@@ -1,22 +1,24 @@
 'use client';
 
+import { StatusLight } from '@adobe/react-spectrum';
 import { useTheme } from '@/components/theme-provider';
+import { useSpectrumDesignSystem } from '@/components/spectrum-provider';
+import {
+  STATUS_TOKENS,
+  SPECTRUM_STATUS,
+  type CampaignStatus,
+} from '@/components/ui/status-tokens';
 
-export type CampaignStatus = 'draft' | 'live' | 'review';
-
-// Semantic status tokens — platform-owned source of truth for the StatusBadge.
-// Each pair must clear WCAG AA in BOTH themes; status-badge.test.ts enforces it.
-export const STATUS_TOKENS: Record<
-  CampaignStatus,
-  { label: string; light: { bg: string; fg: string }; dark: { bg: string; fg: string } }
-> = {
-  draft: { label: 'Draft', light: { bg: '#EDEDEA', fg: '#44443F' }, dark: { bg: '#26262F', fg: '#B9B9B2' } },
-  live: { label: 'Live', light: { bg: '#DCF5E4', fg: '#0F6B33' }, dark: { bg: '#14331F', fg: '#57D98A' } },
-  review: { label: 'In review', light: { bg: '#FFF1D6', fg: '#8A4B00' }, dark: { bg: '#3A2A12', fg: '#E0A24E' } },
-};
+export { STATUS_TOKENS, SPECTRUM_STATUS, type CampaignStatus };
 
 export function StatusBadge({ status }: { status: CampaignStatus }) {
   const { theme } = useTheme();
+  const spectrum = useSpectrumDesignSystem();
+
+  if (spectrum) {
+    return <StatusLight variant={SPECTRUM_STATUS[status]}>{STATUS_TOKENS[status].label}</StatusLight>;
+  }
+
   const token = STATUS_TOKENS[status][theme];
   return (
     <span

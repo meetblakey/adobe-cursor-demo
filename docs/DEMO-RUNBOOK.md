@@ -45,6 +45,11 @@ every stage of the SDLC — the rules in the editor, Bugbot on the PR, the agent
 1. **Why-now frame** (slide, no tool) — velocity = moat + margin defense. Invite their pressure.
 2. **Throughput, live on Pigment** — open `/campaigns`. Ask the codebase "how does theming
    work here?", then have Agent add/fix a component; **see it render**. Output-per-engineer.
+   *Frame it Adobe-native:* Pigment stands in for an **App Builder add-on on React Spectrum** —
+   and Layer 1 is now literally `@adobe/react-spectrum` behind the stable Pigment API (the default
+   design system, rendered client-only). Drop a proof point: Adobe ships an official
+   `@adobe/express-developer-mcp` server that feeds Adobe SDK docs into Cursor — "you already
+   built the Adobe-specific version of the grounding you just watched."
 3. **Consistency at scale = the hidden tax** — apply **INJURY A** (magenta Duplicate button).
    "One shortcut × 200 teams." Show the rules/tokens that prevent it.
 4. **Legacy = the velocity tax** (slide + narrative, NO live compile) — whole-repo context +
@@ -81,7 +86,7 @@ every stage of the SDLC — the rules in the editor, Bugbot on the PR, the agent
    before push; LIVE on PR: open a PR with **INJURY A** on `components/campaigns/campaign-card.tsx`.
    Bugbot comments, cites `.cursor/BUGBOT.md` / design-system rules, BEFORE the human + CI gate.
 4. **`cursor-agent` headless in CI — fix the red build** — LIVE: open a PR with **INJURY B** on
-   `components/ui/status-badge.tsx` (the "In review" chip). `npm test`/CI goes red; the
+   `components/ui/status-tokens.ts` (the "In review" chip). `npm test`/CI goes red; the
    `cursor-agent` job reads the failing test, restores a passing token, comments the PR —
    fenced by `guard-shell.sh` (denies git + .env writes in CI, fail-open); the hard stop is the
    required `check` ruleset + the workflow's own commit step. Green-build time + MTTR.
@@ -105,8 +110,9 @@ every stage of the SDLC — the rules in the editor, Bugbot on the PR, the agent
 ## The two specific fixes (see `docs/INJURIES.md` for exact diffs + prompts)
 - **A — Bugbot:** `components/campaigns/campaign-card.tsx`, Duplicate button → `bg-pink-500`
   hardcoded → fix to `<Button variant="ghost">`. *(visible: magenta button on `/campaigns`)*
-- **B — `cursor-agent` in CI:** `components/ui/status-badge.tsx`, `review.dark.fg` →
-  contrast fail → fix the token to clear AA. *(visible: unreadable "In review" chip in dark mode)*
+- **B — `cursor-agent` in CI:** `components/ui/status-tokens.ts`, `review.dark.fg` →
+  contrast fail → fix the token to clear AA *(legacy flag-OFF path; Spectrum semantic variants
+  make it structurally impossible)*. *(visible: unreadable "In review" chip in dark mode)*
 
 ---
 

@@ -13,7 +13,9 @@ set -euo pipefail
 ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
 PATCH_DIR="$ROOT/.demo"
 CARD="$ROOT/components/campaigns/campaign-card.tsx"
-BADGE="$ROOT/components/ui/status-badge.tsx"
+# INJURY B lives in the Spectrum-free token data module (status-tokens.ts), not
+# the StatusBadge component — the a11y gate imports the tokens directly.
+TOKENS="$ROOT/components/ui/status-tokens.ts"
 INJURY_B_TAG="demo/injury-b-broken"
 
 die() {
@@ -57,18 +59,18 @@ case "$cmd" in
     ;;
   reset)
     ref="$(baseline_ref)"
-    git -C "$ROOT" checkout "$ref" -- "$CARD" "$BADGE"
+    git -C "$ROOT" checkout "$ref" -- "$CARD" "$TOKENS"
     echo "→ Restored injury files from $ref baseline."
     ;;
   verify)
     ref="$(baseline_ref)"
     case "$sub" in
       baseline)
-        if git -C "$ROOT" diff --quiet "$ref" -- "$CARD" "$BADGE"; then
+        if git -C "$ROOT" diff --quiet "$ref" -- "$CARD" "$TOKENS"; then
           echo "OK: injury files match $ref baseline."
         else
           echo "DIFF: injury files differ from $ref baseline." >&2
-          git -C "$ROOT" diff "$ref" -- "$CARD" "$BADGE" >&2 || true
+          git -C "$ROOT" diff "$ref" -- "$CARD" "$TOKENS" >&2 || true
           exit 1
         fi
         ;;

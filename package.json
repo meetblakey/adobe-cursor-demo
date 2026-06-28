@@ -11,6 +11,7 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
+    "@adobe/react-spectrum": "^3.47.2",
     "@base-ui/react": "^1.6.0",
     "@launchdarkly/node-server-sdk": "^9.11.3",
     "@sentry/nextjs": "^10.61.0",

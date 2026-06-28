@@ -7,8 +7,11 @@ violated.
 
 ## Flag
 - **Tokens, never literals** — a hardcoded Tailwind color (`bg-pink-500`) or raw hex outside the
-  token sources (`components/ui/status-badge.tsx`, `app/globals.css`). This is design-system
+  token sources (`components/ui/status-tokens.ts`, `app/globals.css`). This is design-system
   drift, the most important class to catch (it's INJURY A).
+- **Fighting the Spectrum component** — a raw `<button>`/`<span>` replacing a system component, or
+  Spectrum `UNSAFE_style` / `UNSAFE_className` used to force a one-off color onto a Spectrum
+  control. Same drift class as a literal color, in the Spectrum-era shape — flag it.
 - **WCAG AA** — any new/changed text-on-background pair below 4.5:1 (reason with `lib/contrast.ts`).
   Report the pair + ratio.
 - **Reuse before authoring** — a one-off element duplicating a `@/components/ui` component.
