@@ -67,7 +67,7 @@ export const CAMPAIGN_SEED: SeedCampaign[] = [
     id: 'c6',
     name: 'Enterprise Onboarding',
     owner: 'Experience Cloud',
-    status: 'draft',
+    status: 'archived',
     updatedAt: '2026-06-19',
     campaignType: 'Lead generation',
     summary: 'Experience Cloud admin onboarding for new enterprise tenants.',
