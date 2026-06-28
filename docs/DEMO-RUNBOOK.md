@@ -100,15 +100,20 @@ gate `components/ui/status-badge.test.ts`. **No edits — this is comprehension 
 
 **3 — Plan (the agent proposes, you approve).** Switch to Plan mode and paste:
 > Plan adding an `archived` status to the StatusBadge, following the existing pattern: a token in
-> `components/ui/status-tokens.ts` that passes the WCAG contrast test, a Spectrum semantic
-> `StatusLight` variant in `SPECTRUM_STATUS`, the `STATUS_LABELS` + status-filter entry, and let the
-> existing contrast test cover it. Don't write code yet — just the plan.
+> `components/ui/status-tokens.ts` that passes the WCAG contrast test, plus a Spectrum semantic
+> `StatusLight` variant in `SPECTRUM_STATUS`. The status filter and labels derive from
+> `STATUS_TOKENS`, so they update automatically; the existing contrast test covers the new status.
+> Don't write code yet — just the plan.
 
-Expect steps touching `status-tokens.ts` (extend `CampaignStatus`, add the `archived` light/dark
-token + `SPECTRUM_STATUS.archived`), `campaigns-view.tsx` (`STATUS_LABELS`), and a note that
-`status-badge.test.ts` auto-covers the new status. **Read it and stop** — the point is *"it plans
-before it touches anything."* (This is the real **PIG-11 / PIG-204** ticket — run it end-to-end in
-the 201 if you want the full Plan → Code → Review → CI loop.)
+Expect a **single-file** plan: only `components/ui/status-tokens.ts` (extend `CampaignStatus`, add
+the `archived` light/dark token + `SPECTRUM_STATUS.archived`). TypeScript *forces* both
+`Record<CampaignStatus, …>` maps, and the status filter + labels **derive** from `STATUS_TOKENS`, so
+they propagate with nothing to forget; `status-badge.test.ts` auto-covers the new status. **Read it
+and stop** — the point is *"it plans before it touches anything,"* and the nice tell is *one* file
+fans out to the whole surface. *(Known-AA values if you want to pre-stage: light `#E7E9EC`/`#3A4250`,
+dark `#2B313B`/`#A9B2C0`, Spectrum `neutral`. No seed campaign is `archived`, so the filter shows the
+empty state unless you flip one in `lib/campaigns-seed.ts`.)* This is the real **PIG-11 / PIG-204**
+ticket — run it end-to-end in the 201 for the full Plan → Code → Review → CI loop.
 
 **4 — the injury (you type it).** In `components/campaigns/campaign-card.tsx`, replace:
 ```tsx
