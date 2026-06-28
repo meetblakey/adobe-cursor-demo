@@ -11,8 +11,18 @@ class SentryExampleFrontendError extends Error {
   }
 }
 
+function isDemoTriggerFromUrl() {
+  return new URLSearchParams(window.location.search).get("demo") === "1";
+}
+
+/** Demo-only intentional throw; production requires ?demo=1 on the page URL */
+function allowSentryExampleDemo() {
+  return isDemoTriggerFromUrl() || process.env.NODE_ENV !== "production";
+}
+
 export default function Page() {
   const [hasSentError, setHasSentError] = useState(false);
+  const [demoBlocked, setDemoBlocked] = useState(false);
   const [isConnected, setIsConnected] = useState(true);
 
   useEffect(() => {
@@ -71,6 +81,12 @@ export default function Page() {
         <button
           type="button"
           onClick={async () => {
+            if (!allowSentryExampleDemo()) {
+              setDemoBlocked(true);
+              return;
+            }
+
+            setDemoBlocked(false);
             Sentry.logger.info("User clicked the button, throwing a sample error");
             await Sentry.startSpan(
               {
@@ -93,7 +109,14 @@ export default function Page() {
           <span>Throw Sample Error</span>
         </button>
 
-        {hasSentError ? (
+        {demoBlocked ? (
+          <div className="connectivity-error">
+            <p>
+              Sentry example disabled in production. Add{" "}
+              <code>?demo=1</code> to the URL for demo trigger.
+            </p>
+          </div>
+        ) : hasSentError ? (
           <p className="success">Error sent to Sentry.</p>
         ) : !isConnected ? (
           <div className="connectivity-error">
