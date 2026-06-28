@@ -11,9 +11,20 @@ class SentryExampleFrontendError extends Error {
   }
 }
 
+function isDemoTriggerFromLocation(): boolean {
+  if (typeof window === "undefined") return false;
+  return new URLSearchParams(window.location.search).get("demo") === "1";
+}
+
+/** Demo-only intentional throw; production requires ?demo=1 (mirrors example API route). */
+function allowDemoThrow(isDemoTrigger: boolean): boolean {
+  return isDemoTrigger || process.env.NODE_ENV !== "production";
+}
+
 export default function Page() {
   const [hasSentError, setHasSentError] = useState(false);
   const [isConnected, setIsConnected] = useState(true);
+  const [demoBlocked, setDemoBlocked] = useState(false);
 
   useEffect(() => {
     Sentry.logger.info("Sentry example page loaded");
@@ -49,7 +60,7 @@ export default function Page() {
         <h1>sentry-example-page</h1>
 
         <p className="description">
-          Click the button below, and view the sample error on the Sentry{" "}
+          Click the button below to send a sample error to the Sentry{" "}
           <a
             target="_blank"
             rel="noopener"
@@ -57,7 +68,8 @@ export default function Page() {
           >
             Issues Page
           </a>
-          . For more details about setting up Sentry,{" "}
+          . In production, append <code>?demo=1</code> to this URL for the live
+          demo trigger. For more details about setting up Sentry,{" "}
           <a
             target="_blank"
             rel="noopener"
@@ -71,14 +83,25 @@ export default function Page() {
         <button
           type="button"
           onClick={async () => {
+            const isDemoTrigger = isDemoTriggerFromLocation();
+            if (!allowDemoThrow(isDemoTrigger)) {
+              setDemoBlocked(true);
+              setHasSentError(false);
+              return;
+            }
+
+            setDemoBlocked(false);
             Sentry.logger.info("User clicked the button, throwing a sample error");
+            const apiPath = isDemoTrigger
+              ? "/api/sentry-example-api?demo=1"
+              : "/api/sentry-example-api";
             await Sentry.startSpan(
               {
                 name: "Example Frontend/Backend Span",
                 op: "test",
               },
               async () => {
-                const res = await fetch("/api/sentry-example-api?demo=1");
+                const res = await fetch(apiPath);
                 if (!res.ok) {
                   setHasSentError(true);
                 }
@@ -95,6 +118,13 @@ export default function Page() {
 
         {hasSentError ? (
           <p className="success">Error sent to Sentry.</p>
+        ) : demoBlocked ? (
+          <div className="connectivity-error">
+            <p>
+              Sentry example disabled in production. Append{" "}
+              <code>?demo=1</code> to this page URL to trigger the demo error.
+            </p>
+          </div>
         ) : !isConnected ? (
           <div className="connectivity-error">
             <p>
