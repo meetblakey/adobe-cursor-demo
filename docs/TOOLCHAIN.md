@@ -9,13 +9,15 @@ configure.
 | Stage | Primary tool | Skill(s) — reach for when needed | Status |
 |---|---|---|---|
 | **Plan / Docs** | Atlassian MCP | `twg-jira`, `twg-confluence`, `twg-context-discovery` | MCP: configure · twg: installed |
-| **Code** | Cursor primitives + Supabase MCP + **LaunchDarkly SDK** | `launchdarkly-flag-create`, `impeccable`, `add-migration` | installed · MCP: configure |
+| **Code** | Cursor editor + Supabase MCP + **LaunchDarkly SDK** | `launchdarkly-flag-create`, `impeccable`, `add-migration` | installed · MCP: configure |
+| **Code (parallel)** | **Cloud Agents** + **`/cloud-ticket`** | — | [`CLOUD-AGENTS.md`](CLOUD-AGENTS.md) · dashboard snapshot |
 | **Review** | `gh` CLI + **`/review-bugbot`** + Bugbot on PR | `review-bugbot`, `review-security`, `twg-engineering-work` | gh installed · Bugbot: configure |
 | **CI** | GitHub Actions + `cursor-agent` + hooks | — | configure |
 | **Deploy** | `vercel` CLI + Vercel MCP | `vercel:deploy`, `vercel:nextjs` | vercel CLI installed · auto prod on merge |
 | **Release** | **LaunchDarkly MCP** + **`/release-flag`** | `launchdarkly-flag-targeting`, `launchdarkly-flag-discovery` | MCP: OAuth configure |
 | **Cleanup** | LaunchDarkly MCP | `launchdarkly-flag-cleanup` | skill installed |
-| **Observe** | Sentry MCP / Seer + **LD kill switch** | `twg-operational-health` | MCP: configure |
+| **Observe** | Sentry MCP / Seer + **LD kill switch** | `twg-operational-health`, `sentry-fix-issues` | MCP: configure |
+| **Observe → fix** | **Cursor Automations** + **`/sentry-incident`** | — | [`SENTRY-AUTOMATION.md`](SENTRY-AUTOMATION.md) · dashboard |
 | **Report** | — | `twg-status-rollups` | installed |
 
 `.cursor/mcp.json` declares: **supabase**, **atlassian**, **vercel**, **sentry**, **launchdarkly**.

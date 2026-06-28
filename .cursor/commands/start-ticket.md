@@ -3,6 +3,9 @@
 Begin work on a Jira story the right way. Argument: a story key (e.g. `PIG-3`); if none given,
 pick the top To Do story in epic PIG with `searchJiraIssuesUsingJql`.
 
+Use **`/cloud-ticket`** for UI-heavy, well-scoped stories when you want parallel Cloud Agent
+authoring + browser self-verify (see [`docs/CLOUD-AGENTS.md`](../../docs/CLOUD-AGENTS.md)).
+
 0. **Branch + sync with main.** Stay current with team `main` before you build:
    - **New branch** (does not exist locally): fetch latest main, branch from it:
      `git fetch origin main && git checkout main && git pull --ff-only origin main && git checkout -b PIG-N`

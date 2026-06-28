@@ -14,16 +14,17 @@ platform team's rules/gates make it safe at 100+-engineer scale.*
 ```
         ┌────────────────────────────────────────────────────────────────────────┐
         ▼                                                                        │
-1.PLAN  2.CODE    2b.IDE REV  3.REVIEW  4.CI   5.DEPLOY  5b.RELEASE  5c.CLEANUP │ 6.OBSERVE
- Jira→  Cursor→  /review-   PR+      GH     Vercel   LaunchDarkly  flag        Sentry
- ticket  (flag)   bugbot     Bugbot   Actions preview  rollout    removal      (kill switch)
-        └──────────────  Sentry → Jira files the next ticket  ──────────────────┘
+1.PLAN  2.CODE    2alt.CLOUD 2b.IDE REV  3.REVIEW  4.CI   5.DEPLOY  5b.RELEASE │ 6.OBSERVE
+ Jira→  Cursor→  /cloud-   /review-   PR+      GH     Vercel   LaunchDarkly    Sentry
+ ticket  (flag)   ticket    bugbot     Bugbot   Actions preview  rollout         Automation
+        └────  Sentry issueCreated → Jira + draft PR (human merge)  ─────────────┘
 ```
 
 | # | Stage | Tool (demo) | Tool (Adobe, talk-track) | Where Cursor inserts |
 |---|---|---|---|---|
 | 1 | Plan | **Jira + Confluence** | Jira + Confluence | Atlassian **MCP** pulls the ticket + acceptance criteria; create/link LD flag key in AC for feature work |
 | 2 | Code | Cursor editor + **LaunchDarkly SDK** | Cursor editor | Wrap new features behind flags (default **OFF** in LD production); `launchdarkly-flag-create` skill |
+| **2alt** | **Code (parallel)** | **Cloud Agent** + **`/cloud-ticket`** | Cloud Agents | VM self-verify (screenshots on `/campaigns`); see [`CLOUD-AGENTS.md`](CLOUD-AGENTS.md) |
 | 2b | IDE review | **`/review-bugbot`** (+ **`/review-security`**) | — | Pre-push review — see [`open-pr`](.cursor/commands/open-pr.md) |
 | 3 | Review | GitHub PR | GitHub/Bitbucket PR | **Bugbot** + Security + Approval; validate flag wiring on preview |
 | 4 | CI | **GitHub Actions** | Jenkins → Spinnaker | **`cursor-agent`** fixes red pipeline (INJURY B); runs without LD/Supabase secrets |
@@ -31,6 +32,7 @@ platform team's rules/gates make it safe at 100+-engineer scale.*
 | **5b** | **Release** | **LaunchDarkly MCP** + **`/release-flag`** | LD / similar | Human toggles prod rollout after preview validation in LD **test** env |
 | **5c** | **Cleanup** | **`launchdarkly-flag-cleanup`** | — | Remove flag code after 100% rollout |
 | 6 | Observe | **Sentry** + **LD kill switch** | Datadog + Sentry | Instant rollback via flag OFF; Seer/MCP → fix → new Jira ticket |
+| **6→2** | **Observe → fix** | **Cursor Automation** + **`/sentry-incident`** | Sentry → agent | `issueCreated` → new Jira story + draft PR; human merge — [`SENTRY-AUTOMATION.md`](SENTRY-AUTOMATION.md) |
 | →1 | Close loop | **Sentry → Jira** | Sentry/Datadog → Jira | incident files the next ticket |
 
 The full *tool per stage* is in [`TOOLCHAIN.md`](TOOLCHAIN.md). `.cursor/mcp.json` declares:
@@ -47,6 +49,8 @@ rollout** — not Vercel promote.
 
 ```
 /start-ticket → build (behind flag) → /open-pr → merge → /release-flag → /ship-ticket
+/cloud-ticket → Cloud Agent PR → /open-pr → merge → /release-flag → /ship-ticket
+/sentry-incident (or Sentry Automation) → draft PR → human merge → /ship-ticket
                                                       ↘ launchdarkly-flag-cleanup (after rollout)
 ```
 
@@ -65,7 +69,7 @@ rollout** — not Vercel promote.
 - **INJURY A** (off-brand button) — stage 2b or 3 (Bugbot).
 - **INJURY B** (a11y contrast) — stage 4 (CI + `cursor-agent`).
 - **Flag demo** (`my-first-flag` on `/campaigns`) — stage 5b: ON in LD test on preview, OFF in production until `/release-flag`.
-- **Sentry beat** — stage 6; kill switch via LD flag OFF.
+- **Sentry beat** — stage 6→2; Sentry Automation or **`/sentry-incident`**; kill switch via LD flag OFF.
 
 ## Honesty / accuracy notes
 

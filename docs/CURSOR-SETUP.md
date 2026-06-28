@@ -11,7 +11,7 @@ demo's three beats (plan-first build, the two injuries, 100+-dev governance).
 | **Skills** `.cursor/skills/<name>/SKILL.md` | impeccable · add-migration · review-bugbot · review-security | on-demand procedures the agent auto-reaches by description; run in the CLI too | always-on constraints (→ rule); hard enforcement (→ hook) |
 | **Subagents** (built-in) | bugbot · security-review · explore · bash · browser | Cursor-managed review + context isolation | reinventing built-ins; custom duplicate reviewers |
 | **Hooks** `.cursor/hooks.json` | afterFileEdit · beforeShellExecution · preToolUse | deterministic, fail-loud gates that fire even in CI/cloud agents | advisory guidance (→ rule); user macros (→ command) |
-| **Commands** `.cursor/commands/*.md` | bootstrap/start/sync-main/open-pr/**release-flag**/ship-ticket · new-component · a11y-audit · fix-ci | human-triggered job macros | things the agent should auto-reach (→ skill) |
+| **Commands** `.cursor/commands/*.md` | bootstrap/start/**cloud-ticket**/sync-main/open-pr/**release-flag**/ship-ticket/**sentry-incident** · new-component · a11y-audit · fix-ci | human-triggered job macros | things the agent should auto-reach (→ skill) |
 
 ## Rules — correct apply modes (set by frontmatter, nothing else)
 - **`project.mdc`** — `alwaysApply: true` (Always). The project constitution: stack, RSC

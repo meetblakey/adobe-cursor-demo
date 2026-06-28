@@ -6,8 +6,10 @@ cursor.com/docs — names and gating move fast, so **re-verify day-of** (you're 
 team that ships these).
 
 **Live-demo vs configure-and-narrate (depth over breadth):**
-- **LIVE:** Bugbot on the PR (catches INJURY A) + the headless `cursor-agent` fixing CI (INJURY B).
-- **Configure-and-narrate:** Cloud Agents (parallel/async), Security Agents, Approval Agents.
+- **LIVE (must-work):** Bugbot on the PR (catches INJURY A) + the headless `cursor-agent` fixing CI (INJURY B).
+- **LIVE (optional — pre-staged + fallback recording):** Cloud Agents via **`/cloud-ticket`**; Sentry
+  Automation via **`/sentry-incident`** replay or dashboard trigger (see [`SENTRY-AUTOMATION.md`](SENTRY-AUTOMATION.md)).
+- **Configure-and-narrate:** Security Agents, Approval Agents at org scale.
 
 **Plan reality — you're on the Individual plan.** What you can actually *run*: **Bugbot** (PR
 reviews + `.cursor/BUGBOT.md` rules + effort level), **Cloud Agents / `cursor-agent` CLI**, the
@@ -22,17 +24,22 @@ honest and on-message: *"here's what I run solo; here's what Adobe gets at org s
 Agents that run in Cursor's cloud VM on their own branch: write → test → **self-verify in the VM**
 (it has a desktop, so it can run the dev server, drive a browser, attach screenshots/logs) → open
 a merge-ready PR. The **same** agent runs headless as the **`cursor-agent`** CLI in CI.
-- **Configure:** `.cursor/environment.json` (now on disk) — `install` + a `dev` terminal so the
-  agent boots the app and self-verifies; save a snapshot for fast boot (*the top lever on
-  cloud-agent quality*). Dashboard `cursor.com/agents`: connect the repo, scope **secrets** to the
-  environment, add **HTTP** MCP servers (proxied server-side, creds never enter the VM; stdio runs
-  in-VM). Launch from the IDE "Cloud" dropdown, the dashboard, Slack/GitHub/Linear `@cursor`, or
-  `POST /v1/agents` (`api.cursor.com`).
-- **CI:** invoke `cursor-agent -p "…"` (not the bare `agent` alias) with a **team service-account**
-  API key (`CURSOR_API_KEY`), not a personal one — so PRs and usage are governed and attributable.
-  On Teams, a cloud agent auto-fixes its own GitHub Actions failures (guardrailed).
-- **Loop:** stage 2→3 (author → PR) and stage 4 (CI self-heal). Automations (cron / Sentry /
-  PagerDuty triggers) spin up cloud agents — e.g. a Sentry error files the next fix PR.
+
+**Repo:** [`/cloud-ticket`](.cursor/commands/cloud-ticket.md) · [`.cursor/prompts/cloud-agent-self-verify.md`](.cursor/prompts/cloud-agent-self-verify.md) · [`docs/CLOUD-AGENTS.md`](CLOUD-AGENTS.md)
+
+- **Configure:** `.cursor/environment.json` — `install`, `dev` terminal (`npm run dev`), `verify`
+  terminal (`typecheck` + `test` + `build`). Save a **VM snapshot** after first successful boot
+  (*the top lever on cloud-agent quality*).
+- **Dashboard checklist** ([cursor.com/agents](https://cursor.com/agents)):
+  1. Connect the GitHub repo.
+  2. Save VM snapshot (post-`npm install` + dev server up).
+  3. Scope secrets: **no** Supabase/LD production keys (seed + LD defaults, same as CI).
+  4. Wire **HTTP MCP** (proxied): **atlassian**, **sentry**, **vercel** as needed — stdio
+     [`.cursor/mcp.json`](.cursor/mcp.json) is editor-only.
+  5. Launch from IDE Cloud dropdown, dashboard, or Automations trigger.
+- **CI:** invoke `cursor-agent -p "…"` with **`CURSOR_API_KEY`** (service account on Teams).
+- **Loop:** stage 2→3 (author → PR) and stage 4 (CI self-heal). **Sentry Automation** (stage 6→2)
+  also runs on Cloud Agents — see [`SENTRY-AUTOMATION.md`](SENTRY-AUTOMATION.md).
 
 ## 2. Bugbot — AI PR review *(LIVE for the demo — but kept OFF during the build; see the cost note)*
 On the **Individual plan** the *only* rules layer is the in-repo **`.cursor/BUGBOT.md`** (plain
@@ -116,7 +123,8 @@ Separate from Bugbot. Two Cursor-managed agents on the Automations platform (run
 ## How they compose (concentric, around the PR)
 1. **Before code:** Run Mode + `permissions.json` + `beforeShellExecution` fence what *any* agent
    (local, cloud, or headless CI) may execute.
-2. **Author:** Agent/Cloud Agent writes on a feature branch; local gates (`npm test`, etc.).
+2. **Author:** Agent/Cloud Agent writes on a feature branch (`/start-ticket` editor or
+   `/cloud-ticket` VM); local gates (`npm test`, etc.).
 3. **IDE review (pre-push):** **`/review-bugbot`** on `branch changes` vs `main` (patch ID syncs
    with PR Bugbot); **`/review-security`** when touching platform/auth/supabase paths. See
    **`/open-pr`** command.

@@ -78,7 +78,7 @@ export default function Page() {
                 op: "test",
               },
               async () => {
-                const res = await fetch("/api/sentry-example-api");
+                const res = await fetch("/api/sentry-example-api?demo=1");
                 if (!res.ok) {
                   setHasSentError(true);
                 }
