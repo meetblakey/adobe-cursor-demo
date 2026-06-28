@@ -103,6 +103,18 @@ Build and **own** a small, visual demo repo — **`Pigment`**, a design system c
 (you'd be a tourist with no control over the SDLC story) and do NOT build a complex repo (the
 point is *pain↔solution made visible*, not code complexity).
 
+**Adobe-native framing (the Floor).** Present Pigment as a deliberate **stand-in for an Adobe
+App Builder add-on built on React Spectrum** — same shape as an internal Adobe surface, scaled
+down so we run the whole governed pipeline live. Back it with three *verified* proof points (re-
+verify day-of): Adobe's official **`@adobe/react-spectrum`** design system; the **`@adobe/express-developer-mcp`**
+server that feeds Adobe SDK docs into Cursor; and Adobe GPM **Ruben Rincon's** Oct-2025 write-up
+on building an Express add-on in Cursor. Keep the "imagine / stands in for" guardrail — Pigment's
+runtime is Next.js + Vercel, *not* App Builder. **The Upgrade (Part B) makes this literal where it
+counts:** Layer 1 *is* now `@adobe/react-spectrum` behind the stable Pigment API, flag-gated
+(`spectrum-design-system`, default OFF) so the owned Vercel/CI/Bugbot/LaunchDarkly pipeline is
+unchanged — we kept SDLC control *and* stopped being a tourist on the design system itself. See
+[`docs/PLAN-ADOBE-NATIVE-FRAMING-AND-SPECTRUM.md`](docs/PLAN-ADOBE-NATIVE-FRAMING-AND-SPECTRUM.md).
+
 Why this wins all four constraints:
 - **Visual & understood** — UI renders; a magenta button in an indigo system, or unreadable
   dark-mode text, reads in one second to execs and engineers alike.

@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { STATUS_TOKENS, type CampaignStatus } from '@/components/ui/status-badge';
+import { STATUS_TOKENS, type CampaignStatus } from '@/components/ui/status-tokens';
 import { contrastRatio } from '@/lib/contrast';
 
 // The a11y contract every product surface inherits. If a status token regresses below

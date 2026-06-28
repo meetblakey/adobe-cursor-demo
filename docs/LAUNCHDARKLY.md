@@ -88,6 +88,7 @@ Production flags sync automatically via the LaunchDarkly → Vercel integration 
 |------|-------|
 | Feature flags dashboard | https://app.launchdarkly.com/projects/default/flags |
 | First onboarding flag | https://app.launchdarkly.com/projects/default/flags/my-first-flag |
+| Spectrum design-system flag | https://app.launchdarkly.com/projects/default/flags/spectrum-design-system |
 | Test environment keys | https://app.launchdarkly.com/projects/default/settings/environments/test/keys |
 | Production environment keys | https://app.launchdarkly.com/projects/default/settings/environments/production/keys |
 | LaunchDarkly docs | https://launchdarkly.com/docs |
@@ -120,6 +121,18 @@ function MyComponent() {
 ```
 
 See `components/campaigns/first-flag-demo.tsx` on `/campaigns` for a live demo.
+
+### `spectrum-design-system` — the design-system re-platform flag
+
+The Adobe React Spectrum migration of Layer 1 ships **dark** behind `spectrum-design-system`
+(client read; camelCase `spectrumDesignSystem`). OFF (prod default) renders the legacy
+shadcn/Base UI components; ON renders `@adobe/react-spectrum`. The flag is read in one place —
+`useSpectrumDesignSystem()` in `components/spectrum-provider.tsx` — which both mounts the root
+Spectrum `<Provider>` and lets each hot-path component (`Button`, `Badge`, `StatusBadge`) pick
+its implementation. With no SDK key the flag is `false`, so the app stays on the legacy system.
+
+To create it: boolean flag, temporary, **production serving `false`**, **test serving `true`**
+for preview verification; roll out to prod later via **`/release-flag`**.
 
 ## Next Steps
 

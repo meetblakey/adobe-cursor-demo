@@ -26,8 +26,10 @@ breaking `main` or production. Full scenario copy + prompts: [`INJURIES.md`](INJ
 
 Unified diffs against the **clean baseline** on `main`:
 
-- **A** — `campaign-card.tsx`: `Button` → raw `<button className="bg-pink-500 …">`
-- **B** — `status-badge.tsx`: `review.dark.fg` `#E0A24E` → `#6A4A1E` (fails WCAG test)
+- **A** — `campaign-card.tsx`: `Button` → raw `<button className="bg-pink-500 …">` (abandons the
+  Spectrum component — see [`INJURIES.md`](INJURIES.md))
+- **B** — `status-tokens.ts`: `review.dark.fg` `#E0A24E` → `#6A4A1E` (fails WCAG test on the
+  legacy flag-OFF path; Spectrum semantic variants make it structurally impossible)
 
 Apply with `git apply` (via script or agent). Reverse-check with
 `demo-injury.sh verify a|b`.
@@ -77,7 +79,7 @@ Or delete `demo/injury-b` and run **`/rehearse-injury-b`** fresh from `main`.
 ```bash
 ./.github/scripts/demo-injury.sh reset
 # or
-git checkout main -- components/campaigns/campaign-card.tsx components/ui/status-badge.tsx
+git checkout main -- components/campaigns/campaign-card.tsx components/ui/status-tokens.ts
 ```
 
 Restores both files from `main` (or `origin/main`). Does **not** close PRs or delete branches —

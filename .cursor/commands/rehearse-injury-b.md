@@ -20,7 +20,7 @@ Reference: [`docs/INJURIES.md`](../../docs/INJURIES.md) · [`docs/DEMO-INJURIES.
 
 4. **Commit & push** (when user confirms):
    ```bash
-   git add components/ui/status-badge.tsx
+   git add components/ui/status-tokens.ts
    git commit -m "demo: INJURY B — review badge contrast fail (CI rehearsal)"
    git push -u origin demo/injury-b
    ./.github/scripts/demo-injury.sh tag-broken

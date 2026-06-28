@@ -5,6 +5,7 @@ import "./globals.css";
 import { getLaunchDarklyBootstrap } from "@/lib/launchdarkly/edge-bootstrap";
 import { LaunchDarklyProvider } from "@/components/launchdarkly-provider";
 import { ThemeProvider } from "@/components/theme-provider";
+import { SpectrumProvider } from "@/components/spectrum-provider";
 import { AppShell } from "@/components/app-shell";
 import { AppSidebarLayout } from "@/components/app-sidebar-layout";
 import { SiteHeader } from "@/components/site-header";
@@ -35,6 +36,11 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  // SpectrumProvider sits inside LaunchDarklyProvider (it reads the
+  // `spectrum-design-system` flag) and inside ThemeProvider (it reads
+  // light/dark). When the flag is OFF it is a pass-through, so this wrapping is
+  // a no-op in production.
+  const content = <SpectrumProvider>{children}</SpectrumProvider>;
   return (
     <html
       lang="en"
@@ -44,8 +50,8 @@ export default function RootLayout({
         <ThemeProvider>
           <AppSidebarLayout>
             <AppShell header={<SiteHeader />}>
-              <Suspense fallback={<LaunchDarklyProvider>{children}</LaunchDarklyProvider>}>
-                <LaunchDarklyLayout>{children}</LaunchDarklyLayout>
+              <Suspense fallback={<LaunchDarklyProvider>{content}</LaunchDarklyProvider>}>
+                <LaunchDarklyLayout>{content}</LaunchDarklyLayout>
               </Suspense>
             </AppShell>
           </AppSidebarLayout>

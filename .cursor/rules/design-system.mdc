@@ -10,13 +10,21 @@ One platform team writes these once; every agent edit across 200+ product surfac
 them. The linter can't express "on-brand"; the rule can. Bugbot reviews against it on every PR.
 
 ## Tokens & system components, never literals
-- Use the shadcn/Pigment components (`@/components/ui/*`) and the theme tokens
-  (`bg-primary`, `text-muted-foreground`, the `Button` `variant` prop, `StatusBadge`).
+- Use the Pigment components (`@/components/ui/*`) and the theme tokens
+  (`bg-primary`, `text-muted-foreground`, the `Button` `variant` prop, `StatusBadge`). Layer 1
+  is **Adobe React Spectrum** behind the stable Pigment API — gated by the
+  `spectrum-design-system` LaunchDarkly flag (OFF → shadcn/Base UI, ON → Spectrum). Product
+  teams keep calling the same `<Button variant>` / `<StatusBadge status>` API regardless.
 - **Never hardcode a Tailwind color literal** (`bg-pink-500`, `text-[#...]`, raw hex) in a
   product surface under `app/` or `components/campaigns/`. A literal color there bypasses the
   design system — flag it and replace with the right token/variant.
-- New semantic values are added to the token source by the platform team (`globals.css`,
-  `components/ui/status-badge.tsx`), not inlined by a product team.
+- **Never fight the component.** Don't drop to a raw `<button>`/`<span>` when a system
+  component exists, and don't reach for Spectrum `UNSAFE_style` / `UNSAFE_className` to push a
+  one-off color onto a Spectrum control. Both abandon the system and won't theme — use the
+  component's `variant` / semantic prop instead. (This is the Spectrum-era shape of INJURY A.)
+- New semantic values are added to the token source by the platform team (`globals.css`, the
+  legacy `STATUS_TOKENS` map in `components/ui/status-tokens.ts`, or a Spectrum semantic
+  variant), not inlined by a product team.
 
 ## Accessibility is a contract
 - Status/text color pairs must meet WCAG AA (4.5:1). `components/ui/status-badge.test.ts`

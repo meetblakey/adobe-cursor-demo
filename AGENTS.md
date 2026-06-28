@@ -14,11 +14,20 @@ surfaces (the Campaigns Console under `app/campaigns` is one). Stack: Next.js 16
 Tailwind v4, shadcn/ui, Base UI (`@base-ui/react`), Supabase, Vercel. The repo demonstrates
 Cursor across the SDLC: in the editor, on the PR (Bugbot), in CI (`cursor-agent`).
 
+**Layer 1 is Adobe React Spectrum.** The shared hot-path components (`Button`, `Badge`,
+`StatusBadge`) render `@adobe/react-spectrum` behind the **stable Pigment prop API**, gated by
+the `spectrum-design-system` LaunchDarkly flag (OFF → shadcn/Base UI, ON → Spectrum; default
+OFF in prod). Product teams keep calling the same component API either way — see
+[`docs/PLAN-ADOBE-NATIVE-FRAMING-AND-SPECTRUM.md`](docs/PLAN-ADOBE-NATIVE-FRAMING-AND-SPECTRUM.md).
+Mirrors Adobe's own `helix-website` AGENTS.md posture: you must use the design-system components,
+never fight them.
+
 ## Conventions the agent MUST follow
 - **Tokens & system components, never literals.** Use `@/components/ui/*` and theme tokens
   (`bg-primary`, the `Button` `variant` prop, `StatusBadge`). Never hardcode a Tailwind color
-  literal (`bg-pink-500`, raw hex) in `app/` or `components/campaigns/`. See
-  `.cursor/rules/design-system.mdc`.
+  literal (`bg-pink-500`, raw hex) in `app/` or `components/campaigns/`, and never fight the
+  Spectrum component with `UNSAFE_style`/`UNSAFE_className` color overrides or a raw `<button>`.
+  See `.cursor/rules/design-system.mdc`.
 - **Accessibility is a contract.** Keep WCAG AA; `components/ui/status-badge.test.ts` stays green.
 - **Reuse before authoring.** Compose existing `@/components/ui` before adding new ones.
 - **Respect RSC boundaries.** Server Components fetch data (`lib/`); mark interactive files
