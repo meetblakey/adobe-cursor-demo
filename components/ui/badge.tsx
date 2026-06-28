@@ -46,6 +46,18 @@ const SPECTRUM_BADGE = {
   link: "indigo",
 } as const
 
+const SPECTRUM_BADGE_COLOR_CLASS =
+  /^(?:text-|bg-|border-|hover:text-|hover:bg-|dark:text-|dark:bg-|dark:border-)/
+
+function spectrumBadgeClassName(className?: string) {
+  if (typeof className !== "string") return undefined
+  const layoutOnly = className
+    .split(/\s+/)
+    .filter((token) => token && !SPECTRUM_BADGE_COLOR_CLASS.test(token))
+    .join(" ")
+  return layoutOnly || undefined
+}
+
 // Legacy path keeps Base UI's useRender hook isolated so the public Badge can
 // switch implementations without breaking the rules of hooks.
 function LegacyBadge({
@@ -79,7 +91,7 @@ function Badge({ variant = "default", ...props }: PigmentBadgeProps) {
     return (
       <SpectrumBadge
         variant={SPECTRUM_BADGE[variant ?? "default"]}
-        UNSAFE_className={typeof props.className === "string" ? props.className : undefined}
+        UNSAFE_className={spectrumBadgeClassName(props.className)}
       >
         {props.children as React.ReactNode}
       </SpectrumBadge>

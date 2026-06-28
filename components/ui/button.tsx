@@ -61,6 +61,34 @@ const SPECTRUM_BUTTON = {
   link: { kind: "quiet" },
 } as const
 
+// Pigment size -> layout-only classes for Spectrum (variant colors stay on Spectrum).
+const SPECTRUM_SIZE = {
+  default:
+    "h-8 gap-1.5 px-2.5 has-data-[icon=inline-end]:pr-2 has-data-[icon=inline-start]:pl-2",
+  xs: "h-6 gap-1 rounded-[min(var(--radius-md),10px)] px-2 text-xs in-data-[slot=button-group]:rounded-lg has-data-[icon=inline-end]:pr-1.5 has-data-[icon=inline-start]:pl-1.5 [&_svg:not([class*='size-'])]:size-3",
+  sm: "h-7 gap-1 rounded-[min(var(--radius-md),12px)] px-2.5 text-[0.8rem] in-data-[slot=button-group]:rounded-lg has-data-[icon=inline-end]:pr-1.5 has-data-[icon=inline-start]:pl-1.5 [&_svg:not([class*='size-'])]:size-3.5",
+  lg: "h-9 gap-1.5 px-2.5 has-data-[icon=inline-end]:pr-2 has-data-[icon=inline-start]:pl-2",
+  icon: "size-8",
+  "icon-xs":
+    "size-6 rounded-[min(var(--radius-md),10px)] in-data-[slot=button-group]:rounded-lg [&_svg:not([class*='size-'])]:size-3",
+  "icon-sm":
+    "size-7 rounded-[min(var(--radius-md),12px)] in-data-[slot=button-group]:rounded-lg",
+  "icon-lg": "size-9",
+} as const satisfies Record<
+  NonNullable<VariantProps<typeof buttonVariants>["size"]>,
+  string
+>
+
+// aria-pressed controls keep Pigment ghost vs filled affordances via isQuiet.
+const SPECTRUM_TOGGLE = {
+  default: { isQuiet: false },
+  secondary: { isQuiet: false },
+  outline: { isQuiet: false },
+  destructive: { isQuiet: false },
+  ghost: { isQuiet: true },
+  link: { isQuiet: true },
+} as const
+
 /**
  * Renders the same Pigment Button API on top of Adobe React Spectrum. Keeps the
  * call site identical (`variant`, `onClick`, `className`, `aria-*`): `onClick`
@@ -70,6 +98,7 @@ const SPECTRUM_BUTTON = {
  */
 function SpectrumPigmentButton({
   variant = "default",
+  size = "default",
   className,
   onClick,
   disabled,
@@ -82,14 +111,18 @@ function SpectrumPigmentButton({
     isDisabled: disabled || undefined,
     "aria-label": rest["aria-label"],
     // Base UI className can be a function; Spectrum's UNSAFE_className is string-only.
-    UNSAFE_className: typeof className === "string" ? className : undefined,
+    UNSAFE_className: cn(
+      SPECTRUM_SIZE[size ?? "default"],
+      typeof className === "string" ? className : undefined
+    ),
     children,
   }
 
   if (ariaPressed !== undefined) {
+    const toggle = SPECTRUM_TOGGLE[variant ?? "default"]
     return (
       <SpectrumToggleButton
-        isQuiet
+        isQuiet={toggle.isQuiet}
         isSelected={ariaPressed === true || ariaPressed === "true"}
         {...shared}
       />
@@ -122,7 +155,12 @@ function Button({
   // ponytail: 2 call sites; revisit only if Spectrum href/elementType is wanted.
   if (spectrum && props.render == null) {
     return (
-      <SpectrumPigmentButton variant={variant} className={className} {...props} />
+      <SpectrumPigmentButton
+        variant={variant}
+        size={size}
+        className={className}
+        {...props}
+      />
     )
   }
 
