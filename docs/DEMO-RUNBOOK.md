@@ -5,8 +5,8 @@ Two sessions, one continuous Adobe narrative, one owned repo (**Pigment** — Ne
 governance at 100+-dev scale. Full why in `STRATEGY.md`; specific fixes in `INJURIES.md`.
 
 Throughline: *one platform team owns Pigment; 200+ product teams consume it; keeping them
-consistent, on-brand and accessible at that scale is the pain — Cursor is the force multiplier
-across the SDLC.*
+consistent, on-brand and accessible at that scale is the pain. Cursor holds that standard at
+every stage of the SDLC — the rules in the editor, Bugbot on the PR, the agent in CI.*
 
 ---
 
@@ -19,8 +19,9 @@ across the SDLC.*
       `./.github/scripts/disable-preview-sso.sh` so preview URLs are public in the browser; keep
       `./.github/scripts/enable-preview-protection-bypass.sh` for CI when SSO is re-enabled
       post-demo.
-- [ ] Rehearse both **injuries** (`docs/INJURIES.md`) — apply, show the break, fix, reset.
-      Confirm Bugbot actually comments on INJURY A and CI actually goes red on INJURY B.
+- [ ] Rehearse both **injuries** (`docs/INJURIES.md`) — **`/rehearse-injury-a`** and
+      **`/rehearse-injury-b`**; confirm Bugbot on INJURY A and `fix-ci` on INJURY B. Between
+      runs: **`/demo-reset`**. Guide: [`docs/DEMO-INJURIES.md`](DEMO-INJURIES.md).
 - [ ] **Cloud Agent + Sentry Automation** ([`docs/DASHBOARD-SETUP.md`](DASHBOARD-SETUP.md)):
       VM snapshot saved; Sentry Automation enabled (`SentryExampleAPIError` filter); Atlassian +
       Sentry MCP authenticated in dashboard; fallback **video** of trigger → Jira → draft PR.
@@ -63,7 +64,7 @@ across the SDLC.*
 > "Your own AEM docs already list Cursor, Claude Code and Copilot and ship AGENTS.md + MCP
 > servers — so you've answered whether AI belongs in your pipeline. The question is where it
 > inserts. Your platform team owns a design system; 200 product teams consume it. No human
-> review team reads every PR at that scale. So the pull request is your highest-leverage
+> review team reads every PR at that scale. So the pull request is your highest-impact
 > control point — and we don't replace Jenkins or Spinnaker, we author and review the commit
 > that flows into them. Two insertions: the PR, and the CI job."
 
@@ -82,7 +83,8 @@ across the SDLC.*
 4. **`cursor-agent` headless in CI — fix the red build** — LIVE: open a PR with **INJURY B** on
    `components/ui/status-badge.tsx` (the "In review" chip). `npm test`/CI goes red; the
    `cursor-agent` job reads the failing test, restores a passing token, comments the PR —
-   bounded by allow/deny rules (deny `Shell(git)`, `Write(.env*)`). Green-build time + MTTR.
+   fenced by `guard-shell.sh` (denies git + .env writes in CI, fail-open); the hard stop is the
+   required `check` ruleset + the workflow's own commit step. Green-build time + MTTR.
 4b. **Flag-driven release (`/release-flag`)** — show `my-first-flag` on `/campaigns`. Merge ships
    code **dark** (prod flag OFF). Toggle ON in LD **test** on preview; then narrate prod rollout
    via LaunchDarkly MCP. Instant rollback = flag OFF (kill switch).

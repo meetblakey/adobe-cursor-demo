@@ -70,7 +70,22 @@ the actual ratio, ~1.7:1, vs the 4.5:1 bar).
 
 ---
 
-## Reset to the clean state
+## Reset & repeat demos
+
+**Do not merge injury PRs.** Production and `main` stay clean; only PR previews show the break.
+
+| Action | Shortcut |
+|--------|----------|
+| Restore clean files | **`/reset-injuries`** or `./.github/scripts/demo-injury.sh reset` |
+| Apply A / B | **`/apply-injury-a`** · **`/apply-injury-b`** |
+| Full rehearsal | **`/rehearse-injury-a`** · **`/rehearse-injury-b`** |
+| Between demos | **`/demo-reset`** |
+
+Full loop (tag/force-push for INJURY B replay, branch names, verify commands):
+[`docs/DEMO-INJURIES.md`](DEMO-INJURIES.md)
+
+Quick local undo (same as reset script):
+
 ```
-git checkout -- components/campaigns/campaign-card.tsx components/ui/status-badge.tsx
+git checkout main -- components/campaigns/campaign-card.tsx components/ui/status-badge.tsx
 ```

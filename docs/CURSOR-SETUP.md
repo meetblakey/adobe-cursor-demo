@@ -11,7 +11,7 @@ demo's three beats (plan-first build, the two injuries, 100+-dev governance).
 | **Skills** `.cursor/skills/<name>/SKILL.md` | impeccable · add-migration · review-bugbot · review-security | on-demand procedures the agent auto-reaches by description; run in the CLI too | always-on constraints (→ rule); hard enforcement (→ hook) |
 | **Subagents** (built-in) | bugbot · security-review · explore · bash · browser | Cursor-managed review + context isolation | reinventing built-ins; custom duplicate reviewers |
 | **Hooks** `.cursor/hooks.json` | afterFileEdit · beforeShellExecution · preToolUse | deterministic, fail-loud gates that fire even in CI/cloud agents | advisory guidance (→ rule); user macros (→ command) |
-| **Commands** `.cursor/commands/*.md` | bootstrap/start/**cloud-ticket**/sync-main/open-pr/**release-flag**/ship-ticket/**sentry-incident** · new-component · a11y-audit · fix-ci | human-triggered job macros | things the agent should auto-reach (→ skill) |
+| **Commands** `.cursor/commands/*.md` | bootstrap/start/**cloud-ticket**/sync-main/open-pr/**release-flag**/ship-ticket/**sentry-incident** · **apply/rehearse/reset demo injuries** · new-component · a11y-audit · fix-ci | human-triggered job macros | things the agent should auto-reach (→ skill) |
 
 ## Rules — correct apply modes (set by frontmatter, nothing else)
 - **`project.mdc`** — `alwaysApply: true` (Always). The project constitution: stack, RSC
@@ -61,6 +61,18 @@ demo's three beats (plan-first build, the two injuries, 100+-dev governance).
 - Stdout is **snake_case**: `{"permission":"allow"|"deny"|"ask","user_message":…,"agent_message":…}`.
   Hooks **fail OPEN** — only an explicit `deny` (or exit 2) blocks; a crash allows the action,
   so we log and fail safe. Say this honestly when presenting governance.
+
+## Demo injury commands (repeatable 201 beats)
+Slash macros for INJURY A/B — never applied on `main`. Patches: [`.demo/`](../.demo/);
+script: [`.github/scripts/demo-injury.sh`](../.github/scripts/demo-injury.sh); guide:
+[`docs/DEMO-INJURIES.md`](DEMO-INJURIES.md).
+
+| Command | Purpose |
+|---------|---------|
+| `/apply-injury-a` · `/apply-injury-b` | Apply patch on current demo branch |
+| `/reset-injuries` | Restore both files from `main` baseline |
+| `/rehearse-injury-a` · `/rehearse-injury-b` | Full branch → PR rehearsal loop |
+| `/demo-reset` | Reset files + close demo PRs checklist |
 
 ## Verify on the demo machine, day-of
 - Cursor **3.x** (current). Skills + custom Subagents landed in 2.4 and one-level subagent
