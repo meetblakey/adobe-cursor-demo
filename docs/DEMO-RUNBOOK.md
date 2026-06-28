@@ -51,7 +51,8 @@ every stage of the SDLC — the rules in the editor, Bugbot on the PR, the agent
    `@adobe/express-developer-mcp` server that feeds Adobe SDK docs into Cursor — "you already
    built the Adobe-specific version of the grounding you just watched."
 3. **Consistency at scale = the hidden tax** — apply **INJURY A** (magenta Duplicate button).
-   "One shortcut × 200 teams." Show the rules/tokens that prevent it.
+   "One shortcut × 200 teams." Show the rules/tokens that prevent it. *(Run beats 2–3 as the
+   hand-typed **Cold open** below — you drive the primitives and type the injury yourself.)*
 4. **Legacy = the velocity tax** (slide + narrative, NO live compile) — whole-repo context +
    Agent accelerate the *incremental* C++→Rust migration Adobe chose; interop = their
    scientist's #1 friction.
@@ -59,6 +60,85 @@ every stage of the SDLC — the rules in the editor, Bugbot on the PR, the agent
    self-hosted cloud agents. Speak Firefly/Acrobat provenance language.
 6. **Honest competitive frame + pilot ask** — Cursor runs Claude + GPT + Gemini in the IDE;
    propose an India-seated pilot; name the discovery questions.
+
+### Cold open — drive the primitives, then break it yourself (≈6–8 min, expands beats 2–3)
+
+Climb the autonomy ladder — **Tab → Ask → Plan → Agent** — and deliberately alternate *you in
+code* and *the agent acting*, so the room sees a human **and** the tool do real work. All live on
+`/campaigns`; nothing here is committed — discard the edits after.
+
+| # | Who | Primitive | Do | Room sees |
+|---|-----|-----------|----|-----------|
+| 1 | **You (code)** | **Tab** | In `campaigns-view.tsx` `STATUS_LABELS`, type `archived:` | Tab completes `'Archived',` — autocomplete that knows the file |
+| 2 | **Agent** | **Ask** (read-only) | Paste the Ask prompt | it explains the token system and cites the exact files |
+| 3 | **Agent → you** | **Plan** | Paste the Plan prompt; read, don't run | a multi-file plan you approve — it plans before it touches anything |
+| 4 | **You (code)** | typing | Replace the Duplicate `<Button>` with the raw snippet | a magenta button on every card — off-system, on purpose |
+| 5 | **Agent** | **Agent / Bugbot** | Hand it the fix prompt, or push for Bugbot | it rewrites it back to the system component, citing the rule |
+
+**1 — Tab (you type).** `components/campaigns/campaigns-view.tsx`, in the `STATUS_LABELS` map —
+start a new line and type `archived:`, accept Tab's completion:
+```ts
+const STATUS_LABELS: Record<string, string> = {
+  all: 'All statuses',
+  draft: 'Draft',
+  live: 'Live',
+  review: 'In review',
+  archived:   // ← type "archived:"  →  Tab fills in  'Archived',
+};
+```
+*Teaching beat:* Tab will autocomplete **anything**, including drift — that's the setup. Velocity
+makes every change fast, so the quality bar has to live in the rules, the PR, and CI (exactly where
+this cold-open lands). Discard the line after.
+
+**2 — Ask (read-only; the agent explains).** Open Ask and paste:
+> @codebase how does theming and status-badge color work in this app? Where do the status colors
+> come from, and how do we keep them on-brand and accessible across surfaces?
+
+Expect it to surface `components/ui/status-tokens.ts` (`STATUS_TOKENS` + `SPECTRUM_STATUS`),
+`app/globals.css` (indigo `--primary` + tokens), `.cursor/rules/design-system.mdc`, and the contrast
+gate `components/ui/status-badge.test.ts`. **No edits — this is comprehension before code.**
+
+**3 — Plan (the agent proposes, you approve).** Switch to Plan mode and paste:
+> Plan adding an `archived` status to the StatusBadge, following the existing pattern: a token in
+> `components/ui/status-tokens.ts` that passes the WCAG contrast test, a Spectrum semantic
+> `StatusLight` variant in `SPECTRUM_STATUS`, the `STATUS_LABELS` + status-filter entry, and let the
+> existing contrast test cover it. Don't write code yet — just the plan.
+
+Expect steps touching `status-tokens.ts` (extend `CampaignStatus`, add the `archived` light/dark
+token + `SPECTRUM_STATUS.archived`), `campaigns-view.tsx` (`STATUS_LABELS`), and a note that
+`status-badge.test.ts` auto-covers the new status. **Read it and stop** — the point is *"it plans
+before it touches anything."* (This is the real **PIG-11 / PIG-204** ticket — run it end-to-end in
+the 201 if you want the full Plan → Code → Review → CI loop.)
+
+**4 — the injury (you type it).** In `components/campaigns/campaign-card.tsx`, replace:
+```tsx
+<Button variant="ghost" size="sm" className="h-11 w-full sm:h-8 sm:w-auto">
+  Duplicate
+</Button>
+```
+with the off-brand version (verbatim `.demo/injury-a.patch`, so the rehearsal matches what you type
+live):
+```tsx
+<button className="h-11 w-full rounded-md bg-pink-500 px-2.5 text-[0.8rem] font-medium text-white hover:bg-pink-600 sm:h-8 sm:w-auto">
+  Duplicate
+</button>
+```
+You didn't tweak a variant — you **abandoned the system component** and hand-styled a raw `<button>`
+with a literal color. It won't theme, it clashes with the indigo brand, and `npm test` stays
+**green** (no test catches a design-token violation — only review does). Now Layer 1 is React
+Spectrum, you can't even put that class on a system `<Button>`, so going off-brand means leaving the
+component entirely — a louder smell.
+
+**5 — the fix (the agent does it).** Push and let **Bugbot** comment on the PR (it cites
+`.cursor/rules/design-system.mdc` / `.cursor/BUGBOT.md`), then hand that to the Agent — or fix it in
+the editor with **Cmd-K**:
+> The Duplicate button in `components/campaigns/campaign-card.tsx` is a raw `<button>` with a
+> hardcoded `bg-pink-500`. Put it back on our design system — `<Button variant="ghost" size="sm">`
+> with the same layout classes — per `.cursor/rules/design-system`.
+
+**Reset:** discard the edits, or `/reset-injuries` (works off `main` once this lands; on a feature
+branch use `git apply --reverse .demo/injury-a.patch`). Keep `.demo/injury-a.patch` as your
+rehearsal/fallback if you'd rather not type it live.
 
 **Bridge:** "Next session: how this holds the line across hundreds of engineers in your pipeline."
 
