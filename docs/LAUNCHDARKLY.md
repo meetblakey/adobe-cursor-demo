@@ -25,7 +25,14 @@ Vercel has three deployment tiers. Map them like this:
 
 **Rule:** never point Preview or local dev at the **production** LaunchDarkly environment — flag toggles on previews would affect live users.
 
-### Environment variables
+### Preview URLs and SSO
+
+Branch preview deploys were behind [Vercel SSO deployment protection](../docs/ENVIRONMENTS.md#preview-deployment-protection-sso--bypass).
+For demo day, run `./.github/scripts/disable-preview-sso.sh` so `/campaigns` on preview URLs is
+public in any browser. Production alias
+[`adobe-cursor-demo.vercel.app`](https://adobe-cursor-demo.vercel.app) uses the **production** LD
+environment — prefer **preview** (test keys) or **local** for the `my-first-flag` toggle beat.
+
 
 | Variable | Type | Environments |
 |----------|------|--------------|
