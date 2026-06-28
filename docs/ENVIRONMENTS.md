@@ -71,3 +71,42 @@ an optional upgrade path.
 **Production deploys automatically on merge to `main`** (Vercel). New features ship **dark** —
 code is live, LaunchDarkly flag **OFF** in production until `/release-flag` completes a controlled
 rollout.
+
+## Preview deployment protection (SSO + bypass)
+
+This project uses **Vercel SSO deployment protection** scoped to
+`all_except_custom_domains`: branch preview URLs (`*.vercel.app`) require team login; the
+production alias [`adobe-cursor-demo.vercel.app`](https://adobe-cursor-demo.vercel.app) stays
+public.
+
+For **LaunchDarkly preview demos** (test env on PR deploys), pick one access mode:
+
+| Mode | When | Setup |
+|------|------|-------|
+| **Public previews (demo day)** | Audience opens preview URLs in a browser without Vercel login | `./.github/scripts/disable-preview-sso.sh` |
+| **SSO + bypass (day-to-day)** | Keep previews team-gated; CI/agents use header bypass | `./.github/scripts/enable-preview-sso.sh` + `./.github/scripts/enable-preview-protection-bypass.sh` |
+
+**Current demo posture (applied via CLI):** SSO **disabled** on previews; Protection Bypass for Automation **enabled** (for CI when SSO is turned back on).
+
+| Step | Command / action |
+|------|------------------|
+| Enable bypass (one-time / after re-enabling SSO) | `./.github/scripts/enable-preview-protection-bypass.sh` |
+| Public previews for demo | `./.github/scripts/disable-preview-sso.sh` |
+| Lock previews after demo | `./.github/scripts/enable-preview-sso.sh` |
+| Read bypass secret (local only — never commit) | `vercel project protection adobe-cursor-demo --format json` |
+| CLI fetch (SSO on) | `export VERCEL_AUTOMATION_BYPASS_SECRET=…` then `vercel curl /campaigns --deployment <preview-url>` |
+| Browser link helper (SSO on) | `./scripts/preview-demo-url.sh <preview-url> /campaigns` — requires logged-in browser or use public-preview mode above |
+
+Header bypass (automation / `vercel curl`):
+
+```http
+x-vercel-protection-bypass: <secret>
+```
+
+Query-param form (browser cookie; less reliable when not logged into Vercel):
+
+```text
+https://<preview>.vercel.app/campaigns?x-vercel-set-bypass-cookie=true&x-vercel-protection-bypass=<secret>
+```
+
+Docs: [Vercel deployment protection bypass](https://vercel.com/docs/deployment-protection/methods-to-bypass-deployment-protection/protection-bypass-automation)
