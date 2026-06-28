@@ -8,14 +8,8 @@ import { StatusFilter } from '@/components/campaigns/status-filter';
 import { CampaignCard } from '@/components/campaigns/campaign-card';
 import { CampaignsTable } from '@/components/campaigns/campaigns-table';
 import { CampaignsEmptyState } from '@/components/campaigns/campaigns-empty-state';
+import { STATUS_FILTER_OPTIONS } from '@/components/ui/status-tokens';
 import type { Campaign } from '@/lib/campaigns';
-
-const STATUS_LABELS: Record<string, string> = {
-  all: 'All statuses',
-  draft: 'Draft',
-  live: 'Live',
-  review: 'In review',
-};
 
 type ViewMode = 'table' | 'grid';
 
@@ -33,7 +27,7 @@ export function CampaignsView({ campaigns }: { campaigns: Campaign[] }) {
   const [status, setStatus] = useState('all');
   const [viewMode, setViewMode] = useState<ViewMode>('grid');
   const filtered = status === 'all' ? campaigns : campaigns.filter((c) => c.status === status);
-  const statusLabel = STATUS_LABELS[status] ?? status;
+  const statusLabel = STATUS_FILTER_OPTIONS.find((o) => o.value === status)?.label ?? status;
 
   return (
     <div className="flex flex-col gap-5 sm:gap-6">
