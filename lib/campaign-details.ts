@@ -1,5 +1,5 @@
 import { allowsSeedFallback, hasSupabaseEnv } from '@/lib/supabase/env';
-import { getAllCampaignSlugs, getCampaignNameBySlug } from '@/lib/campaign-slugs';
+import { getCampaignNameBySlug } from '@/lib/campaign-slugs';
 import { CAMPAIGN_SEED } from '@/lib/campaigns-seed';
 import { enrichCampaign } from '@/lib/campaigns-query';
 import { getDetailSeedBySlug } from '@/lib/campaign-details-seed';

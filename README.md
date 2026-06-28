@@ -7,8 +7,10 @@ an engineer both get in a second:
 > consistent, on-brand, and accessible **at that scale** is the pain. Cursor is how the
 > platform team becomes a force multiplier across the whole SDLC.
 
-The code is deliberately simple — a few components + a token file. The point is **pain ↔
-solution made visible**, not code complexity.
+The app is small but real — a campaigns console (list, grid, and a detail route) built on a
+shared component + token system, with a live a11y gate and Supabase wiring. It's scoped to stay
+legible in a 30-minute room; the point is **pain ↔ solution made visible** at scale, not lines
+of code.
 
 ## This repo is a Cursor build-spec package
 Documentation-first: open it in Cursor and build/extend the app with Composer + Agent. A

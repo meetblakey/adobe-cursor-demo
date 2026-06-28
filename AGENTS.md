@@ -75,11 +75,13 @@ Dependencies are refreshed automatically on startup (`npm install`). Standard co
 - **Runs with zero config on seed data.** No `.env*` is required. `getCampaigns()` uses in-app
   `SEED` in local/preview when Supabase is unset or errors; production requires live Supabase
   (see `lib/supabase/env.ts`). LaunchDarkly degrades gracefully without keys.
-- **`.env.example` referenced in the README does not exist** (it's gitignored). The `cp .env.example .env.local`
-  step is optional and will fail with "No such file" — skip it; the app needs no env vars to run/test/build.
+- **`.env.example` is committed** (the only `.env*` file that is — see `.gitignore`'s `!.env.example`).
+  It holds variable names only, no secrets. `cp .env.example .env.local` works; filling it is
+  optional, since the app runs/tests/builds on seed data with no env vars.
 - **`npm run dev` serves `/` → redirects to `/campaigns`** on http://localhost:3000 (Turbopack).
-- **`npm run lint` fails (exit 1) on a pre-existing error in `decks/build.js` plus ~136 warnings
-  in `.cursor/skills/impeccable/scripts/**`** — these are tooling/skill files, not the app. To
-  lint only product code, run `npx eslint app components lib` (clean). Don't "fix" the skill files.
+- **`npm run lint` fails (exit 1) on one pre-existing error in `decks/build.js` (a CommonJS build
+  script) plus ~136 warnings in `.cursor/skills/impeccable/scripts/**`** — these are tooling/skill
+  files, not the app. Product code lints clean: `npx eslint app components lib` (no errors). Don't
+  "fix" the skill files.
 - **Sentry DSN is hardcoded** in `sentry.*.config.ts` / `instrumentation-client.ts`, so the app
   attempts telemetry by default; this is non-blocking if Sentry is unreachable.
