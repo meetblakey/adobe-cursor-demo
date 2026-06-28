@@ -17,6 +17,9 @@ across the SDLC.*
       (or leave seed data) ; deploy preview on **Vercel**.
 - [ ] Rehearse both **injuries** (`docs/INJURIES.md`) — apply, show the break, fix, reset.
       Confirm Bugbot actually comments on INJURY A and CI actually goes red on INJURY B.
+- [ ] **Cloud Agent + Sentry Automation** ([`docs/DASHBOARD-SETUP.md`](DASHBOARD-SETUP.md)):
+      VM snapshot saved; Sentry Automation enabled (`SentryExampleAPIError` filter); Atlassian +
+      Sentry MCP authenticated in dashboard; fallback **video** of trigger → Jira → draft PR.
 - [ ] Pre-bake a **fallback PR** (Bugbot comment already posted) + a screen recording of the
       201 loop, for network/timing lag.
 - [ ] **Re-verify volatile facts day-of:** live Adobe stock vs 52-wk high; current Cursor
@@ -61,9 +64,9 @@ across the SDLC.*
 > that flows into them. Two insertions: the PR, and the CI job."
 
 1. **Map to the pipeline — the LOOP, not a line** (diagram; see [`PIPELINE.md`](PIPELINE.md)):
-   **Jira** ticket → **Cursor** (Plan→Agent, **behind LD flag**) → **`/review-bugbot`** → **PR +
-   Bugbot** → **GitHub Actions + `cursor-agent`** → **Vercel** (preview + auto prod, **dark**) →
-   **`/release-flag`** (LaunchDarkly prod rollout) → **Sentry** (LD kill switch) → next Jira ticket.
+   **Jira** ticket → **Cursor** (Plan→Agent or **`/cloud-ticket`** Cloud Agent, **behind LD flag**) →
+   **`/review-bugbot`** → **PR + Bugbot** → **GitHub Actions + `cursor-agent`** → **Vercel**
+   (preview + auto prod, **dark**) → **`/release-flag`** → **Sentry Automation** → next Jira ticket.
    Human owns PR merge and LD prod rollout — not Vercel promote.
 2. **Plan: pull the ticket** — the Atlassian MCP brings the Jira ticket + acceptance criteria
    **and its linked Confluence design doc** into the agent; the agent posts its plan back as a
@@ -79,10 +82,13 @@ across the SDLC.*
 4b. **Flag-driven release (`/release-flag`)** — show `my-first-flag` on `/campaigns`. Merge ships
    code **dark** (prod flag OFF). Toggle ON in LD **test** on preview; then narrate prod rollout
    via LaunchDarkly MCP. Instant rollback = flag OFF (kill switch).
-5. **Close the loop with Sentry** — a prod error in Sentry → Seer/MCP pulls it into Cursor →
-   fix re-enters at code. **Sentry leads** (Next.js/Vercel fit + closes the loop); name
-   **Datadog** as the enterprise complement (APM/SLOs across Adobe's backend), not a live beat.
-   Pre-stage or narrate this — live prod errors are timing-dependent.
+5. **Close the loop with Sentry (LIVE optional + fallback)** — trigger `/sentry-example-page` or
+   `/api/sentry-example-api?demo=1` → Sentry **issueCreated** → Cursor Automation → new **PIG-***
+   Jira story + **draft PR** (human merge). Narrate while Automation runs (~2–3 min); cut to
+   pre-recorded fallback if timing fails. Manual replay: **`/sentry-incident`**. Spec:
+   [`SENTRY-AUTOMATION.md`](SENTRY-AUTOMATION.md).
+5b. **Cloud Agent path (optional)** — narrate **`/cloud-ticket`** on PIG-204: parallel VM authoring,
+   browser self-verify with screenshots on `/campaigns`. See [`CLOUD-AGENTS.md`](CLOUD-AGENTS.md).
 6. **Governance + model optionality** — AI Code Tracking, audit, allow-lists, Privacy Mode;
    routes Anthropic + OpenAI + Gemini; self-hosted cloud agents in-VPC for sensitive repos.
 7. **Baseline on Adobe's yardstick** — co-build the 30-day plan vs their DORA dashboard.

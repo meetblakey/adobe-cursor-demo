@@ -67,7 +67,11 @@ Confluence (space **Pigment**) is the living design docs. Drive both through the
   fix is a NEW story, not a reopen.
 - Scope strictly to **PIG** / **Pigment**; never invent keys or page IDs. Full backlog + space
   layout in `docs/PLAN.md`; rule in `.cursor/rules/planning.mdc`; commands `/bootstrap-plan`,
-  `/start-ticket`, `/open-pr`, `/release-flag`, `/ship-ticket`.
+  `/start-ticket`, `/cloud-ticket`, `/open-pr`, `/release-flag`, `/ship-ticket`, `/sentry-incident`.
+- **Cloud Agent path:** UI-heavy product work via **`/cloud-ticket`** — VM self-verify + screenshots;
+  see [`docs/CLOUD-AGENTS.md`](docs/CLOUD-AGENTS.md).
+- **Sentry loop:** production errors → **`/sentry-incident`** or Cursor Automation → new Jira story +
+  draft PR (human merge); see [`docs/SENTRY-AUTOMATION.md`](docs/SENTRY-AUTOMATION.md).
 
 ## Cursor Cloud specific instructions
 Dependencies are refreshed automatically on startup (`npm install`). Standard commands live in

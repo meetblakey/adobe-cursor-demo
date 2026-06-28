@@ -31,9 +31,13 @@ verified reference scaffold is included, but the spec docs are the source of tru
 | [`docs/TEAMWORK-SKILLS.md`](docs/TEAMWORK-SKILLS.md) | the installed `twg` Teamwork-Graph skills mapped to the loop (synthesis layer over the MCP) |
 | [`docs/TOOLCHAIN.md`](docs/TOOLCHAIN.md) | one tool per SDLC stage (MCP/CLI/skill) — and what's deliberately excluded |
 | [`docs/AGENT-OPS.md`](docs/AGENT-OPS.md) | the governed setup for Cloud Agents · Bugbot · Security Agents · Approval Agents |
+| [`docs/CLOUD-AGENTS.md`](docs/CLOUD-AGENTS.md) | Cloud Agent parallel path — `/cloud-ticket`, VM self-verify, dashboard snapshot |
+| [`docs/SENTRY-AUTOMATION.md`](docs/SENTRY-AUTOMATION.md) | Sentry Automation — issueCreated → Jira + draft PR; `/sentry-incident` replay |
+| [`docs/DASHBOARD-SETUP.md`](docs/DASHBOARD-SETUP.md) | one-time Cursor dashboard checklist (VM snapshot + Automation) |
 | `AGENTS.md` · `.cursor/rules/*.mdc` | durable context + rules: `project`/`planning` (Always) + `design-system` (Auto-Attach via globs) |
 | `.cursor/skills/*` | skills the agent auto-reaches: impeccable, **add-migration**, **review-bugbot**, **review-security** |
-| `.cursor/commands/*` | slash commands: bootstrap-plan, start-ticket, sync-main, open-pr, **release-flag**, ship-ticket |
+| `.cursor/commands/*` | slash commands: bootstrap-plan, start-ticket, **cloud-ticket**, sync-main, open-pr, **release-flag**, ship-ticket, **sentry-incident** |
+| `.cursor/prompts/*` | Cloud Agent self-verify + Sentry incident agent prompt templates |
 | `.cursor/hooks.json` · `.cursor/mcp.json` | hooks + Supabase/Atlassian/Vercel/Sentry/**LaunchDarkly** MCP |
 | `.cursor/permissions.json` · `environment.json` · `BUGBOT.md` | agent execution perms · cloud-agent env · Bugbot review rules |
 | `APPROVAL_POLICY.md` · `.cursor/approval-policies/ROUTING.md` | Approval Agent policy + routing (product→policy) per the docs format |

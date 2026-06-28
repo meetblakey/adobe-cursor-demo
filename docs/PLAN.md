@@ -38,6 +38,7 @@ Run the `/bootstrap-plan` command (or the prompt in BUILD-PLAN Phase 0). Cursor,
 | **PIG-6** | SDLC scaffolding | CI (typecheck+test+build) + headless `cursor-agent` job + hooks + `CODEOWNERS` | SDLC Pipeline |
 | **PIG-7** | Verify + deploy | `npm test`/`tsc`/`build` green; Vercel preview live; Bugbot enabled | SDLC Pipeline |
 | **PIG-16** | Flag-driven SDLC | LaunchDarkly SDK merged; Dev/Preview/Prod env docs; pipeline stages 5b/5c; `/release-flag`; Supabase tier helpers; Confluence SDLC updated | SDLC Pipeline |
+| **PIG-205** | Cloud Agent + Sentry loop | `/cloud-ticket` + self-verify prompts; Sentry Automation spec; `/sentry-incident`; demo guard on example API; PIPELINE/AGENT-OPS updated | SDLC Pipeline |
 
 **Demo-prep stories (the live gates the 101/201 perform):**
 | Story | Purpose |
