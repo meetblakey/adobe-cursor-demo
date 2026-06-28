@@ -14,6 +14,9 @@ fi
 
 BASE="${1%/}"
 PATH_PART="${2:-}"
+if [[ -n "${PATH_PART}" && "${PATH_PART}" != /* ]]; then
+  PATH_PART="/${PATH_PART}"
+fi
 SECRET="${VERCEL_AUTOMATION_BYPASS_SECRET:-}"
 
 if [[ -z "${SECRET}" ]]; then
@@ -24,10 +27,15 @@ if [[ -z "${SECRET}" ]]; then
 fi
 
 TARGET="${BASE}${PATH_PART}"
+FRAGMENT=""
+if [[ "${TARGET}" == *"#"* ]]; then
+  FRAGMENT="#${TARGET#*#}"
+  TARGET="${TARGET%%#*}"
+fi
 SEP="?"
 if [[ "${TARGET}" == *"?"* ]]; then
   SEP="&"
 fi
 
-printf '%s%sx-vercel-set-bypass-cookie=true&x-vercel-protection-bypass=%s\n' \
-  "${TARGET}" "${SEP}" "${SECRET}"
+printf '%s%sx-vercel-set-bypass-cookie=true&x-vercel-protection-bypass=%s%s\n' \
+  "${TARGET}" "${SEP}" "${SECRET}" "${FRAGMENT}"
