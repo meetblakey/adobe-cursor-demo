@@ -1,6 +1,6 @@
 # Reset demo injuries (restore main baseline)
 
-Restore **`components/campaigns/campaign-card.tsx`** and **`components/ui/status-badge.tsx`**
+Restore **`components/campaigns/campaign-card.tsx`** and **`components/ui/status-tokens.ts`**
 to the clean **`main`** baseline. Safe on any branch.
 
 Does **not** close PRs or delete remote branches — use **`/demo-reset`** for full cleanup.

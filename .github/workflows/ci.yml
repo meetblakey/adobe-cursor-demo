@@ -69,7 +69,7 @@ jobs:
           agent -p --force --output-format text \
             "The CI pipeline failed. The failure log is in @ci-failure.log. Follow the fix-ci procedure:
             1. Read the failing output — start with the Vitest report and typecheck/build errors.
-            2. Identify the root cause. For an a11y-gate failure, fix the token in components/ui/status-badge.tsx (or app/globals.css) to restore WCAG AA (≥4.5:1) while staying on-brand.
+            2. Identify the root cause. For an a11y-gate failure, fix the token in components/ui/status-tokens.ts (or app/globals.css) to restore WCAG AA (≥4.5:1) while staying on-brand.
             3. Do NOT weaken or delete the failing assertion.
             4. Make the smallest change, run npm run typecheck && npm test && npm run build, and write a one-paragraph diagnosis + fix summary to fix-summary.md.
             Stay within governance: no git shell commands, no writes to .env*, no edits under .github/."

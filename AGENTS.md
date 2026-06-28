@@ -50,7 +50,7 @@ npm run typecheck && npm run build
 ## How agents should work here
 - Smallest change that satisfies the request + its test.
 - Fixing a failing CI job: read the vitest output, fix the root cause (e.g. restore a status
-  token to a passing value in `components/ui/status-badge.tsx`); do NOT delete the assertion.
+  token to a passing value in `components/ui/status-tokens.ts`); do NOT delete the assertion.
 - **Branch → PR → main.** Work on a feature branch (e.g. `PIG-8`); never push to `main` directly.
   GitHub ruleset + `guard-shell.sh` enforce merge-only on `main`. **`/sync-main`** (or
   `.github/scripts/sync-main-into-branch.sh`) merges latest `main` into your branch at the

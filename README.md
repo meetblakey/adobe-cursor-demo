@@ -40,7 +40,7 @@ verified reference scaffold is included, but the spec docs are the source of tru
 | `.cursor/commands/*` | slash commands: bootstrap-plan, start-ticket, **cloud-ticket**, sync-main, open-pr, **release-flag**, ship-ticket, **sentry-incident** |
 | `.cursor/prompts/*` | Cloud Agent self-verify + Sentry incident agent prompt templates |
 | `.cursor/hooks.json` · `.cursor/mcp.json` | hooks + Supabase/Atlassian/Vercel/Sentry/**LaunchDarkly** MCP |
-| `.cursor/permissions.json` · `environment.json` · `BUGBOT.md` | agent execution perms · cloud-agent env · Bugbot review rules |
+| `.cursor/permissions.json` · `.cursor/environment.json` · `.cursor/BUGBOT.md` | agent execution perms · cloud-agent env · Bugbot review rules |
 | `APPROVAL_POLICY.md` · `.cursor/approval-policies/ROUTING.md` | Approval Agent policy + routing (product→policy) per the docs format |
 | `CODEOWNERS` · `supabase/migrations/*` | platform/product ownership + DB schema |
 

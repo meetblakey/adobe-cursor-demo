@@ -69,21 +69,23 @@ code* and *the agent acting*, so the room sees a human **and** the tool do real 
 
 | # | Who | Primitive | Do | Room sees |
 |---|-----|-----------|----|-----------|
-| 1 | **You (code)** | **Tab** | In `campaigns-view.tsx` `STATUS_LABELS`, type `archived:` | Tab completes `'Archived',` — autocomplete that knows the file |
+| 1 | **You (code)** | **Tab** | In `status-tokens.ts` `STATUS_TOKENS`, start a new `archived:` entry | Tab completes the token shape — autocomplete that knows the file |
 | 2 | **Agent** | **Ask** (read-only) | Paste the Ask prompt | it explains the token system and cites the exact files |
 | 3 | **Agent → you** | **Plan** | Paste the Plan prompt; read, don't run | a multi-file plan you approve — it plans before it touches anything |
 | 4 | **You (code)** | typing | Replace the Duplicate `<Button>` with the raw snippet | a magenta button on every card — off-system, on purpose |
 | 5 | **Agent** | **Agent / Bugbot** | Hand it the fix prompt, or push for Bugbot | it rewrites it back to the system component, citing the rule |
 
-**1 — Tab (you type).** `components/campaigns/campaigns-view.tsx`, in the `STATUS_LABELS` map —
+**1 — Tab (you type).** `components/ui/status-tokens.ts`, in the `STATUS_TOKENS` map —
 start a new line and type `archived:`, accept Tab's completion:
 ```ts
-const STATUS_LABELS: Record<string, string> = {
-  all: 'All statuses',
-  draft: 'Draft',
-  live: 'Live',
-  review: 'In review',
-  archived:   // ← type "archived:"  →  Tab fills in  'Archived',
+export const STATUS_TOKENS: Record<
+  CampaignStatus,
+  { label: string; light: { bg: string; fg: string }; dark: { bg: string; fg: string } }
+> = {
+  draft: { label: 'Draft', light: { bg: '#EDEDEA', fg: '#44443F' }, dark: { bg: '#26262F', fg: '#B9B9B2' } },
+  live: { label: 'Live', light: { bg: '#DCF5E4', fg: '#0F6B33' }, dark: { bg: '#14331F', fg: '#57D98A' } },
+  review: { label: 'In review', light: { bg: '#FFF1D6', fg: '#8A4B00' }, dark: { bg: '#3A2A12', fg: '#E0A24E' } },
+  archived:   // ← type "archived:"  →  Tab fills in the token entry
 };
 ```
 *Teaching beat:* Tab will autocomplete **anything**, including drift — that's the setup. Velocity
