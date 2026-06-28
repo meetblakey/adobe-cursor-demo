@@ -81,6 +81,11 @@ function SpectrumPigmentButton({
     onPress: onClick ? () => (onClick as () => void)() : undefined,
     isDisabled: disabled || undefined,
     "aria-label": rest["aria-label"],
+    // react-aria buttons support these ARIA relationship/state props — forward
+    // them so toggles (e.g. the sidebar control) keep their a11y contract.
+    "aria-expanded": rest["aria-expanded"],
+    "aria-controls": rest["aria-controls"],
+    "aria-haspopup": rest["aria-haspopup"],
     // Base UI className can be a function; Spectrum's UNSAFE_className is string-only.
     UNSAFE_className: typeof className === "string" ? className : undefined,
     children,

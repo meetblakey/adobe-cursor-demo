@@ -12,8 +12,8 @@ them. The linter can't express "on-brand"; the rule can. Bugbot reviews against 
 ## Tokens & system components, never literals
 - Use the Pigment components (`@/components/ui/*`) and the theme tokens
   (`bg-primary`, `text-muted-foreground`, the `Button` `variant` prop, `StatusBadge`). Layer 1
-  is **Adobe React Spectrum** behind the stable Pigment API — gated by the
-  `spectrum-design-system` LaunchDarkly flag (OFF → shadcn/Base UI, ON → Spectrum). Product
+  is **Adobe React Spectrum** behind the stable Pigment API — the default design system (no
+  flag), rendered client-only (legacy shadcn/Base UI is the pre-hydration SSR fallback). Product
   teams keep calling the same `<Button variant>` / `<StatusBadge status>` API regardless.
 - **Never hardcode a Tailwind color literal** (`bg-pink-500`, `text-[#...]`, raw hex) in a
   product surface under `app/` or `components/campaigns/`. A literal color there bypasses the

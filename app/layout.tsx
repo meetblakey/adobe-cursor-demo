@@ -36,25 +36,25 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  // SpectrumProvider sits inside LaunchDarklyProvider (it reads the
-  // `spectrum-design-system` flag) and inside ThemeProvider (it reads
-  // light/dark). When the flag is OFF it is a pass-through, so this wrapping is
-  // a no-op in production.
-  const content = <SpectrumProvider>{children}</SpectrumProvider>;
   return (
     <html
       lang="en"
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
       <body className={`${geistSans.className} flex min-h-dvh flex-col`}>
+        {/* Spectrum is the default design system (no flag), client-only. It wraps
+            the whole app — chrome and content — inside ThemeProvider, so every
+            Layer-1 component renders Spectrum under one root Provider. */}
         <ThemeProvider>
-          <AppSidebarLayout>
-            <AppShell header={<SiteHeader />}>
-              <Suspense fallback={<LaunchDarklyProvider>{content}</LaunchDarklyProvider>}>
-                <LaunchDarklyLayout>{content}</LaunchDarklyLayout>
-              </Suspense>
-            </AppShell>
-          </AppSidebarLayout>
+          <SpectrumProvider>
+            <AppSidebarLayout>
+              <AppShell header={<SiteHeader />}>
+                <Suspense fallback={<LaunchDarklyProvider>{children}</LaunchDarklyProvider>}>
+                  <LaunchDarklyLayout>{children}</LaunchDarklyLayout>
+                </Suspense>
+              </AppShell>
+            </AppSidebarLayout>
+          </SpectrumProvider>
         </ThemeProvider>
       </body>
     </html>

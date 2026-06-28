@@ -15,9 +15,10 @@ Tailwind v4, shadcn/ui, Base UI (`@base-ui/react`), Supabase, Vercel. The repo d
 Cursor across the SDLC: in the editor, on the PR (Bugbot), in CI (`cursor-agent`).
 
 **Layer 1 is Adobe React Spectrum.** The shared hot-path components (`Button`, `Badge`,
-`StatusBadge`) render `@adobe/react-spectrum` behind the **stable Pigment prop API**, gated by
-the `spectrum-design-system` LaunchDarkly flag (OFF → shadcn/Base UI, ON → Spectrum; default
-OFF in prod). Product teams keep calling the same component API either way — see
+`StatusBadge`) render `@adobe/react-spectrum` behind the **stable Pigment prop API** — it is the
+default design system in production (no flag). Spectrum renders **client-only** (mounts after
+hydration via `components/spectrum-provider.tsx`); the legacy shadcn/Base UI components remain as
+the pre-hydration SSR fallback. Product teams keep calling the same component API — see
 [`docs/PLAN-ADOBE-NATIVE-FRAMING-AND-SPECTRUM.md`](docs/PLAN-ADOBE-NATIVE-FRAMING-AND-SPECTRUM.md).
 Mirrors Adobe's own `helix-website` AGENTS.md posture: you must use the design-system components,
 never fight them.

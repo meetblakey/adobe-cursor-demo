@@ -53,17 +53,17 @@ are on screen the moment you load the page.
 ## INJURY B — unreadable "In review" badge in dark mode → **`cursor-agent` in CI**
 
 **Where:** `components/ui/status-tokens.ts` — the **`review`** status token, **dark** theme.
-(This is the hand-authored hex map that powers the **legacy** StatusBadge, i.e. the
-`spectrum-design-system` flag **OFF** path.)
+(This is the hand-authored hex map that powers the **legacy** StatusBadge — now the
+pre-hydration SSR fallback, since Spectrum is client-only.)
 
-> **Spectrum-world framing.** This is the *old* failure mode — a human picking a hex that
-> fails contrast. Flip the `spectrum-design-system` flag **ON** and the StatusBadge renders a
-> Spectrum `StatusLight` with **semantic** variants (`neutral` / `positive` / `notice`) that
-> Spectrum pre-validates AA in light *and* dark. There is no hand-authored hex left to get
-> wrong: the injury becomes **structurally impossible**, and
-> `components/ui/status-badge.spectrum.test.ts` asserts the mapping stays semantic. The demo:
-> show the gate catching the hex regression (flag off), then flip the flag and show the whole
-> class of bug disappear.
+> **Spectrum-world framing.** This is the *old* failure mode — a human picking a hex that fails
+> contrast — and the a11y gate (`status-badge.test.ts`) still catches it in CI, because the
+> legacy hex map is the SSR fallback. The hydrated UI is Spectrum: `StatusLight` with **semantic**
+> variants (`neutral` / `positive` / `notice`) that Spectrum pre-validates AA in light *and* dark.
+> There is no hand-authored hex in the rendered Spectrum chip to get wrong — the failure mode is
+> **structurally impossible** there, and `components/ui/status-badge.spectrum.test.ts` asserts the
+> mapping stays semantic. The demo is now CI-driven: the regression turns the build red and
+> `cursor-agent` restores the token.
 
 **Apply (on a branch / PR):**
 ```diff

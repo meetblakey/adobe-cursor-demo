@@ -46,8 +46,8 @@ every stage of the SDLC — the rules in the editor, Bugbot on the PR, the agent
 2. **Throughput, live on Pigment** — open `/campaigns`. Ask the codebase "how does theming
    work here?", then have Agent add/fix a component; **see it render**. Output-per-engineer.
    *Frame it Adobe-native:* Pigment stands in for an **App Builder add-on on React Spectrum** —
-   and Layer 1 is now literally `@adobe/react-spectrum` behind the stable Pigment API, flag-gated
-   (`spectrum-design-system`, default OFF). Drop a proof point: Adobe ships an official
+   and Layer 1 is now literally `@adobe/react-spectrum` behind the stable Pigment API (the default
+   design system, rendered client-only). Drop a proof point: Adobe ships an official
    `@adobe/express-developer-mcp` server that feeds Adobe SDK docs into Cursor — "you already
    built the Adobe-specific version of the grounding you just watched."
 3. **Consistency at scale = the hidden tax** — apply **INJURY A** (magenta Duplicate button).

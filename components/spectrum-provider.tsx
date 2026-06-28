@@ -1,15 +1,15 @@
 'use client';
 
-import { createContext, useContext, useEffect, useState } from 'react';
+import { createContext, useContext, useSyncExternalStore } from 'react';
 import { Provider, defaultTheme } from '@adobe/react-spectrum';
-import { useFlags } from 'launchdarkly-react-client-sdk';
 import { useTheme } from '@/components/theme-provider';
 
 /**
- * Whether the Spectrum design system is live for the current subtree: the
- * `spectrum-design-system` LaunchDarkly flag is ON *and* we have mounted on the
- * client. Defaults to `false` (legacy shadcn/Base UI) outside the provider and
- * during SSR.
+ * Whether Adobe React Spectrum is live for the current subtree. Spectrum is the
+ * default Pigment design system (no flag) but renders **client-only** — it is
+ * `false` during SSR / the first client render and flips to `true` after
+ * hydration. This keeps the app close to a plain React SPA so Spectrum has no
+ * Next-specific (PPR / SSR / hydration) rendering surface to fight.
  */
 const SpectrumReadyContext = createContext(false);
 
@@ -17,35 +17,33 @@ export function useSpectrumDesignSystem(): boolean {
   return useContext(SpectrumReadyContext);
 }
 
-function useIsMounted(): boolean {
-  const [mounted, setMounted] = useState(false);
-  useEffect(() => setMounted(true), []);
-  return mounted;
+const subscribe = () => () => {};
+
+// false during SSR (and the hydrating render), true on the client thereafter —
+// the idiomatic "are we hydrated" check, with no setState-in-effect.
+function useIsClient(): boolean {
+  return useSyncExternalStore(
+    subscribe,
+    () => true,
+    () => false,
+  );
 }
 
 /**
- * Mounts Adobe React Spectrum's single root Provider — but only when the
- * `spectrum-design-system` flag is ON *and* we are on the client. Spectrum is a
- * client library, so it renders client-side only (never during SSR / prerender),
- * keeping the app close to a plain React SPA and giving Spectrum no PPR or
- * hydration surface. When the flag is OFF (production default) this is a
- * transparent pass-through and a true no-op.
+ * Mounts Spectrum's single root Provider on the client. A single client flag
+ * drives both the Provider mount and the context value, so the migrated Layer-1
+ * components only switch to Spectrum once their Provider ancestor exists — no
+ * no-Provider hazard, no hydration mismatch. `colorScheme` tracks Pigment's own
+ * light/dark toggle so the dark-mode story stays authoritative.
  *
- * A single `mounted` flag drives both the Provider mount and the context value,
- * so the migrated Layer-1 components only switch to Spectrum once their Provider
- * ancestor exists — no rules-of-hooks or no-Provider hazard. `colorScheme`
- * tracks Pigment's own light/dark toggle so the dark-mode demo (and INJURY B's
- * contrast story) stay authoritative.
- *
- * ponytail: client-only by design; SSR of the legacy surface is unaffected.
+ * ponytail: client-only by design; the legacy components render during SSR as
+ * the pre-hydration fallback and are unaffected.
  */
 export function SpectrumProvider({ children }: { children: React.ReactNode }) {
   const { theme } = useTheme();
-  const { spectrumDesignSystem } = useFlags();
-  const mounted = useIsMounted();
-  const ready = Boolean(spectrumDesignSystem) && mounted;
+  const isClient = useIsClient();
 
-  if (!ready) {
+  if (!isClient) {
     return <SpectrumReadyContext.Provider value={false}>{children}</SpectrumReadyContext.Provider>;
   }
 
