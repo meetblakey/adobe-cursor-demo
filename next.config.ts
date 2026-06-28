@@ -2,7 +2,8 @@ import { withSentryConfig } from "@sentry/nextjs";
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  cacheComponents: true,
+  // No Cache Components / PPR: React Spectrum is a client library, so the app
+  // renders close to a plain React setup (basic Next.js, Spectrum client-only).
   env: {
     // Expose Vercel deployment tier to client bundles for LaunchDarkly context.
     NEXT_PUBLIC_VERCEL_ENV: process.env.VERCEL_ENV ?? 'local',
