@@ -35,6 +35,15 @@ export const SPECTRUM_STATUS: Record<CampaignStatus, 'neutral' | 'positive' | 'n
 // labels automatically, so there is no second place to forget.
 export const CAMPAIGN_STATUSES = Object.keys(STATUS_TOKENS) as CampaignStatus[];
 
+export function isCampaignStatus(value: string): value is CampaignStatus {
+  return (CAMPAIGN_STATUSES as string[]).includes(value);
+}
+
+/** Coerce unknown DB / API status strings to a safe token-backed value. */
+export function normalizeCampaignStatus(value: string): CampaignStatus {
+  return isCampaignStatus(value) ? value : 'draft';
+}
+
 export const STATUS_FILTER_OPTIONS: { value: string; label: string }[] = [
   { value: 'all', label: 'All statuses' },
   ...CAMPAIGN_STATUSES.map((status) => ({ value: status, label: STATUS_TOKENS[status].label })),
