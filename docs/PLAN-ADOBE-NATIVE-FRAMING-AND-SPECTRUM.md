@@ -48,7 +48,7 @@ commercial-teaching pitch.
   `bg-pink-500` instead of the system's `<Button variant="ghost">`. Off-brand, won't theme. Bugbot
   catches it on the PR; you fix it live with Cmd-K.
 - **INJURY B** (201) — *WCAG AA dark-mode contrast failure in the design system.* In
-  `components/ui/status-badge.tsx` the `review` token's `dark.fg` is set to `#6A4A1E` on `#3A2A12`
+  `components/ui/status-tokens.ts` the `review` token's `dark.fg` is set to `#6A4A1E` on `#3A2A12`
   (≈1.7:1, below 4.5:1) so `npm test` goes red; a headless `cursor-agent` (the `fix-ci` job)
   restores `#E0A24E`.
 

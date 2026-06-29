@@ -45,7 +45,7 @@ Run the `/bootstrap-plan` command (or the prompt in BUILD-PLAN Phase 0). Cursor,
 |---|---|
 | **PIG-101** | INJURY A — off-brand `bg-pink-500` Duplicate button in `campaign-card.tsx` (Bugbot catches it on the PR) |
 | **PIG-102** | INJURY B — `status-tokens.ts` `review.dark` fails WCAG AA (CI goes red; `cursor-agent` fixes it) |
-| **PIG-204** | "Add a `size` prop to Button + an `archived` status" — the real ticket the 201 runs end-to-end |
+| **PIG-204** | "Add an `archived` status to the design system" — the real ticket the 201 runs end-to-end (reset to the pre-archived baseline first; `size` already shipped) |
 
 Each story's **description** carries the acceptance criteria; the agent posts its **plan as a
 comment**, logs effort with `addWorklogToJiraIssue`, links the PR with `createIssueLink`, and

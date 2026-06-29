@@ -67,6 +67,13 @@ Climb the autonomy ladder — **Tab → Ask → Plan → Agent** — and deliber
 code* and *the agent acting*, so the room sees a human **and** the tool do real work. All live on
 `/campaigns`; nothing here is committed — discard the edits after.
 
+**Setup — reset to the pre-archived baseline first.** Main *ships* `archived` (the seed's
+*Enterprise Onboarding* campaign + the `status-tokens.ts` token), so the Tab/Plan beats below have
+nothing net-new to add unless you remove it first. Stash it: drop `archived` from `CampaignStatus`,
+`STATUS_TOKENS`, and `SPECTRUM_STATUS` in `components/ui/status-tokens.ts`, and set the seed's `c6`
+back to `status: 'draft'` in `lib/campaigns-seed.ts`. `git stash` (or discard) after the demo —
+`/reset-injuries` restores `main`, which now *includes* archived, so it won't undo this for you.
+
 | # | Who | Primitive | Do | Room sees |
 |---|-----|-----------|----|-----------|
 | 1 | **You (code)** | **Tab** | In `status-tokens.ts` `STATUS_TOKENS`, start a new `archived:` entry | Tab completes the token shape — autocomplete that knows the file |
@@ -112,9 +119,9 @@ the `archived` light/dark token + `SPECTRUM_STATUS.archived`). TypeScript *force
 `Record<CampaignStatus, …>` maps, and the status filter + labels **derive** from `STATUS_TOKENS`, so
 they propagate with nothing to forget; `status-badge.test.ts` auto-covers the new status. **Read it
 and stop** — the point is *"it plans before it touches anything,"* and the nice tell is *one* file
-fans out to the whole surface. *(Known-AA values if you want to pre-stage: light `#E7E9EC`/`#3A4250`,
-dark `#2B313B`/`#A9B2C0`, Spectrum `neutral`. No seed campaign is `archived`, so the filter shows the
-empty state unless you flip one in `lib/campaigns-seed.ts`.)* This is the real **PIG-11 / PIG-204**
+fans out to the whole surface. *(These are the AA values main ships, so rebuild to them: light `#E7E9EC`/`#3A4250`,
+dark `#2B313B`/`#A9B2C0`, Spectrum `neutral`. After the reset above no seed is `archived`, so the filter shows the
+empty state until you restore `c6` in `lib/campaigns-seed.ts`.)* This is the real **PIG-11 / PIG-204**
 ticket — run it end-to-end in the 201 for the full Plan → Code → Review → CI loop.
 
 **4 — the injury (you type it).** In `components/campaigns/campaign-card.tsx`, replace:
