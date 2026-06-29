@@ -44,7 +44,7 @@ Run the `/bootstrap-plan` command (or the prompt in BUILD-PLAN Phase 0). Cursor,
 | Story | Purpose |
 |---|---|
 | **PIG-101** | INJURY A — off-brand `bg-pink-500` Duplicate button in `campaign-card.tsx` (Bugbot catches it on the PR) |
-| **PIG-102** | INJURY B — `status-badge.tsx` `review.dark` fails WCAG AA (CI goes red; `cursor-agent` fixes it) |
+| **PIG-102** | INJURY B — `status-tokens.ts` `review.dark` fails WCAG AA (CI goes red; `cursor-agent` fixes it) |
 | **PIG-204** | "Add a `size` prop to Button + an `archived` status" — the real ticket the 201 runs end-to-end |
 
 Each story's **description** carries the acceptance criteria; the agent posts its **plan as a
@@ -83,10 +83,10 @@ Consequences: <trade-offs + what it enables/constrains downstream>
 **ADR-0002 — Status tokens live in the component, gated by a contrast test** · PIG-3 · Accepted
 - Context: 200+ surfaces must stay on-brand *and* WCAG-AA in light and dark; a product team
   must not be able to ship an unreadable chip.
-- Decision: define `STATUS_TOKENS` (light/dark) in `components/ui/status-badge.tsx` as the
+- Decision: define `STATUS_TOKENS` (light/dark) in `components/ui/status-tokens.ts` as the
   single source, and enforce AA in CI via `components/ui/status-badge.test.ts`.
 - Consequences: a11y is a build gate, not a review nicety; the `cursor-agent`-fixes-CI demo
-  (INJURY B) targets exactly this file; new statuses must add a passing token + test.
+  (INJURY B) targets exactly `components/ui/status-tokens.ts`; new statuses must add a passing token + test.
 
 **ADR-0001 — Stack: Next.js 16 App Router + shadcn (on Base UI) + Supabase on Vercel** · PIG-2 · Accepted
 - Context: the demo must read as a modern enterprise front-end stack (Adobe's world), deploy

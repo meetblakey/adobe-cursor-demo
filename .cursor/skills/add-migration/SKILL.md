@@ -14,8 +14,8 @@ is here; the must-be-identical scaffolding is in `scripts/new-migration.sh`.
    Enum change (e.g. a new `campaigns.status` value) → `alter type campaign_status add value …`.
 4. Keep the app in sync: update `CampaignStatus` in `components/ui/status-tokens.ts` (add the
    `STATUS_TOKENS` pair — light + dark, both WCAG AA so `status-badge.test.ts` stays green — and
-   the `SPECTRUM_STATUS` semantic variant for the Spectrum path) and the type in
-   `lib/campaigns.ts`.
+   the `SPECTRUM_STATUS` semantic variant for the Spectrum path) and the `Campaign` type in
+   `lib/campaigns-types.ts`.
 5. **Apply across tiers** (see `docs/ENVIRONMENTS.md`): run the migration against the **staging**
    Supabase project first, validate on a Vercel preview, then apply to **production** — never
    skip staging.

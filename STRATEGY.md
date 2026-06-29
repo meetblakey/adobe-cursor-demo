@@ -110,8 +110,8 @@ verify day-of): Adobe's official **`@adobe/react-spectrum`** design system; the 
 server that feeds Adobe SDK docs into Cursor; and Adobe GPM **Ruben Rincon's** Oct-2025 write-up
 on building an Express add-on in Cursor. Keep the "imagine / stands in for" guardrail — Pigment's
 runtime is Next.js + Vercel, *not* App Builder. **The Upgrade (Part B) makes this literal where it
-counts:** Layer 1 *is* now `@adobe/react-spectrum` behind the stable Pigment API, flag-gated
-(`spectrum-design-system`, default OFF) so the owned Vercel/CI/Bugbot/LaunchDarkly pipeline is
+counts:** Layer 1 *is* now `@adobe/react-spectrum` behind the stable Pigment API, the default
+design system in production (no flag, client-only after hydration) so the owned Vercel/CI/Bugbot/LaunchDarkly pipeline is
 unchanged — we kept SDLC control *and* stopped being a tourist on the design system itself. See
 [`docs/PLAN-ADOBE-NATIVE-FRAMING-AND-SPECTRUM.md`](docs/PLAN-ADOBE-NATIVE-FRAMING-AND-SPECTRUM.md).
 
