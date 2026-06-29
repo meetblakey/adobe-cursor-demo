@@ -61,7 +61,7 @@ npm run typecheck && npm run build
 | Path | Owner | Role |
 |---|---|---|
 | `components/ui/*` (shadcn) | **platform team** | shared components, tokens only |
-| `components/ui/status-badge.tsx` + `.test.ts` | **platform team** | semantic status tokens + the WCAG AA gate |
+| `components/ui/status-tokens.ts` + `status-badge.test.ts` | **platform team** | semantic status tokens + the WCAG AA gate |
 | `app/globals.css` | **platform team** | brand/theme tokens |
 | `lib/` | **platform team** | data access (Supabase) + contrast math |
 | `app/campaigns/` + `components/campaigns/*` | a **product team** | one of 200+ surfaces |

@@ -6,7 +6,7 @@ Committed unified diffs against **`main` baseline** — apply only on demo branc
 | File | Injury | Target |
 |------|--------|--------|
 | `injury-a.patch` | A — Bugbot | `components/campaigns/campaign-card.tsx` |
-| `injury-b.patch` | B — CI / `cursor-agent` | `components/ui/status-badge.tsx` |
+| `injury-b.patch` | B — CI / `cursor-agent` | `components/ui/status-tokens.ts` |
 
 ```bash
 ./.github/scripts/demo-injury.sh apply a   # or b
