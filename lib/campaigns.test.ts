@@ -221,4 +221,25 @@ describe('getCampaigns with live Supabase data', () => {
       },
     ]);
   });
+
+  it('normalizes unknown Supabase status values to draft', async () => {
+    setNonProduction();
+    setSupabaseEnv();
+    mockSupabaseQuery({
+      data: [
+        {
+          id: 'db2',
+          name: 'Legacy Campaign',
+          owner: 'Growth',
+          status: 'paused',
+          updated_at: '2026-06-25',
+        },
+      ],
+      error: null,
+    });
+
+    const campaigns = await getCampaigns();
+
+    expect(campaigns[0]?.status).toBe('draft');
+  });
 });
