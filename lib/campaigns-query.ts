@@ -2,7 +2,7 @@ import { createAnonClient } from '@/lib/supabase/anon-client';
 import { getCampaignCoverUrl } from '@/lib/campaign-covers';
 import { getCampaignSlug } from '@/lib/campaign-slugs';
 import { formatCampaignUpdatedAt } from '@/lib/campaigns-format';
-import type { CampaignStatus } from '@/components/ui/status-badge';
+import { normalizeCampaignStatus, type CampaignStatus } from '@/components/ui/status-tokens';
 import type { Campaign } from '@/lib/campaigns-types';
 
 type CampaignRow = {
@@ -23,7 +23,7 @@ export function enrichCampaign(row: CampaignRow): Campaign {
     slug: getCampaignSlug(row.name),
     name: row.name,
     owner: row.owner,
-    status: row.status as CampaignStatus,
+    status: normalizeCampaignStatus(row.status),
     updatedAt,
     updatedAtLabel: formatCampaignUpdatedAt(updatedAt),
     summary: row.summary ?? '',
