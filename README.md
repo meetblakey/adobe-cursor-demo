@@ -45,8 +45,9 @@ verified reference scaffold is included, but the spec docs are the source of tru
 | `CODEOWNERS` · `supabase/migrations/*` | platform/product ownership + DB schema |
 
 ## Stack
-Next.js 16 (App Router) · Tailwind v4 · shadcn/ui · Base UI (`@base-ui/react`) · Supabase ·
-Vercel. (You own the config — Supabase project, env vars, Vercel.)
+Next.js 16 · TypeScript · Tailwind v4 · Adobe React Spectrum behind a stable Pigment UI API ·
+shadcn/Base UI SSR fallback · Supabase · Vercel. (You own the config — Supabase project, env vars,
+Vercel.)
 
 ## Run it
 ```
@@ -60,7 +61,7 @@ npm run typecheck && npm run build
 ## Structure (the 100+-team model, in miniature)
 | Path | Owner | Role |
 |---|---|---|
-| `components/ui/*` (shadcn) | **platform team** | shared components, tokens only |
+| `components/ui/*` | **platform team** | stable Pigment UI API backed by React Spectrum, with shadcn/Base UI fallback |
 | `components/ui/status-tokens.ts` + `status-badge.test.ts` | **platform team** | semantic status tokens + the WCAG AA gate |
 | `app/globals.css` | **platform team** | brand/theme tokens |
 | `lib/` | **platform team** | data access (Supabase) + contrast math |

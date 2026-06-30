@@ -4,13 +4,16 @@ Scaffold a new **platform-owned** component in the Pigment design system, on-spe
 
 Given a component name and purpose:
 
-1. Create `components/ui/<name>.tsx`. Compose existing primitives where possible; use Base UI
-   (`@base-ui/react`) for unstyled behaviour, styled with Tailwind tokens.
-2. Use theme tokens only — never a hardcoded color. If a new semantic value is needed, add it
-   to `app/globals.css` (light + dark) or the relevant token map, not inline.
-3. If the component carries color pairs (badge/alert/etc.), add them to a `*_TOKENS` map and a
-   matching contrast test asserting WCAG AA in both themes (mirror `status-badge.test.ts`).
-4. Add a focus-visible state for any interactive element.
-5. Run `npm run typecheck && npm test`.
+1. Create `components/ui/<name>.tsx`.
+2. Preserve the stable Pigment prop API at the call site.
+3. Prefer Adobe React Spectrum for the hydrated hot path when the component maps cleanly to
+   Spectrum primitives.
+4. Keep the legacy shadcn/Base UI/Tailwind path only as the pre-hydration SSR fallback or when
+   Spectrum does not support the behavior.
+5. Use semantic props and theme tokens only — never hardcoded color literals.
+6. If the component carries color pairs, add a token map and a WCAG-AA contrast test.
+7. Add focus-visible and keyboard behavior.
+8. Run `npm run typecheck && npm test && npm run build`.
 
-Report the file created and the tokens used.
+Report the file created, the Spectrum primitive or fallback used, and the tokens or semantic
+variants chosen.
