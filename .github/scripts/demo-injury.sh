@@ -104,7 +104,8 @@ case "$cmd" in
     # Mid-room CI beat on the staged PIG-206 PR: commit the INJURY B flip ON TOP
     # of HEAD. Never moves the tip backwards, so the live INJURY A fix survives.
     on_main && die "refuse to commit INJURY B on main — checkout the PIG-206 branch first"
-    git -C "$ROOT" diff --quiet || die "working tree dirty — commit or reset first"
+    git -C "$ROOT" diff --quiet && git -C "$ROOT" diff --cached --quiet \
+      || die "working tree dirty — commit or reset first"
     git -C "$ROOT" apply --check "$PATCH_DIR/injury-b.patch" \
       || die "INJURY B patch does not apply — has fix-ci already changed the token on this branch?"
     git -C "$ROOT" apply "$PATCH_DIR/injury-b.patch"
@@ -116,7 +117,13 @@ case "$cmd" in
   reset)
     ref="$(baseline_ref)"
     git -C "$ROOT" checkout "$ref" -- "${DEMO_FILES[@]}"
-    rm -f "$MIG_6" "$MIG_7"
+    for mig in "$MIG_6" "$MIG_7"; do
+      if git -C "$ROOT" ls-files --error-unmatch "$mig" >/dev/null 2>&1; then
+        git -C "$ROOT" rm -f "$mig"
+      else
+        rm -f "$mig"
+      fi
+    done
     echo "→ Restored demo files from $ref baseline; removed migrations 0006/0007 if present."
     ;;
   verify)
@@ -164,6 +171,23 @@ case "$cmd" in
         failed=1
       fi
     done
+    # Stack gate: staging order must compose (scheduled → injury-a → injury-b).
+    stack_dir="$(mktemp -d)"
+    cleanup_stack() {
+      git -C "$ROOT" worktree remove -f "$stack_dir" 2>/dev/null || rm -rf "$stack_dir"
+    }
+    trap cleanup_stack EXIT
+    git -C "$ROOT" worktree add --detach "$stack_dir" HEAD -q
+    if git -C "$stack_dir" apply "$PATCH_DIR/scheduled.patch" \
+      && git -C "$stack_dir" apply "$PATCH_DIR/injury-a.patch" \
+      && git -C "$stack_dir" apply --check "$PATCH_DIR/injury-b.patch"; then
+      echo "OK: patch stack (scheduled → injury-a → injury-b) composes."
+    else
+      echo "DRIFT: patch stack fails — re-verify scheduled → injury-a → injury-b." >&2
+      failed=1
+    fi
+    cleanup_stack
+    trap - EXIT
     exit "$failed"
     ;;
   tag-broken)

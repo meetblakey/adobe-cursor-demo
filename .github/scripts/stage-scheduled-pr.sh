@@ -16,6 +16,7 @@ die() { echo "stage-scheduled-pr: $*" >&2; exit 1; }
 
 cd "$ROOT"
 git diff --quiet && git diff --cached --quiet || die "working tree dirty — commit/stash/reset first"
+[ -z "$(git ls-files --others --exclude-standard)" ] || die "untracked files present — remove or stash first"
 git fetch origin main
 
 git rev-parse --verify "$BRANCH" >/dev/null 2>&1 \
@@ -38,8 +39,10 @@ Status derives from STATUS_TOKENS (AA pair both themes) + SPECTRUM_STATUS
 (OFF in production). Seed: APJ Expansion -> scheduled. Enum migrations
 0006 (add value) + 0007 (backfill) apply staging-first."
 
-echo "→ Verifying tests stay green on push 1 (Bugbot catches the drift, not CI)…"
-npx vitest run >/dev/null 2>&1 || die "vitest failed on the staged branch — investigate before pushing"
+echo "→ Verifying typecheck, tests, and build stay green on push 1 (Bugbot catches the drift, not CI)…"
+npm run typecheck >/dev/null 2>&1 || die "typecheck failed on the staged branch — investigate before pushing"
+npm test >/dev/null 2>&1 || die "tests failed on the staged branch — investigate before pushing"
+npm run build >/dev/null 2>&1 || die "build failed on the staged branch — investigate before pushing"
 
 git push -u origin "$BRANCH"
 

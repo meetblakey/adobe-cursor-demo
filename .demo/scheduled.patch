@@ -1,16 +1,17 @@
 diff --git a/components/campaigns/campaigns-view.tsx b/components/campaigns/campaigns-view.tsx
-index 5cb2381..e71e521 100644
+index 5cb2381..1698585 100644
 --- a/components/campaigns/campaigns-view.tsx
 +++ b/components/campaigns/campaigns-view.tsx
 @@ -1,6 +1,7 @@
  'use client';
  
- import { useState } from 'react';
+-import { useState } from 'react';
++import { useState, useEffect } from 'react';
 +import { useFlags } from 'launchdarkly-react-client-sdk';
  import { LayoutGridIcon, TableIcon } from 'lucide-react';
  import { Button } from '@/components/ui/button';
  import { FirstFlagDemo } from '@/components/campaigns/first-flag-demo';
-@@ -26,8 +27,16 @@ function CampaignGrid({ campaigns }: { campaigns: Campaign[] }) {
+@@ -26,8 +27,19 @@ function CampaignGrid({ campaigns }: { campaigns: Campaign[] }) {
  export function CampaignsView({ campaigns }: { campaigns: Campaign[] }) {
    const [status, setStatus] = useState('all');
    const [viewMode, setViewMode] = useState<ViewMode>('grid');
@@ -26,10 +27,13 @@ index 5cb2381..e71e521 100644
 +    c.status === 'scheduled' && !scheduledStatus ? 'draft' : c.status;
 +  const filtered = status === 'all' ? campaigns : campaigns.filter((c) => shownStatus(c) === status);
 +  const statusLabel = statusOptions.find((o) => o.value === status)?.label ?? status;
++  useEffect(() => {
++    if (!scheduledStatus && status === 'scheduled') setStatus('all');
++  }, [scheduledStatus, status]);
  
    return (
      <div className="flex flex-col gap-5 sm:gap-6">
-@@ -74,7 +83,7 @@ export function CampaignsView({ campaigns }: { campaigns: Campaign[] }) {
+@@ -74,7 +86,7 @@ export function CampaignsView({ campaigns }: { campaigns: Campaign[] }) {
                  <LayoutGridIcon aria-hidden />
                </Button>
              </div>
@@ -160,29 +164,3 @@ index 6631cb8..ce1198c 100644
      updatedAt: '2026-06-22',
      campaignType: 'Lead generation',
      summary: 'Enterprise trial go-to-market for APJ field teams.',
-diff --git a/supabase/migrations/0006_campaign_status_scheduled.sql b/supabase/migrations/0006_campaign_status_scheduled.sql
-new file mode 100644
-index 0000000..4a3f723
---- /dev/null
-+++ b/supabase/migrations/0006_campaign_status_scheduled.sql
-@@ -0,0 +1,7 @@
-+-- campaign_status_scheduled
-+-- Add the 'scheduled' value to the campaign_status enum (PIG-206).
-+-- Postgres will not let a newly added enum value be used in the same transaction
-+-- that adds it, so the backfill that sets a campaign to 'scheduled' lives in the
-+-- next migration (0007), which runs after this one commits.
-+
-+alter type campaign_status add value if not exists 'scheduled';
-diff --git a/supabase/migrations/0007_schedule_apj_expansion.sql b/supabase/migrations/0007_schedule_apj_expansion.sql
-new file mode 100644
-index 0000000..6665f9e
---- /dev/null
-+++ b/supabase/migrations/0007_schedule_apj_expansion.sql
-@@ -0,0 +1,7 @@
-+-- schedule_apj_expansion
-+-- Keep status in sync with lib/campaigns-seed.ts: APJ Expansion → scheduled (PIG-206).
-+-- Runs after 0006 commits the new enum value. Additive (never edits 0001/0002),
-+-- so prod converges to the seed's final state.
-+
-+update public.campaigns set status = 'scheduled'
-+where name = 'APJ Expansion';
