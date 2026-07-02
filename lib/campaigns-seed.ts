@@ -11,7 +11,7 @@ type SeedCampaign = {
   campaignType: string;
 };
 
-/** Canonical campaign seed — keep supabase/migrations/0002 backfill + 0007 APJ status in sync. */
+/** Canonical campaign seed — keep supabase/migrations/0002 backfill in sync. */
 export const CAMPAIGN_SEED: SeedCampaign[] = [
   {
     id: 'c1',
@@ -37,7 +37,7 @@ export const CAMPAIGN_SEED: SeedCampaign[] = [
     id: 'c3',
     name: 'APJ Expansion',
     owner: 'Field',
-    status: 'scheduled',
+    status: 'draft',
     updatedAt: '2026-06-22',
     campaignType: 'Lead generation',
     summary: 'Enterprise trial go-to-market for APJ field teams.',

@@ -2,7 +2,7 @@
 // imports) so the a11y gate (status-badge.test.ts) can import it under Node
 // without pulling in Adobe React Spectrum's bundled stylesheets.
 
-export type CampaignStatus = 'draft' | 'live' | 'review' | 'archived' | 'scheduled';
+export type CampaignStatus = 'draft' | 'live' | 'review' | 'archived';
 
 // Source of truth for the legacy StatusBadge path — now the pre-hydration SSR
 // fallback, since Spectrum is the default. Each pair must clear WCAG AA in BOTH
@@ -15,20 +15,18 @@ export const STATUS_TOKENS: Record<
 > = {
   draft: { label: 'Draft', light: { bg: '#EDEDEA', fg: '#44443F' }, dark: { bg: '#26262F', fg: '#B9B9B2' } },
   live: { label: 'Live', light: { bg: '#DCF5E4', fg: '#0F6B33' }, dark: { bg: '#14331F', fg: '#57D98A' } },
-  review: { label: 'In review', light: { bg: '#FFF1D6', fg: '#8A4B00' }, dark: { bg: '#3A2A12', fg: '#F5C16C' } },
+  review: { label: 'In review', light: { bg: '#FFF1D6', fg: '#8A4B00' }, dark: { bg: '#3A2A12', fg: '#E0A24E' } },
   archived: { label: 'Archived', light: { bg: '#E7E9EC', fg: '#3A4250' }, dark: { bg: '#2B313B', fg: '#A9B2C0' } },
-  scheduled: { label: 'Scheduled', light: { bg: '#E0EEF9', fg: '#0C447C' }, dark: { bg: '#152C42', fg: '#7EC8F2' } },
 };
 
 // Spectrum path (the rendered default): semantic StatusLight variants,
 // pre-validated AA in light + dark by Spectrum — there is no hand-authored hex
 // left to get wrong. status-badge.spectrum.test.ts asserts these stay semantic.
-export const SPECTRUM_STATUS: Record<CampaignStatus, 'neutral' | 'positive' | 'notice' | 'info'> = {
+export const SPECTRUM_STATUS: Record<CampaignStatus, 'neutral' | 'positive' | 'notice'> = {
   draft: 'neutral',
   live: 'positive',
   review: 'notice',
   archived: 'neutral',
-  scheduled: 'info',
 };
 
 // Filter options + human labels are DERIVED from STATUS_TOKENS — the one
