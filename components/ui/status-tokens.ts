@@ -15,7 +15,7 @@ export const STATUS_TOKENS: Record<
 > = {
   draft: { label: 'Draft', light: { bg: '#EDEDEA', fg: '#44443F' }, dark: { bg: '#26262F', fg: '#B9B9B2' } },
   live: { label: 'Live', light: { bg: '#DCF5E4', fg: '#0F6B33' }, dark: { bg: '#14331F', fg: '#57D98A' } },
-  review: { label: 'In review', light: { bg: '#FFF1D6', fg: '#8A4B00' }, dark: { bg: '#3A2A12', fg: '#6A4A1E' } },
+  review: { label: 'In review', light: { bg: '#FFF1D6', fg: '#8A4B00' }, dark: { bg: '#3A2A12', fg: '#F5C16C' } },
   archived: { label: 'Archived', light: { bg: '#E7E9EC', fg: '#3A4250' }, dark: { bg: '#2B313B', fg: '#A9B2C0' } },
   scheduled: { label: 'Scheduled', light: { bg: '#E0EEF9', fg: '#0C447C' }, dark: { bg: '#152C42', fg: '#7EC8F2' } },
 };
