@@ -35,6 +35,11 @@ that runs the whole outer loop: Bugbot → CI self-heal → merge → dark deplo
       page. The 201's Plan beat shows this trail — don't skip it.
 - [ ] **LaunchDarkly:** flag **`scheduled-status`** exists (envs test + production), **OFF in
       both** at start of day. `my-first-flag` stays as-is (it gates the demo card only).
+- [ ] **Know your reveal URL's data source.** The Supabase DBs do NOT have `scheduled` yet
+      (enum `{draft,live,review,archived}`, APJ = draft) — that's correct pre-demo state; the
+      migrations are a live beat (201 step 5c). Decide now which URL the flag-flip reveal uses:
+      a **seed-backed** URL (no Supabase env → chip appears from seed alone) or a **DB-backed**
+      URL (you must run 0006/0007 against that project during the demo).
 - [ ] **Preview SSO bypass** for the LD demo ([`ENVIRONMENTS.md`](ENVIRONMENTS.md)): run
       `./.github/scripts/disable-preview-sso.sh` so preview URLs are public in the browser; keep
       `./.github/scripts/enable-preview-protection-bypass.sh` for CI when SSO is re-enabled
@@ -231,6 +236,14 @@ commented on the drift** by the time you present.
    merges — both injuries are fixed on it by now). Vercel auto-deploys production **dark**:
    `scheduled-status` is OFF in prod, so APJ Expansion still presents as draft and there's no
    Scheduled filter entry. "Deploy ≠ release."
+5c. **Run the migrations (staging-first — this IS a beat, don't skip it).** The flag gates
+   *presentation*; the **data** comes from Supabase, and the DB still has APJ = `draft` with
+   no `scheduled` enum value. Apply `0006` then `0007` via the Supabase MCP (or SQL editor)
+   to the project backing the URL you'll reveal on — **staging first, validate on the
+   preview, then production** (the add-migration skill's rule, live on stage). Skipping this
+   means flag-ON shows the Scheduled *filter entry* but the APJ chip stays Draft — an empty
+   reveal. (Seed-backed URLs — local/preview *without* Supabase env — show the chip from
+   seed alone, no migrations needed.)
 6. **Release: `/release-flag scheduled-status`** — toggle ON in LD **test**, verify the
    Scheduled chip + filter on the preview URL; then the human gate: ON in **production** —
    the chip and filter entry appear live on the prod URL. Instant rollback = flag OFF (kill
