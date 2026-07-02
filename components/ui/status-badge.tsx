@@ -9,6 +9,7 @@ import {
   SPECTRUM_STATUS,
   type CampaignStatus,
 } from '@/components/ui/status-tokens';
+import { shownCampaignStatus } from '@/lib/scheduled-status';
 
 export { STATUS_TOKENS, SPECTRUM_STATUS, type CampaignStatus };
 
@@ -16,9 +17,7 @@ export function StatusBadge({ status }: { status: CampaignStatus }) {
   const { theme } = useTheme();
   const spectrum = useSpectrumDesignSystem();
   const { scheduledStatus } = useFlags();
-  // scheduled-status flag OFF → scheduled campaigns present as the draft they were
-  // before the flag, on every surface that renders a StatusBadge.
-  const shown: CampaignStatus = status === 'scheduled' && !scheduledStatus ? 'draft' : status;
+  const shown = shownCampaignStatus(status, scheduledStatus);
 
   if (spectrum) {
     return <StatusLight variant={SPECTRUM_STATUS[shown]}>{STATUS_TOKENS[shown].label}</StatusLight>;
