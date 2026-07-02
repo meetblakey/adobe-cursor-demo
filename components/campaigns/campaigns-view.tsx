@@ -1,6 +1,7 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useFlags } from 'launchdarkly-react-client-sdk';
 import { LayoutGridIcon, TableIcon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { FirstFlagDemo } from '@/components/campaigns/first-flag-demo';
@@ -26,8 +27,19 @@ function CampaignGrid({ campaigns }: { campaigns: Campaign[] }) {
 export function CampaignsView({ campaigns }: { campaigns: Campaign[] }) {
   const [status, setStatus] = useState('all');
   const [viewMode, setViewMode] = useState<ViewMode>('grid');
-  const filtered = status === 'all' ? campaigns : campaigns.filter((c) => c.status === status);
-  const statusLabel = STATUS_FILTER_OPTIONS.find((o) => o.value === status)?.label ?? status;
+  const { scheduledStatus } = useFlags();
+  // scheduled-status flag OFF → no Scheduled filter entry, and scheduled campaigns
+  // keep filtering as the draft they present as (StatusBadge applies the same gate).
+  const statusOptions = scheduledStatus
+    ? STATUS_FILTER_OPTIONS
+    : STATUS_FILTER_OPTIONS.filter((o) => o.value !== 'scheduled');
+  const shownStatus = (c: Campaign) =>
+    c.status === 'scheduled' && !scheduledStatus ? 'draft' : c.status;
+  const filtered = status === 'all' ? campaigns : campaigns.filter((c) => shownStatus(c) === status);
+  const statusLabel = statusOptions.find((o) => o.value === status)?.label ?? status;
+  useEffect(() => {
+    if (!scheduledStatus && status === 'scheduled') setStatus('all');
+  }, [scheduledStatus, status]);
 
   return (
     <div className="flex flex-col gap-5 sm:gap-6">
@@ -74,7 +86,7 @@ export function CampaignsView({ campaigns }: { campaigns: Campaign[] }) {
                 <LayoutGridIcon aria-hidden />
               </Button>
             </div>
-            <StatusFilter value={status} onChange={setStatus} />
+            <StatusFilter value={status} onChange={setStatus} options={statusOptions} />
           </div>
           <Button size="lg" className="h-9 w-full shrink-0 whitespace-nowrap sm:w-auto">
             Create campaign
