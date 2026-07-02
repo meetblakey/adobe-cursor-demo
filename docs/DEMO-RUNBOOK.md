@@ -37,8 +37,9 @@ that runs the whole outer loop: Bugbot → CI self-heal → merge → dark deplo
       post-demo.
 - [ ] **Rehearse the 201 outer loop once end-to-end** (see the 201 section):
       `/stage-scheduled-pr` → Bugbot comments on the drift (checks green) → live fix →
-      `demo-injury.sh replay-b` → red CI → `fix-ci` self-heals → tag. Between runs:
-      **`/demo-reset`**. Guide: [`docs/DEMO-INJURIES.md`](DEMO-INJURIES.md).
+      `demo-injury.sh replay-b` → red CI → `fix-ci` self-heals → optionally `tag-broken` at the
+      injury commit (between-rehearsal replays only) → close the rehearsal PR WITHOUT merging.
+      Between runs: **`/demo-reset`**. Guide: [`docs/DEMO-INJURIES.md`](DEMO-INJURIES.md).
 - [ ] **101 start state (set this LAST, right before the room):**
       ```bash
       git checkout main && git pull --ff-only origin main
@@ -245,8 +246,8 @@ commented on the drift** by the time you present.
 Tag `main` as **`pre-201`** before a full rehearsal or the room
 (`git tag pre-201 origin/main`). Afterwards:
 1. **Revert the Scheduled merge on `main`** via a revert commit — PR the revert if you have
-   time, never `git reset --hard` on `main`. `check-patches` goes green again once the revert
-   lands (main is Scheduled-free ⇒ the patches apply again).
+   time, never `git reset --hard` on `main`. The `check-patches` drift gate stands down while
+   `scheduled` is on `main` and re-arms once the revert lands.
 2. **Flags OFF** in both LD envs (`scheduled-status`).
 3. **Staging Supabase:** revert the 0007 backfill (`update public.campaigns set status =
    'draft' where name = 'APJ Expansion';`). Postgres can't drop enum values — leaving

@@ -14,8 +14,9 @@ is here; the must-be-identical scaffolding is in `scripts/new-migration.sh`.
    **Enum adds are TWO migrations, always.** Postgres will not let a newly added enum value be
    used in the same transaction that adds it, so a new `campaigns.status` value ships as a pair:
    first `NNNN_<status>.sql` with `alter type campaign_status add value if not exists '<status>';`,
-   then `NNNN+1_<backfill>.sql` with the `update` that uses it. Mirror the shipped pairs
-   0004/0005 (`archived`, PIG-204) and 0006/0007 (`scheduled`, PIG-206). Note the reverse is
+   then `NNNN+1_<backfill>.sql` with the `update` that uses it. Mirror the shipped pair
+   0004/0005 (`archived`, PIG-204); the `scheduled` pair 0006/0007 (PIG-206) follows the same
+   shape and ships via the PIG-206 branch. Note the reverse is
    NOT symmetric: Postgres cannot drop an enum value, so rolling back means reverting the
    backfill only and leaving the value in the enum (additive, harmless).
 4. Keep the app in sync: update `CampaignStatus` in `components/ui/status-tokens.ts` (add the

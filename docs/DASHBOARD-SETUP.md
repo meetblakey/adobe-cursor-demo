@@ -53,7 +53,7 @@ Full spec: [`SENTRY-AUTOMATION.md`](SENTRY-AUTOMATION.md)
 Last run after PIG-205 implementation:
 
 - `npm run typecheck` — pass
-- `npm test` — 46 tests pass (including a11y gate)
+- `npm test` — all tests pass (including a11y gate; 52 on the PIG-206 branch)
 - `npm run build` — pass
 - INJURY files (`campaign-card.tsx`, `status-tokens.ts`) — unchanged on `main` baseline
 

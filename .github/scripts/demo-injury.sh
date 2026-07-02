@@ -91,8 +91,9 @@ case "$cmd" in
     # nothing committed. Priya then live-implements Scheduled and fixes the button
     # in-editor — no PR is opened in the 101.
     on_main || die "start-101 sets the 101 start state on main — checkout main first"
-    git -C "$ROOT" diff --quiet -- "${DEMO_FILES[@]}" \
-      || die "demo files already modified — run reset first"
+    { git -C "$ROOT" diff --quiet -- "${DEMO_FILES[@]}" \
+        && git -C "$ROOT" diff --cached --quiet -- "${DEMO_FILES[@]}"; } \
+      || die "demo files already modified (worktree or index) — run reset first"
     scheduled_absent || die "'scheduled' already present in tokens/seed/migrations — main must be Scheduled-free for the 101 (post-201? revert the Scheduled merge)"
     git -C "$ROOT" apply --check "$PATCH_DIR/injury-a.patch"
     git -C "$ROOT" apply "$PATCH_DIR/injury-a.patch"
@@ -104,12 +105,13 @@ case "$cmd" in
     # Mid-room CI beat on the staged PIG-206 PR: commit the INJURY B flip ON TOP
     # of HEAD. Never moves the tip backwards, so the live INJURY A fix survives.
     on_main && die "refuse to commit INJURY B on main — checkout the PIG-206 branch first"
-    git -C "$ROOT" diff --quiet || die "working tree dirty — commit or reset first"
+    { git -C "$ROOT" diff --quiet && git -C "$ROOT" diff --cached --quiet; } \
+      || die "working tree dirty (worktree or index) — commit or reset first"
     git -C "$ROOT" apply --check "$PATCH_DIR/injury-b.patch" \
       || die "INJURY B patch does not apply — has fix-ci already changed the token on this branch?"
     git -C "$ROOT" apply "$PATCH_DIR/injury-b.patch"
-    git -C "$ROOT" add "$TOKENS"
-    git -C "$ROOT" commit -m "PIG-206: tune review badge dark-mode foreground"
+    # pathspec commit: only the token file can ride this commit, whatever the index holds
+    git -C "$ROOT" commit -m "PIG-206: tune review badge dark-mode foreground" -- "$TOKENS"
     echo "→ INJURY B committed on top of HEAD (review.dark.fg #6A4A1E; a11y gate will fail)."
     echo "  Push to trigger the red check + fix-ci: git push"
     ;;
@@ -154,7 +156,13 @@ case "$cmd" in
   check-patches)
     # Drift gate: every committed .demo patch must still apply to HEAD. Run on
     # clean main (CI runs it on pushes to main) — it will fail by design on a
-    # branch where a patch is already applied.
+    # branch where a patch is already applied. During the sanctioned 201 merge
+    # window main briefly carries the Scheduled feature; the gate stands down
+    # there and re-arms once the post-201 revert lands.
+    if ! scheduled_absent; then
+      echo "SKIP: 'scheduled' present on this tree (201 merge window?) — drift gate stands down."
+      exit 0
+    fi
     failed=0
     for p in "$PATCH_DIR"/*.patch; do
       if git -C "$ROOT" apply --check "$p" 2>/dev/null; then
@@ -196,5 +204,6 @@ Commands:
 
 Docs: docs/DEMO-INJURIES.md
 EOF
+    [ -z "$cmd" ] || exit 1
     ;;
 esac

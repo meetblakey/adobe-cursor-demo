@@ -34,7 +34,7 @@ Jira/Confluence and migrations 0004/0005 are the worked example the agent mirror
 | 1 | Plan | **Jira + Confluence** | Jira + Confluence | Atlassian **MCP** pulls the ticket + acceptance criteria; create/link LD flag key in AC for feature work |
 | 2 | Code | Cursor editor + **LaunchDarkly SDK** | Cursor editor | Wrap new features behind flags (default **OFF** in LD production); `launchdarkly-flag-create` skill |
 | **2alt** | **Code (parallel)** | **Cloud Agent** + **`/cloud-ticket`** | Cloud Agents | VM self-verify (screenshots on `/campaigns`); see [`CLOUD-AGENTS.md`](CLOUD-AGENTS.md) |
-| 2b | IDE review | **`/review-bugbot`** (+ **`/review-security`**) | — | Pre-push review — see [`open-pr`](.cursor/commands/open-pr.md) |
+| 2b | IDE review | **`/review-bugbot`** (+ **`/review-security`**) | — | Pre-push review — see [`open-pr`](../.cursor/commands/open-pr.md) |
 | 3 | Review | GitHub PR | GitHub/Bitbucket PR | **Bugbot** + Security + Approval; validate flag wiring on preview |
 | 4 | CI | **GitHub Actions** | Jenkins → Spinnaker | **`cursor-agent`** fixes red pipeline (INJURY B); runs without LD/Supabase secrets |
 | 5 | Deploy | **Vercel** | Spinnaker → K8s | Preview per PR; **prod auto-deploy on merge** (dark — flag OFF in production) |

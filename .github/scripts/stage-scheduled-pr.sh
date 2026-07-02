@@ -15,8 +15,16 @@ BRANCH="PIG-206"   # branch = bare story key, the repo convention
 die() { echo "stage-scheduled-pr: $*" >&2; exit 1; }
 
 cd "$ROOT"
-git diff --quiet && git diff --cached --quiet || die "working tree dirty — commit/stash/reset first"
+# untracked files matter too: git add -A below would sweep them into the demo PR
+[ -z "$(git status --porcelain)" ] \
+  || die "working tree not clean (tracked or untracked changes) — commit/stash/clean first"
 git fetch origin main
+
+# fail fast, before any branch is cut: the payload must already be ON origin/main
+for p in .demo/scheduled.patch .demo/injury-a.patch; do
+  git cat-file -e "origin/main:$p" 2>/dev/null \
+    || die "$p is not on origin/main — merge the demo-tooling PR first"
+done
 
 git rev-parse --verify "$BRANCH" >/dev/null 2>&1 \
   && die "local branch $BRANCH exists — previous rehearsal not cleaned up (see /demo-reset)"

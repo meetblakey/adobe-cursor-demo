@@ -63,14 +63,15 @@ demo's three beats (plan-first build, the two injuries, 100+-dev governance).
   so we log and fail safe. Say this honestly when presenting governance.
 
 ## Demo injury commands (repeatable 201 beats)
-Slash macros for INJURY A/B — never applied on `main`. Patches: [`.demo/`](../.demo/);
+Slash macros for INJURY A/B — never **committed** on `main` (the 101 start state applies
+INJURY A uncommitted via `demo-injury.sh start-101`). Patches: [`.demo/`](../.demo/);
 script: [`.github/scripts/demo-injury.sh`](../.github/scripts/demo-injury.sh); guide:
 [`docs/DEMO-INJURIES.md`](DEMO-INJURIES.md).
 
 | Command | Purpose |
 |---------|---------|
 | `/apply-injury-a` · `/apply-injury-b` | Apply patch on current demo branch |
-| `/reset-injuries` | Restore both files from `main` baseline |
+| `/reset-injuries` | Restore demo files (incl. seed + flag gate) from `main`; removes migrations 0006/0007 |
 | `/rehearse-injury-a` · `/rehearse-injury-b` | Full branch → PR rehearsal loop |
 | `/demo-reset` | Reset files + close demo PRs checklist |
 
