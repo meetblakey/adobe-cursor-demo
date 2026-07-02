@@ -31,6 +31,13 @@ jobs:
       - run: npm test
       - run: npm run build
 
+      # Drift gate for the seeded demo patches: on main they must always apply
+      # (main-push only — on PR branches the patches are intentionally applied,
+      # so the check would fail by design there).
+      - name: Demo patches still apply
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        run: ./.github/scripts/demo-injury.sh check-patches
+
   fix-ci:
     needs: check
     if: failure() && github.event_name == 'pull_request'

@@ -87,6 +87,8 @@ stories, and the Confluence space via the Atlassian MCP (see Setup + `PLAN.md`).
 ## 3. Wiring the two demo scenarios
 Build the app clean (green `main`). The scenarios are *performed*, not committed — exact
 diffs, verbatim prompts, and the expected Bugbot comment are in [`INJURIES.md`](INJURIES.md).
-Rehearse until: INJURY A reliably draws a Bugbot comment citing `.cursor/rules/design-system`,
+Rehearse until: INJURY A reliably draws a Bugbot comment citing the tokens-never-literals
+standard (Bugbot reviews from `.cursor/BUGBOT.md`, root + nested, plus dashboard/learned
+rules — it does not read `.cursor/rules`),
 and INJURY B reliably turns CI red and the `cursor-agent` job fixes it. Keep a pre-baked
 fallback PR + a recording (see `DEMO-RUNBOOK.md`).

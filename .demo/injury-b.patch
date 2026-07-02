@@ -1,10 +1,8 @@
 diff --git a/components/ui/status-tokens.ts b/components/ui/status-tokens.ts
 --- a/components/ui/status-tokens.ts
 +++ b/components/ui/status-tokens.ts
-@@ -14,5 +14,5 @@ export const STATUS_TOKENS: Record<
- > = {
-   draft: { label: 'Draft', light: { bg: '#EDEDEA', fg: '#44443F' }, dark: { bg: '#26262F', fg: '#B9B9B2' } },
+@@ -17,3 +17,3 @@ export const STATUS_TOKENS: Record<
    live: { label: 'Live', light: { bg: '#DCF5E4', fg: '#0F6B33' }, dark: { bg: '#14331F', fg: '#57D98A' } },
 -  review: { label: 'In review', light: { bg: '#FFF1D6', fg: '#8A4B00' }, dark: { bg: '#3A2A12', fg: '#E0A24E' } },
 +  review: { label: 'In review', light: { bg: '#FFF1D6', fg: '#8A4B00' }, dark: { bg: '#3A2A12', fg: '#6A4A1E' } },
- };
+   archived: { label: 'Archived', light: { bg: '#E7E9EC', fg: '#3A4250' }, dark: { bg: '#2B313B', fg: '#A9B2C0' } },

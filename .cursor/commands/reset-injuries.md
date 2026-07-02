@@ -1,7 +1,9 @@
 # Reset demo injuries (restore main baseline)
 
-Restore **`components/campaigns/campaign-card.tsx`** and **`components/ui/status-tokens.ts`**
-to the clean **`main`** baseline. Safe on any branch.
+Restore the demo-touched files to the clean **`main`** baseline. Safe on any branch.
+Scheduled-aware: also restores **`lib/campaigns-seed.ts`** + the badge/filter/view flag gate,
+and deletes migrations **0006/0007** from the working tree if the Scheduled diff was applied.
+(`lib/campaigns-types.ts` is not touched by any demo patch.)
 
 Does **not** close PRs or delete remote branches — use **`/demo-reset`** for full cleanup.
 
@@ -12,7 +14,7 @@ Does **not** close PRs or delete remote branches — use **`/demo-reset`** for f
    ./.github/scripts/demo-injury.sh reset
    ```
 
-2. Verify:
+2. Verify (also checks `'scheduled'` is absent from tokens/seed/migrations):
    ```bash
    ./.github/scripts/demo-injury.sh verify baseline
    npm test

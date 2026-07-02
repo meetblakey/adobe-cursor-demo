@@ -9,20 +9,46 @@ Throughline: *one platform team owns Pigment; 200+ product teams consume it; kee
 consistent, on-brand and accessible at that scale is the pain. Cursor holds that standard at
 every stage of the SDLC — the rules in the editor, Bugbot on the PR, the agent in CI.*
 
+**One piece of work carries both sessions:** the **`scheduled` campaign status**. In the 101,
+Priya builds it **live in the editor** (and fixes the broken button the room walked in on) —
+nothing is committed. In the 201, the *same* work re-enters as **one ticketed PR (PIG-206)**
+that runs the whole outer loop: Bugbot → CI self-heal → merge → dark deploy →
+**`scheduled-status`** flag release → Sentry.
+
 ---
 
 ## Pre-flight (day before + day of)
+
 - [ ] `npm install && npm run dev` → `/campaigns` renders; toggle light/dark.
-- [ ] `npm test` green on `main`; push to a **private GitHub repo**; Actions enabled; **Bugbot
-      enabled**; `CURSOR_API_KEY` repo secret for the CI agent job; Supabase project + env set
-      (or leave seed data); deploy preview on **Vercel**.
-- [ ] **Preview SSO bypass** for LD demo ([`ENVIRONMENTS.md`](ENVIRONMENTS.md)): run
+- [ ] `npm test` green on `main`; Actions enabled; **Bugbot enabled**; `CURSOR_API_KEY` repo
+      secret for the CI agent job; Supabase project + env set (or leave seed data); deploy
+      preview on **Vercel**.
+- [ ] **Patches still apply:** `./.github/scripts/demo-injury.sh check-patches` on clean `main`
+      (CI also runs this on every push to `main`). If a patch has drifted, regenerate it against
+      `main` before anything else.
+- [ ] **Jira/Confluence trail exists:** story **PIG-206** ("Add a scheduled campaign status")
+      with acceptance criteria + the agent plan posted as a comment, linked Confluence design
+      page. The 201's Plan beat shows this trail — don't skip it.
+- [ ] **LaunchDarkly:** flag **`scheduled-status`** exists (envs test + production), **OFF in
+      both** at start of day. `my-first-flag` stays as-is (it gates the demo card only).
+- [ ] **Preview SSO bypass** for the LD demo ([`ENVIRONMENTS.md`](ENVIRONMENTS.md)): run
       `./.github/scripts/disable-preview-sso.sh` so preview URLs are public in the browser; keep
       `./.github/scripts/enable-preview-protection-bypass.sh` for CI when SSO is re-enabled
       post-demo.
-- [ ] Rehearse both **injuries** (`docs/INJURIES.md`) — **`/rehearse-injury-a`** and
-      **`/rehearse-injury-b`**; confirm Bugbot on INJURY A and `fix-ci` on INJURY B. Between
-      runs: **`/demo-reset`**. Guide: [`docs/DEMO-INJURIES.md`](DEMO-INJURIES.md).
+- [ ] **Rehearse the 201 outer loop once end-to-end** (see the 201 section):
+      `/stage-scheduled-pr` → Bugbot comments on the drift (checks green) → live fix →
+      `demo-injury.sh replay-b` → red CI → `fix-ci` self-heals → tag. Between runs:
+      **`/demo-reset`**. Guide: [`docs/DEMO-INJURIES.md`](DEMO-INJURIES.md).
+- [ ] **101 start state (set this LAST, right before the room):**
+      ```bash
+      git checkout main && git pull --ff-only origin main
+      ./.github/scripts/demo-injury.sh start-101
+      ```
+      That applies **INJURY A to the working tree on `main`, UNCOMMITTED** (the room opens
+      broken) and verifies `scheduled` is absent from tokens/seed/migrations (the 101 needs to
+      build it from scratch). Double-check by eye:
+      `rg "'scheduled'" components/ui/status-tokens.ts lib/campaigns-seed.ts supabase/migrations/`
+      → no hits.
 - [ ] **Cloud Agent + Sentry artifacts** ([`docs/DASHBOARD-SETUP.md`](DASHBOARD-SETUP.md)):
       Cloud Agent PR artifact saved (diff, tests, screenshots); Sentry Automation rehearsed only
       if you plan to trigger it; fallback **video** of trigger → Jira → draft PR.
@@ -34,7 +60,13 @@ every stage of the SDLC — the rules in the editor, Bugbot on the PR, the agent
 
 ---
 
-## 101 — Kickoff (15–20 min). Open at board altitude.
+## 101 — Kickoff (15–20 min). Open at board altitude — on a broken page.
+
+**The room opens BROKEN.** `/campaigns` is on screen as people sit down, and the Duplicate
+button on every campaign card is **magenta** — one product engineer's hardcoded `bg-pink-500`
+shortcut (INJURY A, pre-applied uncommitted on `main` by `start-101`). Don't acknowledge it yet;
+let it sit there through the opening hook.
+
 **Opening hook:**
 > "You're not valued on whether your software works — it's the best in the world. You're
 > valued on one question your board hears every earnings call: can you out-ship Sora,
@@ -42,19 +74,19 @@ every stage of the SDLC — the rules in the editor, Bugbot on the PR, the agent
 > margin? After the Figma deal, the only lever left is organic engineering throughput. So the
 > only question worth your 20 minutes: can the same engineers ship faster — and can we prove
 > it in your 30-day trial? I'll also be honest about where the real decision gets made: your
-> security review, not this demo."
+> security review, not this demo. …And yes, that pink button is real. One engineer on one of
+> your 200 teams shipped a shortcut. We'll fix it before the end of this session — with the
+> same tool that's about to ship a feature."
 
 1. **Why-now frame** (slide, no tool) — velocity = moat + margin defense. Invite their pressure.
-2. **Throughput, live on Pigment** — open `/campaigns`. Ask the codebase "how does theming
-   work here?", then have Agent add/fix a component; **see it render**. Output-per-engineer.
-   *Frame it Adobe-native:* Pigment stands in for an **App Builder add-on on React Spectrum** —
-   and Layer 1 is now literally `@adobe/react-spectrum` behind the stable Pigment API (the default
-   design system, rendered client-only). Drop a proof point: Adobe ships an official
-   `@adobe/express-developer-mcp` server that feeds Adobe SDK docs into Cursor — "you already
-   built the Adobe-specific version of the grounding you just watched."
-3. **Consistency at scale = the hidden tax** — apply **INJURY A** (magenta Duplicate button).
-   "One shortcut × 200 teams." Show the rules/tokens that prevent it. *(Run beats 2–3 as the
-   hand-typed **Cold open** below — you drive the primitives and type the injury yourself.)*
+2. **Ship a feature live: the `scheduled` status** — the cold open below. Priya (the platform
+   engineer persona) takes a real product ask through **Ask → Tab → Plan → Agent** and sees it
+   render. Output-per-engineer, on their stack. *Frame it Adobe-native:* Pigment stands in for
+   an **App Builder add-on on React Spectrum** — Layer 1 is literally `@adobe/react-spectrum`
+   behind the stable Pigment API. Drop the proof point: Adobe ships an official
+   `@adobe/express-developer-mcp` server that feeds Adobe SDK docs into Cursor.
+3. **Fix the broken page** — the magenta button, in-editor with **Cmd-K**. "One shortcut ×
+   200 teams" is the hidden consistency tax; the rules/tokens are what prevent it.
 4. **Legacy = the velocity tax** (slide + narrative, NO live compile) — whole-repo context +
    Agent accelerate the *incremental* C++→Rust migration Adobe chose; interop = their
    scientist's #1 friction.
@@ -64,98 +96,93 @@ every stage of the SDLC — the rules in the editor, Bugbot on the PR, the agent
    Anthropic, OpenAI, Gemini, Cursor, and more; propose a 20-30 engineer pilot and choose the
    location with Adobe based on the metric.
 
-### Cold open — drive the primitives, then break it yourself (≈6–8 min, expands beats 2–3)
+### Cold open — ship `scheduled` live, then heal the page (≈8–10 min, is beats 2–3)
 
-Climb the autonomy ladder — **Tab → Ask → Plan → Agent** — and deliberately alternate *you in
-code* and *the agent acting*, so the room sees a human **and** the tool do real work. All live on
-`/campaigns`; nothing here is committed — discard the edits after.
-
-**Setup — start from clean `main`.** Main already ships `archived`, so do not strip it out for the
-101. The Tab and Plan beats use a temporary `scheduled:` status and
-stop before any code is written. Keep `archived` for the 201 worked replay only.
+Climb the autonomy ladder — **Ask → Tab → Plan → Agent** — alternating *you in code* and *the
+agent acting*. All live on `/campaigns`. **Nothing is committed and no PR is opened in the
+101** — the work is discarded at the end (`demo-injury.sh reset`); it re-enters properly
+ticketed in the 201.
 
 | # | Who | Primitive | Do | Room sees |
 |---|-----|-----------|----|-----------|
-| 1 | **You (code)** | **Tab** | In `status-tokens.ts` `STATUS_TOKENS`, start a new `scheduled:` entry | Tab completes the token shape — autocomplete that knows the file |
-| 2 | **Agent** | **Ask** (read-only) | Paste the Ask prompt | it explains the token system and cites the exact files |
-| 3 | **Agent → you** | **Plan** | Paste the Plan prompt; read, don't run | a multi-file plan you approve — it plans before it touches anything |
-| 4 | **You (code)** | typing | Replace the Duplicate `<Button>` with the raw snippet | a magenta button on every card — off-system, on purpose |
-| 5 | **Agent** | **Agent / Bugbot** | Hand it the fix prompt, or push for Bugbot | it rewrites it back to the system component, citing the rule |
+| 1 | **Agent** | **Ask** (read-only) | "How does theming + status color work here?" | it explains the token system and cites the exact files |
+| 2 | **You (code)** | **Tab** | In `status-tokens.ts`, start the `scheduled:` entry | Tab completes the token shape — autocomplete that knows the file |
+| 3 | **Agent → you** | **Plan** | Paste the Plan prompt; read it, approve it | a multi-file plan you gate before any code is written |
+| 4 | **Agent** | **Agent** | Run the implementation prompt | tokens + seed + flag gate + two migrations land; tests go green; APJ Expansion renders **Scheduled** |
+| 5 | **You → Agent** | **Cmd-K** | Fix the magenta Duplicate button in-editor | the page heals: system `<Button>` back, theming restored |
 
-**1 — Tab (you type).** `components/ui/status-tokens.ts`, in the `STATUS_TOKENS` map —
-start a new line and type `scheduled:`, accept Tab's completion, then delete it:
-```ts
-export const STATUS_TOKENS: Record<
-  CampaignStatus,
-  { label: string; light: { bg: string; fg: string }; dark: { bg: string; fg: string } }
-> = {
-  draft: { label: 'Draft', light: { bg: '#EDEDEA', fg: '#44443F' }, dark: { bg: '#26262F', fg: '#B9B9B2' } },
-  live: { label: 'Live', light: { bg: '#DCF5E4', fg: '#0F6B33' }, dark: { bg: '#14331F', fg: '#57D98A' } },
-  review: { label: 'In review', light: { bg: '#FFF1D6', fg: '#8A4B00' }, dark: { bg: '#3A2A12', fg: '#E0A24E' } },
-  archived: { label: 'Archived', light: { bg: '#E7E9EC', fg: '#3A4250' }, dark: { bg: '#2B313B', fg: '#A9B2C0' } },
-  scheduled:  // ← type "scheduled:" → Tab fills in the token entry
-};
-```
-*Teaching beat:* Tab will autocomplete **anything**, including drift — that's the setup. Velocity
-makes every change fast, so the quality bar has to live in the rules, the PR, and CI (exactly where
-this cold-open lands). Discard the line after.
-
-**2 — Ask (read-only; the agent explains).** Open Ask and paste:
+**1 — Ask (comprehension before code).** Open Ask and paste:
 > @codebase how does theming, React Spectrum, and status-badge color work in this app? Where do
 > the status labels, legacy color tokens, and Spectrum variants come from, and how do we keep them
 > on-brand and accessible across product surfaces?
 
 Expect it to surface `components/ui/status-tokens.ts` (`STATUS_TOKENS` + `SPECTRUM_STATUS`),
-`components/ui/status-badge.tsx`, `components/ui/status-badge.test.ts`,
-`components/ui/status-badge.spectrum.test.ts`, `.cursor/rules/design-system.mdc`, and
-`app/globals.css`. **No edits — this is comprehension before code.**
+`components/ui/status-badge.tsx`, the two status-badge tests,
+`.cursor/rules/design-system.mdc`, and `app/globals.css`. **No edits.**
+
+**2 — Tab (you type).** In `components/ui/status-tokens.ts`, at the bottom of the
+`STATUS_TOKENS` map, start a new line and type `scheduled:` — accept Tab's completion of the
+token shape. *Teaching beat:* Tab will autocomplete **anything**, including drift — velocity
+makes every change fast, so the quality bar has to live in the rules, the PR, and CI. Leave the
+line half-formed; the Agent will finish the job properly in beat 4 (or let Tab's completion
+stand and let the Agent correct the hex pair to an AA-passing one).
 
 **3 — Plan (the agent proposes, you approve).** Switch to Plan mode and paste:
-> Plan adding a scheduled status to the StatusBadge, following the existing pattern: a token in
-> components/ui/status-tokens.ts that passes the WCAG contrast test, plus a Spectrum semantic
-> StatusLight variant in SPECTRUM_STATUS. The status filter and labels derive from STATUS_TOKENS,
-> so they should update automatically. Don't write code yet — just the plan.
+> Plan adding a `scheduled` campaign status, following the existing pattern: a `STATUS_TOKENS`
+> entry in components/ui/status-tokens.ts that passes the WCAG contrast test in both themes,
+> plus a Spectrum semantic StatusLight variant in SPECTRUM_STATUS. The status filter and labels
+> derive from STATUS_TOKENS so they should update automatically. Flip the APJ Expansion seed
+> campaign to scheduled, keep the Supabase enum in sync via migrations, and gate the new
+> status's exposure behind our `scheduled-status` LaunchDarkly flag per the repo conventions.
+> Don't write code yet — just the plan.
 
-Expect a plan that touches the platform-owned status source and calls out the Spectrum semantic
-mapping and contrast tests. **Read it and stop.** The 101 lesson is the checkpoint before code, not
-shipping a new status. The already-merged `archived` path becomes the 201 worked replay: ticket,
-plan, rules, diff, tests.
+Expect a plan that touches the platform-owned status source, calls out the Spectrum semantic
+mapping (`'info'` — note `status-badge.spectrum.test.ts` already allowlists it), the derived
+filter, the **two-step enum migration** rule from the `add-migration` skill, and the flag gate.
+**Read it aloud, then approve.** The checkpoint-before-code is the 101 lesson.
 
-**4 — the injury (you type it).** In `components/campaigns/campaign-card.tsx`, replace:
-```tsx
-<Button variant="ghost" size="sm" className="h-11 w-full sm:h-8 sm:w-auto">
-  Duplicate
-</Button>
-```
-with the off-brand version (verbatim `.demo/injury-a.patch`, so the rehearsal matches what you type
-live):
-```tsx
-<button className="h-11 w-full rounded-md bg-pink-500 px-2.5 text-[0.8rem] font-medium text-white hover:bg-pink-600 sm:h-8 sm:w-auto">
-  Duplicate
-</button>
-```
-You didn't tweak a variant — you **abandoned the system component** and hand-styled a raw `<button>`
-with a literal color. It won't theme, it clashes with the indigo brand, and `npm test` stays
-**green** (no test catches a design-token violation — only review does). Now Layer 1 is React
-Spectrum, you can't even put that class on a system `<Button>`, so going off-brand means leaving the
-component entirely — a louder smell.
+**4 — Agent (it ships).** Run the plan. The diff you should see (it matches
+`.demo/scheduled.patch`, so rehearsal == live):
+- `status-tokens.ts` — `scheduled` token pair (AA in light + dark) + `SPECTRUM_STATUS:
+  'info'`; `CampaignStatus` union grows; filter options derive automatically.
+- `lib/campaigns-seed.ts` — **APJ Expansion → `scheduled`**.
+- `supabase/migrations/0006` (add enum value) + `0007` (backfill APJ) — the enum two-step,
+  via the **`add-migration`** skill.
+- The **`scheduled-status`** flag gate: flag OFF → scheduled campaigns present as before
+  (draft chip, no filter entry); flag ON → real **Scheduled** chip + filter entry
+  (`useFlags` in the badge + view, the same pattern as `my-first-flag`).
 
-**5 — the fix (the agent does it).** Push and let **Bugbot** comment on the PR (it cites
-`.cursor/rules/design-system.mdc` / `.cursor/BUGBOT.md`), then hand that to the Agent — or fix it in
-the editor with **Cmd-K**:
-> The Duplicate button in `components/campaigns/campaign-card.tsx` is a raw `<button>` with a
-> hardcoded `bg-pink-500`. Put it back on our design system — `<Button variant="ghost" size="sm">`
-> with the same layout classes — per `.cursor/rules/design-system`.
+`npm test` green (the a11y gate now covers the new pair — flip a hex to show it fail if you
+want the point made). With dev LD keys on **test**, toggle `scheduled-status` ON to show the
+chip + filter appear live; toggle it back OFF.
 
-**Reset:** discard the edits, or `/reset-injuries` (works off `main` once this lands; on a feature
-branch use `git apply --reverse .demo/injury-a.patch`). Keep `.demo/injury-a.patch` as your
-rehearsal/fallback if you'd rather not type it live.
+**5 — the fix (Cmd-K, in-editor).** Select the raw `<button>` in
+`components/campaigns/campaign-card.tsx`, Cmd-K:
+> The Duplicate button is a raw `<button>` with a hardcoded `bg-pink-500`. Put it back on our
+> design system — `<Button variant="ghost" size="sm">` with the same layout classes — per
+> `.cursor/rules/design-system`.
 
-**Bridge:** "Next session: how this holds the line across hundreds of engineers in your pipeline."
+The page heals on save. Close the loop verbally: "In session two you'll see what happens when
+this drift tries to get past the **PR** instead — the review gate catches what the editor
+missed." *(No push, no PR, no Bugbot in the 101.)*
+
+**Reset (after the room):** `./.github/scripts/demo-injury.sh reset` — restores the injury
+file, the Scheduled diff, and deletes the two migrations; `verify baseline` confirms
+`scheduled` is gone.
+
+**Bridge:** "Next session: this exact feature comes back as a ticket, and you'll watch the
+pipeline — not the presenter — hold the standard."
 
 ---
 
 ## 201 — Deep dive (20 min). SDLC at 100+-dev scale; CI/CD is the hero.
+
+**The spine: one ticketed PR carries the whole loop.** Before the room, **`/stage-scheduled-pr`**
+cut branch **`PIG-206`** from clean `main` and opened the PR: the Scheduled implementation
+(`.demo/scheduled.patch`) **plus the INJURY A drift** (`.demo/injury-a.patch`) in one commit —
+*Priya missed it*. Checks are green (drift isn't a test failure); **Bugbot has already
+commented on the drift** by the time you present.
+
 **Opening hook:**
 > "Your own AEM docs already list Cursor, Claude Code and Copilot and ship AGENTS.md + MCP
 > servers — so you've answered whether AI belongs in your pipeline. The question is where it
@@ -165,44 +192,77 @@ rehearsal/fallback if you'd rather not type it live.
 > that flows into them. Two insertions: the PR, and the CI job."
 
 1. **Map to the pipeline — the LOOP, not a line** (diagram; see [`PIPELINE.md`](PIPELINE.md)):
-   **Jira** ticket → **Cursor** worked replay → **PR + Bugbot** → **GitHub Actions + Cursor CLI
+   **Jira** ticket → **Cursor** editor → **PR + Bugbot** → **GitHub Actions + Cursor CLI
    agent** → **Vercel** (preview + auto prod, **dark**) → **LaunchDarkly** human gate → **Sentry**
    fallback → next Jira ticket. Human owns PR merge and LD prod rollout — not Vercel promote.
-2. **Plan/Code replay: archived status** — `archived` already ships on current `main`, so do not
-   rebuild it live. Show the ticket, plan, rules, diff, tests, and data trail quickly. Then move to
-   the live gates where governance matters: Bugbot and CI.
-3. **Bugbot as the governance gate** — optionally show **`/review-bugbot`** catching INJURY A
-   before push; LIVE on PR: open a PR with **INJURY A** on `components/campaigns/campaign-card.tsx`.
-   Bugbot comments, cites `.cursor/BUGBOT.md` / design-system rules, BEFORE the human + CI gate.
-4. **Cursor CLI agent in CI — fix the red build** — LIVE: open a PR with **INJURY B** on
-   `components/ui/status-tokens.ts` (the "In review" chip). `npm test`/CI goes red; the workflow
-   calls `agent -p --force --output-format text`, restores a passing token, comments the PR, and
-   keeps commit/push ownership in the workflow. Green-build time + MTTR.
-4b. **Flag-driven release (`/release-flag`)** — narrate or show `my-first-flag` on `/campaigns`.
-   Merge ships code **dark** (prod flag OFF). Toggle in LD **test** if rehearsed; do not toggle
-   production live unless fully rehearsed. Instant rollback = flag OFF (kill switch).
-5. **Close the loop with Sentry (LIVE optional + fallback)** — trigger `/sentry-example-page` or
-   `/api/sentry-example-api?demo=1` → Sentry **issueCreated** → Cursor Automation → new **PIG-***
-   Jira story + **draft PR** (human merge). Narrate while Automation runs (~2–3 min); cut to
-   pre-recorded fallback if timing fails. Manual replay: **`/sentry-incident`**. Spec:
+2. **Plan: the ticket trail** — open **PIG-206** in Jira: acceptance criteria (statuses derive
+   from `STATUS_TOKENS`; AA both themes; semantic Spectrum variant; behind `scheduled-status`,
+   OFF in prod; enum two-step migrations staging-first), the **agent's plan posted back as a
+   comment**, the linked Confluence design page. "Session one you watched this get built at a
+   desk; here's the same work entering the system of record."
+3. **Bugbot as the governance gate** — open the staged PR. Bugbot's comment is already on the
+   drift: the raw `bg-pink-500` button, flagged against the platform standard (`.cursor/BUGBOT.md`
+   — Bugbot reviews from that root+nested file plus dashboard/learned rules, the same standard
+   the editor rule encodes). **Fix it live**: Cmd-K on `campaign-card.tsx` (same prompt as the
+   101), commit, push. Checks stay green. "The engineer missed it, the reviewer-bot didn't —
+   before a human spent a minute."
+4. **Cursor CLI agent in CI — the red build heals itself** — land INJURY B as a follow-up
+   commit **on top of HEAD**:
+   ```bash
+   ./.github/scripts/demo-injury.sh replay-b && git push
+   ```
+   (**Never** `reset-branch-b`/force-push mid-room — the tip must never move backwards or the
+   fix you just pushed is gone.) `check` goes **red**: *StatusBadge "review" meets WCAG AA in
+   dark mode* fails at ~1.7:1. The `fix-ci` job calls `agent -p --force`, restores a passing
+   token, **commits to the same PR**, and comments its diagnosis. Green-build time + MTTR.
+   What the room sees on the preview: **nothing broken** — the rendered chip is the Spectrum
+   `StatusLight` (semantic, structurally AA); the regression lives in the SSR-fallback hex map
+   and is caught **by CI**, not by eyeballs. That's the point: gates catch what screens don't.
+5. **Merge + dark deploy** — human merges PIG-206 (the one injury-carrying branch that ever
+   merges — both injuries are fixed on it by now). Vercel auto-deploys production **dark**:
+   `scheduled-status` is OFF in prod, so APJ Expansion still presents as draft and there's no
+   Scheduled filter entry. "Deploy ≠ release."
+6. **Release: `/release-flag scheduled-status`** — toggle ON in LD **test**, verify the
+   Scheduled chip + filter on the preview URL; then the human gate: ON in **production** —
+   the chip and filter entry appear live on the prod URL. Instant rollback = flag OFF (kill
+   switch). Narrate Enterprise options: guarded rollouts, approvals.
+7. **Close the loop with Sentry (LIVE optional + fallback)** — trigger `/sentry-example-page`
+   or `/api/sentry-example-api?demo=1` → Sentry **issueCreated** → Cursor Automation → new
+   **PIG-*** Jira story + **draft PR** (human merge). Narrate while Automation runs (~2–3 min);
+   cut to pre-recorded fallback if timing fails. Manual replay: **`/sentry-incident`**. Spec:
    [`SENTRY-AUTOMATION.md`](SENTRY-AUTOMATION.md).
-5b. **Cloud Agent path (artifact)** — show the **`/cloud-ticket`** PR you dispatched before the
+7b. **Cloud Agent path (artifact)** — show the **`/cloud-ticket`** PR you dispatched before the
    room: branch, diff, test result, and browser screenshots on `/campaigns`. See
    [`CLOUD-AGENTS.md`](CLOUD-AGENTS.md). Do not wait for a live dispatch.
-6. **Governance + model optionality** — repo rules, review gates, audit, allow-lists, Privacy
+8. **Governance + model optionality** — repo rules, review gates, audit, allow-lists, Privacy
    Mode/no-training wording, and model support from Anthropic, OpenAI, Gemini, Cursor, and more.
    Document any Cloud Agent or CI execution boundary before the pilot rather than improvising it.
-7. **Baseline on Adobe's yardstick** — co-build the 30-day plan vs their DORA dashboard.
+9. **Baseline on Adobe's yardstick** — co-build the 30-day plan vs their DORA dashboard.
    Anchor: Sarkar ~39% more PRs, flat reverts. Every outcome = a hypothesis to baseline.
+
+### Post-201 reset (the merge was real — undo it honestly)
+
+Tag `main` as **`pre-201`** before a full rehearsal or the room
+(`git tag pre-201 origin/main`). Afterwards:
+1. **Revert the Scheduled merge on `main`** via a revert commit — PR the revert if you have
+   time, never `git reset --hard` on `main`. `check-patches` goes green again once the revert
+   lands (main is Scheduled-free ⇒ the patches apply again).
+2. **Flags OFF** in both LD envs (`scheduled-status`).
+3. **Staging Supabase:** revert the 0007 backfill (`update public.campaigns set status =
+   'draft' where name = 'APJ Expansion';`). Postgres can't drop enum values — leaving
+   `'scheduled'` in the staging enum between rehearsals is acceptable and additive.
+Details: [`DEMO-INJURIES.md`](DEMO-INJURIES.md#post-201-reset).
 
 ---
 
-## The two specific fixes (see `docs/INJURIES.md` for exact diffs + prompts)
-- **A — Bugbot:** `components/campaigns/campaign-card.tsx`, Duplicate button → `bg-pink-500`
-  hardcoded → fix to `<Button variant="ghost">`. *(visible: magenta button on `/campaigns`)*
+## The two injuries in one line each (see `docs/INJURIES.md` for diffs + prompts)
+
+- **A — Bugbot:** `components/campaigns/campaign-card.tsx`, Duplicate button → raw `<button>`
+  with `bg-pink-500` → fix to `<Button variant="ghost">`. *(101: the room walks in on it;
+  201: it rides the PIG-206 PR and Bugbot catches it.)*
 - **B — Cursor CLI agent in CI:** `components/ui/status-tokens.ts`, `review.dark.fg` →
-  contrast fail → fix the token to clear AA *(legacy flag-OFF path; Spectrum semantic variants
-  make it structurally impossible)*. *(visible: unreadable "In review" chip in dark mode)*
+  `#6A4A1E` contrast fail → CI red → agent restores AA. *(Rendered UI stays fine — Spectrum
+  semantic variants; the drift is CI-visible in the SSR-fallback hex map.)*
 
 ---
 
@@ -218,3 +278,4 @@ rehearsal/fallback if you'd rather not type it live.
 | claim in-region data residency | honest DPDP discovery + Privacy Mode/admin controls + written data flow |
 | imply Adobe already uses Cursor | net-new; peer proof = NVIDIA, Stripe/Salesforce |
 | "we're more secure / better model" than Claude Code | concede it's excellent; differentiate on IDE-native + control plane + model optionality |
+| "Bugbot reads `.cursor/rules`" | Bugbot reviews from `.cursor/BUGBOT.md` (root + nested) + dashboard/learned rules — the same standard the editor rules encode |

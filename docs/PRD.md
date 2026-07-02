@@ -88,7 +88,7 @@ component, on a named page, in specific language*. The app must be built so both
 ## 7. Success criteria
 - `npm run dev` renders `/campaigns`; light/dark toggle works; chips/buttons on-brand.
 - `npm test` (a11y gate) green on `main`; `tsc` clean; `next build` succeeds; Vercel preview deploys.
-- Applying INJURY A → Bugbot comments citing the rule. Applying INJURY B → CI red → `cursor-agent` fixes.
+- Applying INJURY A → Bugbot comments citing the tokens-never-literals standard (`.cursor/BUGBOT.md`). Applying INJURY B → CI red → `cursor-agent` fixes.
 - A non-engineer in the room can name what broke and what fixed it.
 
 ## 8. Out of scope / explicitly deferred

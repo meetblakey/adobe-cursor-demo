@@ -31,8 +31,8 @@ demo's three beats (plan-first build, the two injuries, 100+-dev governance).
   description. Left as-is (well-formed: folder name == `name`).
 - **add-migration** (added) — "do a Supabase migration the Pigment way": judgment in
   `SKILL.md`, the must-be-identical part in `scripts/new-migration.sh` (deterministic
-  sequence + header). Pairs with the Supabase MCP; auto-invokes on schema work (e.g. PIG-204's
-  `archived` status). `description` says *when*, which is what auto-invocation matches on.
+  sequence + header). Pairs with the Supabase MCP; auto-invokes on schema work (e.g. the enum
+  two-step pairs: PIG-204's `archived`, PIG-206's `scheduled`). `description` says *when*, which is what auto-invocation matches on.
 - Skills use `paths` for glob scoping (not the rules' `globs`); `disable-model-invocation: true`
   makes a skill slash-only. Skills run in the `cursor` CLI too — so they reach the CI agent.
 - **twg (Teamwork-Graph) skills** — seven skills installed user-global at `~/.claude/skills/twg*`

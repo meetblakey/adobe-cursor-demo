@@ -7,7 +7,8 @@ alwaysApply: false
 # Pigment design-system standard
 
 One platform team writes these once; every agent edit across 200+ product surfaces inherits
-them. The linter can't express "on-brand"; the rule can. Bugbot reviews against it on every PR.
+them. The linter can't express "on-brand"; the rule can. Bugbot enforces the same standard on
+every PR via `.cursor/BUGBOT.md` (it does not read this rule file).
 
 ## Tokens & system components, never literals
 - Use the Pigment components (`@/components/ui/*`) and the theme tokens

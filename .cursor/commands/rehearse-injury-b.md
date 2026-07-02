@@ -1,7 +1,13 @@
 # Rehearse INJURY B (CI — fix-ci + cursor-agent loop)
 
-End-to-end rehearsal: branch → apply injury → push → PR → **red `check`** → **`fix-ci`**
-→ agent commit + PR comment. **Never merge to `main`.**
+Standalone end-to-end rehearsal of the CI beat: branch → apply injury → push → PR →
+**red `check`** → **`fix-ci`** → agent commit + PR comment. **Never merge to `main`.**
+
+> **In the 201 itself, INJURY B rides the staged PIG-206 PR** — after the live INJURY A fix,
+> run `./.github/scripts/demo-injury.sh replay-b` (commits the flip **on top of HEAD**) and
+> push. **Mid-room, the branch tip must never move backwards** — `reset-branch-b` +
+> force-push would wipe the live fix. This command is the isolated rehearsal variant on a
+> throwaway `demo/injury-b` branch.
 
 Reference: [`docs/INJURIES.md`](../../docs/INJURIES.md) · [`docs/DEMO-INJURIES.md`](../../docs/DEMO-INJURIES.md)
 
@@ -29,16 +35,17 @@ Reference: [`docs/INJURIES.md`](../../docs/INJURIES.md) · [`docs/DEMO-INJURIES.
 5. **Open PR** — target `main`. `check` must **fail**; then **`fix-ci`** must run (not
    skipped). Requires `CURSOR_API_KEY` repo secret.
 
-6. **Room beat** — Dark mode on preview `/campaigns` → bad “In review” chips; then narrate
-   agent fix on the PR.
+6. **Room beat** — Dark mode on preview `/campaigns` → bad "In review" chips *only before
+   hydration* (the rendered default is the Spectrum StatusLight, which is semantic —
+   the drift is CI-visible, not a broken chip on screen); then narrate the agent fix on the PR.
 
 7. **After demo** — Close PR without merging, or keep branch for replay.
 
-## Replay on same branch (after fix-ci green)
+## Replay on same branch (BETWEEN rehearsals only — after fix-ci green)
 
 ```bash
 git checkout demo/injury-b
-./.github/scripts/demo-injury.sh reset-branch-b
+./.github/scripts/demo-injury.sh reset-branch-b   # moves tip backwards — never mid-room
 git push --force-with-lease origin demo/injury-b
 ```
 
