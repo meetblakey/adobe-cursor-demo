@@ -23,6 +23,10 @@ that runs the whole outer loop: Bugbot → CI self-heal → merge → dark deplo
 - [ ] `npm test` green on `main`; Actions enabled; **Bugbot enabled**; `CURSOR_API_KEY` repo
       secret for the CI agent job; Supabase project + env set (or leave seed data); deploy
       preview on **Vercel**.
+- [ ] **Disable Bugbot AUTOFIX** (Cursor dashboard) — rehearsal-proven: with autofix on,
+      Bugbot pushes its own fix commit to the PIG-206 PR ~10–15 min after the PR opens,
+      stealing the live-fix beat AND rewriting the staged Scheduled diff. Bugbot *review
+      comments* stay on; only the auto-push must be off.
 - [ ] **Patches still apply:** `./.github/scripts/demo-injury.sh check-patches` on clean `main`
       (CI also runs this on every push to `main`). If a patch has drifted, regenerate it against
       `main` before anything else.
@@ -216,6 +220,10 @@ commented on the drift** by the time you present.
    fix you just pushed is gone.) `check` goes **red**: *StatusBadge "review" meets WCAG AA in
    dark mode* fails at ~1.7:1. The `fix-ci` job calls `agent -p --force`, restores a passing
    token, **commits to the same PR**, and comments its diagnosis. Green-build time + MTTR.
+   *Rehearsal note:* the fix commit lands via `GITHUB_TOKEN`, so the workflow re-dispatches
+   the required `check` on it automatically (green in ~1 min). GitHub may also show one
+   **"workflow awaiting approval"** run on the fixed commit — click **Re-run** on it (or
+   `gh run rerun <id>`) before the merge beat; it's a bot-push artifact, not a failure.
    What the room sees on the preview: **nothing broken** — the rendered chip is the Spectrum
    `StatusLight` (semantic, structurally AA); the regression lives in the SSR-fallback hex map
    and is caught **by CI**, not by eyeballs. That's the point: gates catch what screens don't.

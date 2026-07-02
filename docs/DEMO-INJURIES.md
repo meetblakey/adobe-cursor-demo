@@ -74,6 +74,12 @@ main (clean, Scheduled-free)
   the gate that fires.
 - `replay-b` refuses to run if the working tree is dirty or the patch no longer applies (e.g.
   `fix-ci` already rewrote the token on this branch).
+- **Bugbot AUTOFIX must be OFF** (Cursor dashboard) or it pushes its own fix to the PR
+  ~10–15 min in, stealing the live-fix beat and rewriting the staged diff (rehearsal-proven,
+  PRs #29/#30). Review comments stay on.
+- After `fix-ci` pushes its commit: the workflow re-dispatches the required `check` (green
+  ~1 min); if GitHub shows a **"workflow awaiting approval"** run on that commit, hit
+  **Re-run** on it (`gh run rerun <id>`) — then the PR is mergeable.
 
 ### INJURY A — standalone Bugbot rehearsal (optional, outside the 201)
 
