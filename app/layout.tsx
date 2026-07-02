@@ -63,6 +63,14 @@ export default function RootLayout({
 
 async function LaunchDarklyLayout({ children }: { children: React.ReactNode }) {
   const bootstrap = await getLaunchDarklyBootstrap();
+  const offlineVerify = process.env.CLOUD_AGENT_VERIFY_SCHEDULED === '1';
+  const mergedBootstrap = offlineVerify
+    ? { ...bootstrap, scheduledStatus: true }
+    : bootstrap;
 
-  return <LaunchDarklyProvider bootstrap={bootstrap}>{children}</LaunchDarklyProvider>;
+  return (
+    <LaunchDarklyProvider bootstrap={mergedBootstrap} offlineVerify={offlineVerify}>
+      {children}
+    </LaunchDarklyProvider>
+  );
 }

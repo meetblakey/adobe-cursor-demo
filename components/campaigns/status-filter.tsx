@@ -7,12 +7,14 @@ import { STATUS_FILTER_OPTIONS } from '@/components/ui/status-tokens';
 export function StatusFilter({
   value,
   onChange,
+  options = STATUS_FILTER_OPTIONS,
 }: {
   value: string;
   onChange: (value: string) => void;
+  options?: typeof STATUS_FILTER_OPTIONS;
 }) {
   return (
-    <Select.Root items={STATUS_FILTER_OPTIONS} value={value} onValueChange={(v) => onChange(v as string)}>
+    <Select.Root items={options} value={value} onValueChange={(v) => onChange(v as string)}>
       <Select.Trigger
         aria-label="Filter by status"
         className={cn(
@@ -25,7 +27,7 @@ export function StatusFilter({
       <Select.Portal>
         <Select.Positioner sideOffset={6} className="z-50 outline-none">
           <Select.Popup className="min-w-44 rounded-lg border bg-popover p-1 text-popover-foreground shadow-md outline-none">
-            {STATUS_FILTER_OPTIONS.map((item) => (
+            {options.map((item) => (
               <Select.Item
                 key={item.value}
                 value={item.value}
