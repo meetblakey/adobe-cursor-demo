@@ -31,8 +31,8 @@ demo's three beats (plan-first build, the two injuries, 100+-dev governance).
   description. Left as-is (well-formed: folder name == `name`).
 - **add-migration** (added) — "do a Supabase migration the Pigment way": judgment in
   `SKILL.md`, the must-be-identical part in `scripts/new-migration.sh` (deterministic
-  sequence + header). Pairs with the Supabase MCP; auto-invokes on schema work (e.g. PIG-204's
-  `archived` status). `description` says *when*, which is what auto-invocation matches on.
+  sequence + header). Pairs with the Supabase MCP; auto-invokes on schema work (e.g. the enum
+  two-step pairs: PIG-204's `archived`, PIG-206's `scheduled`). `description` says *when*, which is what auto-invocation matches on.
 - Skills use `paths` for glob scoping (not the rules' `globs`); `disable-model-invocation: true`
   makes a skill slash-only. Skills run in the `cursor` CLI too — so they reach the CI agent.
 - **twg (Teamwork-Graph) skills** — seven skills installed user-global at `~/.claude/skills/twg*`
@@ -63,14 +63,15 @@ demo's three beats (plan-first build, the two injuries, 100+-dev governance).
   so we log and fail safe. Say this honestly when presenting governance.
 
 ## Demo injury commands (repeatable 201 beats)
-Slash macros for INJURY A/B — never applied on `main`. Patches: [`.demo/`](../.demo/);
+Slash macros for INJURY A/B — never **committed** on `main` (the 101 start state applies
+INJURY A uncommitted via `demo-injury.sh start-101`). Patches: [`.demo/`](../.demo/);
 script: [`.github/scripts/demo-injury.sh`](../.github/scripts/demo-injury.sh); guide:
 [`docs/DEMO-INJURIES.md`](DEMO-INJURIES.md).
 
 | Command | Purpose |
 |---------|---------|
 | `/apply-injury-a` · `/apply-injury-b` | Apply patch on current demo branch |
-| `/reset-injuries` | Restore both files from `main` baseline |
+| `/reset-injuries` | Restore demo files (incl. seed + flag gate) from `main`; removes migrations 0006/0007 |
 | `/rehearse-injury-a` · `/rehearse-injury-b` | Full branch → PR rehearsal loop |
 | `/demo-reset` | Reset files + close demo PRs checklist |
 

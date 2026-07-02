@@ -45,7 +45,8 @@ Run the `/bootstrap-plan` command (or the prompt in BUILD-PLAN Phase 0). Cursor,
 |---|---|
 | **PIG-101** | INJURY A — off-brand `bg-pink-500` Duplicate button in `campaign-card.tsx` (Bugbot catches it on the PR) |
 | **PIG-102** | INJURY B — `status-tokens.ts` `review.dark` fails WCAG AA (CI goes red; `cursor-agent` fixes it) |
-| **PIG-204** | "Add an `archived` status to the design system" — the real ticket the 201 runs end-to-end (reset to the pre-archived baseline first; `size` already shipped) |
+| **PIG-204** | "Add an `archived` status to the design system" — the **shipped** predecessor story (migrations 0004/0005); its Jira/Confluence trail is the worked example the agent mirrors |
+| **PIG-206** | "Add a `scheduled` campaign status" — **the live 201 ticket**: statuses derive from `STATUS_TOKENS` (AA both themes, Spectrum `'info'`), behind the `scheduled-status` flag (OFF in prod), enum two-step migrations 0006/0007 staging-first. Staged as one PR carrying the INJURY A drift (`/stage-scheduled-pr`); Bugbot → live fix → `replay-b` → `fix-ci` → merge → `/release-flag` |
 
 Each story's **description** carries the acceptance criteria; the agent posts its **plan as a
 comment**, logs effort with `addWorklogToJiraIssue`, links the PR with `createIssueLink`, and
@@ -108,7 +109,8 @@ For each story in order, the agent (per `.cursor/rules/planning.mdc`):
 5. **Close** → `addWorklogToJiraIssue`, link the PR (`createIssueLink`), transition to Done.
 
 That makes the whole build a real Plan→Code→Review→…→Observe loop with Jira and Confluence as
-the system of record — exactly what the 201 then demonstrates on a single ticket (PIG-204).
+the system of record — exactly what the 201 then demonstrates on a single ticket (PIG-206,
+mirroring the shipped PIG-204 trail).
 
 ## Guardrails
 - The agent **reads/writes the candidate's own Teamwork site** — scope it to the **PIG**

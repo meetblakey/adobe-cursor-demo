@@ -11,7 +11,14 @@ is here; the must-be-identical scaffolding is in `scripts/new-migration.sh`.
 2. Run `scripts/new-migration.sh <slug>` to scaffold the next-numbered migration file
    deterministically (e.g. `0002_add_archived_status.sql`).
 3. Write the up SQL. New table/column → add or extend the RLS policy (anon read is demo-only).
-   Enum change (e.g. a new `campaigns.status` value) → `alter type campaign_status add value …`.
+   **Enum adds are TWO migrations, always.** Postgres will not let a newly added enum value be
+   used in the same transaction that adds it, so a new `campaigns.status` value ships as a pair:
+   first `NNNN_<status>.sql` with `alter type campaign_status add value if not exists '<status>';`,
+   then `NNNN+1_<backfill>.sql` with the `update` that uses it. Mirror the shipped pair
+   0004/0005 (`archived`, PIG-204); the `scheduled` pair 0006/0007 (PIG-206) follows the same
+   shape and ships via the PIG-206 branch. Note the reverse is
+   NOT symmetric: Postgres cannot drop an enum value, so rolling back means reverting the
+   backfill only and leaving the value in the enum (additive, harmless).
 4. Keep the app in sync: update `CampaignStatus` in `components/ui/status-tokens.ts` (add the
    `STATUS_TOKENS` pair — light + dark, both WCAG AA so `status-badge.test.ts` stays green — and
    the `SPECTRUM_STATUS` semantic variant for the Spectrum path) and the `Campaign` type in

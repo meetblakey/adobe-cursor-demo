@@ -11,6 +11,10 @@ on:
   push:
     branches: [main]
   pull_request:
+  # fix-ci re-dispatches `check` on the branch after its GITHUB_TOKEN push —
+  # such pushes don't retrigger workflows, and `check` is a REQUIRED status,
+  # so without this the fixed commit could never merge.
+  workflow_dispatch:
 
 permissions:
   contents: read
@@ -31,6 +35,13 @@ jobs:
       - run: npm test
       - run: npm run build
 
+      # Drift gate for the seeded demo patches: on main they must always apply
+      # (main-push only — on PR branches the patches are intentionally applied,
+      # so the check would fail by design there).
+      - name: Demo patches still apply
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        run: ./.github/scripts/demo-injury.sh check-patches
+
   fix-ci:
     needs: check
     if: failure() && github.event_name == 'pull_request'
@@ -38,6 +49,7 @@ jobs:
     permissions:
       contents: write
       pull-requests: write
+      actions: write
     steps:
       - uses: actions/checkout@v4
         with:
@@ -87,9 +99,19 @@ jobs:
             echo "No changes to commit."
             exit 0
           fi
-          git add -A
+          # job artifacts stay out of the PR branch (fix-summary.md is still
+          # on disk for the comment step below)
+          git add -A ':!ci-failure.log' ':!fix-summary.md'
           git commit -m "fix(ci): restore passing typecheck, test, and build"
           git push origin "HEAD:${{ github.head_ref }}"
+
+      - name: Re-run required check on the fixed commit
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          # GITHUB_TOKEN pushes don't trigger workflows; `check` is required on
+          # main, so dispatch a run against the branch head (the fixed commit).
+          gh workflow run ci.yml --ref "${{ github.head_ref }}"
 
       - name: Comment on PR
         if: hashFiles('fix-summary.md') != ''

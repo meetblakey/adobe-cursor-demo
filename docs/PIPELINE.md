@@ -5,6 +5,15 @@ touches every stage, and a production signal (Sentry) files the next ticket — 
 circle. The thesis: *the human is the conductor; Cursor is the agent at every stage; the
 platform team's rules/gates make it safe at 100+-engineer scale.*
 
+**The 201 rides ONE ticketed PR — the Scheduled story:**
+
+| Story | Branch/PR | Flag | Gates it exercises |
+|---|---|---|---|
+| **PIG-206** — Add a `scheduled` campaign status | `PIG-206` (staged by **`/stage-scheduled-pr`**: `.demo/scheduled.patch` + the INJURY A drift) | **`scheduled-status`** (OFF in prod; released via `/release-flag`) | **Bugbot** on the re-introduced drift (checks green) → live fix → **INJURY B** follow-up commit (`replay-b`) → red CI → **`fix-ci`** self-heal → human merge → dark deploy → flag release → Sentry |
+
+(**PIG-204** — the `archived` status — is the *shipped* predecessor story; its trail in
+Jira/Confluence and migrations 0004/0005 are the worked example the agent mirrors.)
+
 **Flag-driven shipping:** merge + deploy does **not** mean users see the feature. Code lands on
 `main` and deploys **dark**; LaunchDarkly controls exposure per environment. See
 [`ENVIRONMENTS.md`](ENVIRONMENTS.md) and [`LAUNCHDARKLY.md`](LAUNCHDARKLY.md).
@@ -25,7 +34,7 @@ platform team's rules/gates make it safe at 100+-engineer scale.*
 | 1 | Plan | **Jira + Confluence** | Jira + Confluence | Atlassian **MCP** pulls the ticket + acceptance criteria; create/link LD flag key in AC for feature work |
 | 2 | Code | Cursor editor + **LaunchDarkly SDK** | Cursor editor | Wrap new features behind flags (default **OFF** in LD production); `launchdarkly-flag-create` skill |
 | **2alt** | **Code (parallel)** | **Cloud Agent** + **`/cloud-ticket`** | Cloud Agents | VM self-verify (screenshots on `/campaigns`); see [`CLOUD-AGENTS.md`](CLOUD-AGENTS.md) |
-| 2b | IDE review | **`/review-bugbot`** (+ **`/review-security`**) | — | Pre-push review — see [`open-pr`](.cursor/commands/open-pr.md) |
+| 2b | IDE review | **`/review-bugbot`** (+ **`/review-security`**) | — | Pre-push review — see [`open-pr`](../.cursor/commands/open-pr.md) |
 | 3 | Review | GitHub PR | GitHub/Bitbucket PR | **Bugbot** + Security + Approval; validate flag wiring on preview |
 | 4 | CI | **GitHub Actions** | Jenkins → Spinnaker | **`cursor-agent`** fixes red pipeline (INJURY B); runs without LD/Supabase secrets |
 | 5 | Deploy | **Vercel** | Spinnaker → K8s | Preview per PR; **prod auto-deploy on merge** (dark — flag OFF in production) |
@@ -58,7 +67,7 @@ rollout** — not Vercel promote.
 
 | Stage | twg skill | What it adds |
 |---|---|---|
-| Plan / onboarding | `twg-context-discovery` | catch-up on PIG-204, project-to-repo |
+| Plan / onboarding | `twg-context-discovery` | catch-up on PIG-206 (and the shipped PIG-204 trail), project-to-repo |
 | Review | `twg-engineering-work` | review queue behind Bugbot |
 | Release | `launchdarkly-flag-targeting` | rollout patterns, safety checklist |
 | Observe | `twg-operational-health` | incident → next ticket |
@@ -66,9 +75,13 @@ rollout** — not Vercel promote.
 
 ## Where the demo scenarios live
 
-- **INJURY A** (off-brand button) — stage 2b or 3 (Bugbot).
-- **INJURY B** (a11y contrast) — stage 4 (CI + `cursor-agent`).
-- **Flag demo** (`my-first-flag` on `/campaigns`) — stage 5b: ON in LD test on preview, OFF in production until `/release-flag`.
+- **INJURY A** (off-brand button) — stage 3 (Bugbot): baked into the staged PIG-206 commit,
+  caught on push 1 with checks green. (101: pre-applied uncommitted on `main` via `start-101`.)
+- **INJURY B** (a11y contrast) — stage 4 (CI + `cursor-agent`): `replay-b` commits it on top
+  of the PIG-206 tip mid-room; `fix-ci` self-heals on the same PR.
+- **Release beat** (`scheduled-status` on `/campaigns`) — stage 5b: merge ships dark (OFF in
+  production); `/release-flag scheduled-status` = validate in LD test on preview, then the human
+  prod toggle reveals the Scheduled chip + filter. (`my-first-flag` stays as the demo card only.)
 - **Sentry beat** — stage 6→2; Sentry Automation or **`/sentry-incident`**; kill switch via LD flag OFF.
 
 ## Honesty / accuracy notes

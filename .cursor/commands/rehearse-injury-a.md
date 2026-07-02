@@ -1,6 +1,6 @@
 # Rehearse INJURY A (Bugbot — full PR loop)
 
-End-to-end rehearsal: branch → apply injury → push → **draft PR** → Bugbot on PR.
+End-to-end rehearsal: branch → apply injury → push → **PR (ready for review)** → Bugbot on PR.
 **Never merge to `main`.**
 
 Reference: [`docs/INJURIES.md`](../../docs/INJURIES.md) · [`docs/DEMO-INJURIES.md`](../../docs/DEMO-INJURIES.md)

@@ -27,4 +27,4 @@ Prerequisites: PR **merged** to `main`, production deploy complete, flag **OFF**
    code in a follow-up PR.
 
 Never toggle production LaunchDarkly flags from preview/local credentials. See
-[`docs/ENVIRONMENTS.md`](../docs/ENVIRONMENTS.md).
+[`docs/ENVIRONMENTS.md`](../../docs/ENVIRONMENTS.md).
