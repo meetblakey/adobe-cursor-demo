@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useFlags } from 'launchdarkly-react-client-sdk';
 import { LayoutGridIcon, TableIcon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -35,11 +35,16 @@ export function CampaignsView({ campaigns }: { campaigns: Campaign[] }) {
     : STATUS_FILTER_OPTIONS.filter((o) => o.value !== 'scheduled');
   const shownStatus = (c: Campaign) =>
     c.status === 'scheduled' && !scheduledStatus ? 'draft' : c.status;
-  const filtered = status === 'all' ? campaigns : campaigns.filter((c) => shownStatus(c) === status);
-  const statusLabel = statusOptions.find((o) => o.value === status)?.label ?? status;
-  useEffect(() => {
-    if (!scheduledStatus && status === 'scheduled') setStatus('all');
-  }, [scheduledStatus, status]);
+  // When the flag turns off while "scheduled" is selected, remap synchronously so
+  // filtering never briefly matches zero rows before state catches up.
+  const effectiveStatus =
+    !scheduledStatus && status === 'scheduled' ? 'all' : status;
+  const filtered =
+    effectiveStatus === 'all'
+      ? campaigns
+      : campaigns.filter((c) => shownStatus(c) === effectiveStatus);
+  const statusLabel =
+    statusOptions.find((o) => o.value === effectiveStatus)?.label ?? effectiveStatus;
 
   return (
     <div className="flex flex-col gap-5 sm:gap-6">
@@ -86,7 +91,7 @@ export function CampaignsView({ campaigns }: { campaigns: Campaign[] }) {
                 <LayoutGridIcon aria-hidden />
               </Button>
             </div>
-            <StatusFilter value={status} onChange={setStatus} options={statusOptions} />
+            <StatusFilter value={effectiveStatus} onChange={setStatus} options={statusOptions} />
           </div>
           <Button size="lg" className="h-9 w-full shrink-0 whitespace-nowrap sm:w-auto">
             Create campaign
