@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 
 import {
+  effectiveFilterStatus,
   shownCampaignStatus,
   shouldResetScheduledFilter,
   statusFilterOptions,
@@ -38,6 +39,17 @@ describe('statusFilterOptions', () => {
   });
 });
 
+describe('effectiveFilterStatus', () => {
+  it('falls back to all when flag is off and filter is scheduled', () => {
+    expect(effectiveFilterStatus(false, 'scheduled')).toBe('all');
+  });
+
+  it('preserves the filter when scheduled is allowed', () => {
+    expect(effectiveFilterStatus(true, 'scheduled')).toBe('scheduled');
+    expect(effectiveFilterStatus(false, 'draft')).toBe('draft');
+  });
+});
+
 describe('shouldResetScheduledFilter', () => {
   it('resets when flag is off and filter is stuck on scheduled', () => {
     expect(shouldResetScheduledFilter(false, 'scheduled')).toBe(true);
@@ -64,14 +76,17 @@ describe('scheduled-status filter matching', () => {
     filter: string,
     scheduledStatusEnabled: boolean,
   ) {
+    const activeFilter = effectiveFilterStatus(scheduledStatusEnabled, filter);
     const shown = (c: (typeof campaigns)[number]) =>
       shownCampaignStatus(c.status, scheduledStatusEnabled);
-    return filter === 'all' ? items : items.filter((c) => shown(c) === filter);
+    return activeFilter === 'all'
+      ? items
+      : items.filter((c) => shown(c) === activeFilter);
   }
 
   it('matches scheduled rows as draft when flag is off', () => {
     expect(filterByStatus(campaigns, 'draft', false)).toEqual([campaigns[0], campaigns[1]]);
-    expect(filterByStatus(campaigns, 'scheduled', false)).toEqual([]);
+    expect(filterByStatus(campaigns, 'scheduled', false)).toEqual(campaigns);
   });
 
   it('matches scheduled rows normally when flag is on', () => {

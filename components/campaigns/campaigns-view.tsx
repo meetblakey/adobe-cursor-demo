@@ -10,6 +10,7 @@ import { CampaignCard } from '@/components/campaigns/campaign-card';
 import { CampaignsTable } from '@/components/campaigns/campaigns-table';
 import { CampaignsEmptyState } from '@/components/campaigns/campaigns-empty-state';
 import {
+  effectiveFilterStatus,
   shownCampaignStatus,
   shouldResetScheduledFilter,
   statusFilterOptions,
@@ -34,9 +35,13 @@ export function CampaignsView({ campaigns }: { campaigns: Campaign[] }) {
   const { scheduledStatus } = useFlags();
   const scheduledStatusEnabled = Boolean(scheduledStatus);
   const statusOptions = statusFilterOptions(scheduledStatusEnabled);
+  const activeStatus = effectiveFilterStatus(scheduledStatusEnabled, status);
   const shownStatus = (c: Campaign) => shownCampaignStatus(c.status, scheduledStatusEnabled);
-  const filtered = status === 'all' ? campaigns : campaigns.filter((c) => shownStatus(c) === status);
-  const statusLabel = statusOptions.find((o) => o.value === status)?.label ?? status;
+  const filtered =
+    activeStatus === 'all'
+      ? campaigns
+      : campaigns.filter((c) => shownStatus(c) === activeStatus);
+  const statusLabel = statusOptions.find((o) => o.value === activeStatus)?.label ?? activeStatus;
   useEffect(() => {
     if (shouldResetScheduledFilter(scheduledStatusEnabled, status)) setStatus('all');
   }, [scheduledStatusEnabled, status]);
@@ -86,7 +91,7 @@ export function CampaignsView({ campaigns }: { campaigns: Campaign[] }) {
                 <LayoutGridIcon aria-hidden />
               </Button>
             </div>
-            <StatusFilter value={status} onChange={setStatus} options={statusOptions} />
+            <StatusFilter value={activeStatus} onChange={setStatus} options={statusOptions} />
           </div>
           <Button size="lg" className="h-9 w-full shrink-0 whitespace-nowrap sm:w-auto">
             Create campaign

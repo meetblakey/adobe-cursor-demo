@@ -22,3 +22,11 @@ export function shouldResetScheduledFilter(
 ): boolean {
   return !scheduledStatusEnabled && currentFilter === 'scheduled';
 }
+
+/** Apply scheduled reset synchronously so filtering/UI never flash empty. */
+export function effectiveFilterStatus(
+  scheduledStatusEnabled: boolean,
+  currentFilter: string,
+): string {
+  return shouldResetScheduledFilter(scheduledStatusEnabled, currentFilter) ? 'all' : currentFilter;
+}
