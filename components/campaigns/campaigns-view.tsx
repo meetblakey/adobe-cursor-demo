@@ -9,7 +9,11 @@ import { StatusFilter } from '@/components/campaigns/status-filter';
 import { CampaignCard } from '@/components/campaigns/campaign-card';
 import { CampaignsTable } from '@/components/campaigns/campaigns-table';
 import { CampaignsEmptyState } from '@/components/campaigns/campaigns-empty-state';
-import { STATUS_FILTER_OPTIONS } from '@/components/ui/status-tokens';
+import {
+  shownCampaignStatus,
+  shouldResetScheduledFilter,
+  statusFilterOptions,
+} from '@/lib/campaign-status';
 import type { Campaign } from '@/lib/campaigns';
 
 type ViewMode = 'table' | 'grid';
@@ -28,18 +32,14 @@ export function CampaignsView({ campaigns }: { campaigns: Campaign[] }) {
   const [status, setStatus] = useState('all');
   const [viewMode, setViewMode] = useState<ViewMode>('grid');
   const { scheduledStatus } = useFlags();
-  // scheduled-status flag OFF → no Scheduled filter entry, and scheduled campaigns
-  // keep filtering as the draft they present as (StatusBadge applies the same gate).
-  const statusOptions = scheduledStatus
-    ? STATUS_FILTER_OPTIONS
-    : STATUS_FILTER_OPTIONS.filter((o) => o.value !== 'scheduled');
-  const shownStatus = (c: Campaign) =>
-    c.status === 'scheduled' && !scheduledStatus ? 'draft' : c.status;
+  const scheduledStatusEnabled = Boolean(scheduledStatus);
+  const statusOptions = statusFilterOptions(scheduledStatusEnabled);
+  const shownStatus = (c: Campaign) => shownCampaignStatus(c.status, scheduledStatusEnabled);
   const filtered = status === 'all' ? campaigns : campaigns.filter((c) => shownStatus(c) === status);
   const statusLabel = statusOptions.find((o) => o.value === status)?.label ?? status;
   useEffect(() => {
-    if (!scheduledStatus && status === 'scheduled') setStatus('all');
-  }, [scheduledStatus, status]);
+    if (shouldResetScheduledFilter(scheduledStatusEnabled, status)) setStatus('all');
+  }, [scheduledStatusEnabled, status]);
 
   return (
     <div className="flex flex-col gap-5 sm:gap-6">
