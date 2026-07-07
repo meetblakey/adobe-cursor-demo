@@ -11,8 +11,9 @@ uncommitted 101 start state, never committed on `main`.
 
 ```bash
 ./.github/scripts/demo-injury.sh start-101       # 101 start state: A on main, uncommitted
-./.github/scripts/stage-scheduled-pr.sh          # 201: PIG-206 PR = scheduled + injury A
-./.github/scripts/demo-injury.sh replay-b        # 201 mid-room: commit B on top of HEAD
+./.github/scripts/stage-scheduled-pr.sh          # 201 fallback: fabricate the clean PIG-206 PR (scheduled only)
+./.github/scripts/demo-injury.sh land-a          # 201 Loop 1: land INJURY A on the PIG-206 PR (Bugbot Autofix)
+./.github/scripts/demo-injury.sh replay-b        # 201 Loop 2: commit B on top of HEAD (fix-ci)
 ./.github/scripts/demo-injury.sh reset           # restore baseline (scheduled-aware)
 ```
 

@@ -40,15 +40,16 @@ For undoing an in-room **merge** of the Scheduled PR, see **Post-201 reset** in
    **test** if a rehearsal toggled it): [flag dashboard](https://app.launchdarkly.com/projects/default/flags/scheduled-status).
 
 6. **Confirm production** — `main` unchanged; prod alias still clean;
-   `./.github/scripts/demo-injury.sh check-patches` passes on `main`. Next run:
-   **`/stage-scheduled-pr`** (201) or `demo-injury.sh start-101` (101).
+   `./.github/scripts/demo-injury.sh check-patches` passes on `main`. Next run: dispatch the
+   **@Cursor Cloud Agent** on PIG-206 (Jira To Do → In Progress) — or **`/stage-scheduled-pr`**
+   to fabricate the clean PR as fallback (201) — or `demo-injury.sh start-101` (101).
 
 ## Notes
 
 - Resetting files does **not** revert Vercel preview deploys on old PR branches — closing PRs
   is enough; prod only tracks `main`.
 - Do **not** use `git reset --hard` on `main`.
-- Staging Supabase keeps the `'scheduled'` enum value between rehearsals — Postgres cannot
+- The Supabase project keeps the `'scheduled'` enum value between rehearsals — Postgres cannot
   drop enum values. That's fine: it's additive and invisible until a row uses it. Only revert
   the 0007 **backfill** (`update public.campaigns set status = 'draft' where name = 'APJ
   Expansion';`) if a rehearsal applied it.

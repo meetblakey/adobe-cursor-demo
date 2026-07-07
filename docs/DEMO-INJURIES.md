@@ -1,8 +1,9 @@
 # Demo injuries — stage, rehearse, reset
 
-Repeatable demo state for the 101 (opens broken, heals in-editor) and the 201 (one ticketed
-PR runs the outer loop: **Bugbot** → **`fix-ci`** → merge → flag release) without ever leaving
-`main` or production dirty. Full scenario copy + prompts: [`INJURIES.md`](INJURIES.md).
+Repeatable demo state for the 101 (opens broken, heals in-editor) and the 201 (a Cloud Agent's
+ticketed PR runs the outer loop: **Bugbot Autofix** (Loop 1) → **`fix-ci`** (Loop 2) → merge →
+flag release) without ever leaving `main` or production dirty. Full scenario copy + prompts:
+[`INJURIES.md`](INJURIES.md).
 
 ## Golden rules
 
@@ -13,11 +14,11 @@ PR runs the outer loop: **Bugbot** → **`fix-ci`** → merge → flag release) 
    injuries have been fixed *on the branch* by the gates. Revert the merge on `main` afterwards
    ([post-201 reset](#post-201-reset)). Standalone `demo/injury-*` rehearsal PRs are **closed,
    never merged**.
-3. **Mid-room, the branch tip NEVER moves backwards.** After the live INJURY A fix is pushed,
-   a `reset-branch-b` + force-push would wipe that fix from the PR — and merging would ship
-   the magenta button to production. Mid-room you only add state forward: **`replay-b`**
-   commits INJURY B on top of HEAD. `tag-broken` / `reset-branch-b` are for **between-rehearsal**
-   resets only.
+3. **Mid-room, the branch tip NEVER moves backwards.** After Bugbot's Loop 1 autofix commit
+   lands, a `reset-branch-b` + force-push would wipe it from the PR — and merging would ship the
+   magenta button to production. Mid-room you only add state forward: **`land-a`** then
+   **`replay-b`** commit on top of HEAD. `tag-broken` / `reset-branch-b` are for
+   **between-rehearsal** resets only.
 4. **Patches live in [`.demo/`](../.demo/)** — committed as files; `main` must stay
    Scheduled-free (`check-patches` enforces that they always apply on `main`).
 
@@ -26,8 +27,9 @@ PR runs the outer loop: **Bugbot** → **`fix-ci`** → merge → flag release) 
 | Goal | Command | Script |
 |------|---------|--------|
 | 101 start state (A on `main`, uncommitted) | — | `./.github/scripts/demo-injury.sh start-101` |
-| Stage the 201 PR (PIG-206 = scheduled + A) | **`/stage-scheduled-pr`** | `./.github/scripts/stage-scheduled-pr.sh` |
-| Mid-room INJURY B (commit on top of HEAD) | — | `./.github/scripts/demo-injury.sh replay-b` |
+| Fabricate the Cloud Agent's clean PIG-206 PR (fallback) | **`/stage-scheduled-pr`** | `./.github/scripts/stage-scheduled-pr.sh` |
+| Loop 1: land INJURY A on the PIG-206 PR | — | `./.github/scripts/demo-injury.sh land-a` |
+| Loop 2: land INJURY B on top of HEAD | — | `./.github/scripts/demo-injury.sh replay-b` |
 | Apply Bugbot injury (branch only) | **`/apply-injury-a`** | `demo-injury.sh apply a` |
 | Apply CI injury (branch only) | **`/apply-injury-b`** | `demo-injury.sh apply b` |
 | Restore clean files (scheduled-aware) | **`/reset-injuries`** | `demo-injury.sh reset` |
@@ -59,24 +61,28 @@ stops applying, regenerate all three against `main` and re-verify the stack
 ### The 201 loop (the staged PIG-206 PR)
 
 ```
-main (clean, Scheduled-free)
-  → /stage-scheduled-pr: branch PIG-206 = scheduled.patch + injury-a.patch, one commit
-  → push → PR (ready, not draft) → check GREEN → Bugbot comments on the drift
-  → [room] live fix (Cmd-K) → commit + push → still green
+Jira PIG-206 To Do → In Progress → assign @Cursor
+  → Cloud Agent builds Scheduled + self-verifies → opens PR PIG-206 (review token @ #E0A24E)
+     (fallback: /stage-scheduled-pr fabricates the same clean PR)
+  → demo-injury.sh land-a → push → check GREEN → Bugbot Autofix commits the fix (Loop 1)
   → [room] demo-injury.sh replay-b → push → check RED
-  → fix-ci runs cursor-agent → commits fix to the SAME PR + comments → green
+  → fix-ci runs cursor-agent → commits fix to the SAME PR + comments → green (Loop 2)
   → [room] human merges → prod deploys DARK (scheduled-status OFF)
   → /release-flag scheduled-status → chip + filter appear
   → [after] post-201 reset (below)
 ```
 
-- Push 1 must stay **green** — INJURY A is a design violation, not a test failure; Bugbot is
-  the gate that fires.
-- `replay-b` refuses to run if the working tree is dirty or the patch no longer applies (e.g.
-  `fix-ci` already rewrote the token on this branch).
-- **Bugbot AUTOFIX must be OFF** (Cursor dashboard) or it pushes its own fix to the PR
-  ~10–15 min in, stealing the live-fix beat and rewriting the staged diff (rehearsal-proven,
-  PRs #29/#30). Review comments stay on.
+- The `land-a` push must stay **green** — INJURY A is a design violation, not a test failure;
+  Bugbot Autofix is the gate that fires.
+- `land-a` / `replay-b` refuse to run if the working tree is dirty or the patch no longer applies
+  (e.g. Bugbot already autofixed the button, or `fix-ci` already rewrote the token, on this branch).
+- `land-a` / `replay-b` **fetch + fast-forward the remote branch first** (`sync_remote_ff`) so
+  Bugbot's Loop 1 autofix commit is ingested — the follow-up `git push` stays a fast-forward,
+  never a force-push.
+- **Bugbot AUTOFIX must be ON** (Cursor dashboard) — it is now the **Loop 1** beat: Bugbot commits
+  the button fix to the PR ~10–15 min after `land-a`. **Scope it OFF `components/ui/status-tokens.ts`**
+  (path-exclude or mention-only) so it does NOT also autofix INJURY B — **Loop 2 is `fix-ci`'s**.
+  Sequence matters: let Loop 1 land *before* `replay-b`. See [`.cursor/BUGBOT.md`](../.cursor/BUGBOT.md).
 - After `fix-ci` pushes its commit: the workflow re-dispatches the required `check` (green
   ~1 min); if GitHub shows a **"workflow awaiting approval"** run on that commit, hit
   **Re-run** on it (`gh run rerun <id>`) — then the PR is mergeable.
@@ -85,7 +91,7 @@ main (clean, Scheduled-free)
 
 ```
 main (clean) → branch demo/injury-a → apply a → push → PR (ready, not draft)
-→ Bugbot comments → discuss fix → close PR (do not merge)
+→ Bugbot Autofix commits the fix (or comments, if scoped off) → discuss → close PR (do not merge)
 ```
 
 - Preview deploy shows magenta Duplicate buttons on `/campaigns`; `npm test` stays green.
@@ -139,12 +145,12 @@ The 201 merge is real — `main` briefly carries the Scheduled feature. Undo it 
    `git revert -m 1 <merge-sha>` pushed through the normal flow. **Never `git reset --hard`
    on `main`** — prod tracks it and history must stay append-only.
 3. **LaunchDarkly:** `scheduled-status` OFF in **both** envs (test + production).
-4. **Staging Supabase:** revert the backfill only —
+4. **Supabase (the one project):** revert the backfill only —
    `update public.campaigns set status = 'draft' where name = 'APJ Expansion';`
-   Postgres **cannot drop enum values**, so `'scheduled'` stays in the staging enum between
-   rehearsals — that's acceptable and additive (invisible until a row uses it). Production
-   Supabase only ever gets the migrations when you deliberately run them post-merge; skip that
-   during rehearsals.
+   Postgres **cannot drop enum values**, so `'scheduled'` stays in the enum between rehearsals —
+   that's acceptable and additive (invisible until a row uses it). The project only gets the
+   `scheduled` migrations when you deliberately run them for the flag-reveal beat; skip that
+   during rehearsals that don't need the live DB.
 5. Confirm: `demo-injury.sh verify baseline` on `main` + `check-patches` green + the
    `pre-201` tag deleted (`git tag -d pre-201`) once verified.
 

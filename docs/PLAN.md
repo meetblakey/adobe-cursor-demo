@@ -46,7 +46,7 @@ Run the `/bootstrap-plan` command (or the prompt in BUILD-PLAN Phase 0). Cursor,
 | **PIG-101** | INJURY A — off-brand `bg-pink-500` Duplicate button in `campaign-card.tsx` (Bugbot catches it on the PR) |
 | **PIG-102** | INJURY B — `status-tokens.ts` `review.dark` fails WCAG AA (CI goes red; `cursor-agent` fixes it) |
 | **PIG-204** | "Add an `archived` status to the design system" — the **shipped** predecessor story (migrations 0004/0005); its Jira/Confluence trail is the worked example the agent mirrors |
-| **PIG-206** | "Add a `scheduled` campaign status" — **the live 201 ticket**: statuses derive from `STATUS_TOKENS` (AA both themes, Spectrum `'info'`), behind the `scheduled-status` flag (OFF in prod), enum two-step migrations 0006/0007 staging-first. Staged as one PR carrying the INJURY A drift (`/stage-scheduled-pr`); Bugbot → live fix → `replay-b` → `fix-ci` → merge → `/release-flag` |
+| **PIG-206** | "Add a `scheduled` campaign status" — **the live 201 ticket**: statuses derive from `STATUS_TOKENS` (AA both themes, Spectrum `'info'`), behind the `scheduled-status` flag (OFF in prod), enum two-step migrations 0006/0007 staging-first. Built by a native **@Cursor Cloud Agent** (Jira To Do → In Progress → assign @Cursor); `/stage-scheduled-pr` fabricates the clean PR as fallback. INJURY A rides the PR via `land-a` → **Bugbot Autofix** (Loop 1) → `replay-b` → `fix-ci` (Loop 2) → human merge → `/release-flag` |
 
 Each story's **description** carries the acceptance criteria; the agent posts its **plan as a
 comment**, logs effort with `addWorklogToJiraIssue`, links the PR with `createIssueLink`, and
