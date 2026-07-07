@@ -27,6 +27,55 @@ story (migrations 0004/0005) as the worked example.
 7. **Leave the existing `review` token at its current value** (`review.dark.fg = #E0A24E`). Do
    not touch other status tokens.
 
+## Deterministic execution plan — touch exactly these files, in this order (do NOT scan the repo)
+
+The status system has ONE source of truth (`components/ui/status-tokens.ts`); everything else
+derives from it or gates off it. **Mirror the shipped `archived` status (PIG-204)** — it is your
+worked example. Adding `scheduled` is **6 files + 2 migrations, no more.** Do not explore other
+directories to "understand the codebase" — this map is the codebase for this task.
+
+**Read first (your pattern — read only these, not the wider repo):**
+- `components/ui/status-tokens.ts` — study the `archived` entry in `STATUS_TOKENS` + `SPECTRUM_STATUS`
+  and the `CampaignStatus` union; you add `scheduled` the same way. `STATUS_FILTER_OPTIONS` /
+  `CAMPAIGN_STATUSES` are **derived here** — you never hand-edit a filter list.
+- `components/campaigns/first-flag-demo.tsx` — the `useFlags()` gate pattern (`my-first-flag`); you
+  mirror it for `scheduled-status`. The LD provider camelCases keys
+  (`useCamelCaseFlagKeys: true`), so the flag `scheduled-status` reads as `scheduledStatus`.
+- `.cursor/skills/add-migration/SKILL.md` + `supabase/migrations/0004_campaign_status_archived.sql`
+  + `0005_archive_enterprise_onboarding.sql` — the enum two-step you mirror as 0006/0007.
+
+**Then edit, in this order:**
+1. `components/ui/status-tokens.ts` — (a) `CampaignStatus` union `+ 'scheduled'`; (b) a `scheduled`
+   entry in `STATUS_TOKENS` with an **on-brand blue** AA pair in both themes (a known-good pair:
+   light `{ bg: '#E0EEF9', fg: '#0C447C' }`, dark `{ bg: '#152C42', fg: '#7EC8F2' }` — both clear
+   4.5:1); (c) widen the `SPECTRUM_STATUS` value type with `'info'` and add `scheduled: 'info'`.
+   **Do not** touch `review` or any other token, and **do not** hand-add `scheduled` to
+   `STATUS_FILTER_OPTIONS` / `CAMPAIGN_STATUSES` — those derive from `STATUS_TOKENS`, so your one
+   entry propagates automatically. (Editing `status-filter.tsx` in step 3 is the *component*, not
+   this derived list — that edit is still required.)
+2. `components/ui/status-badge.tsx` — add `const { scheduledStatus } = useFlags()`; compute
+   `const shown = status === 'scheduled' && !scheduledStatus ? 'draft' : status`; render with
+   `shown` on BOTH the Spectrum and SSR-fallback paths.
+3. `components/campaigns/status-filter.tsx` — accept an optional `options` prop defaulting to
+   `STATUS_FILTER_OPTIONS`; render the list from `options`.
+4. `components/campaigns/campaigns-view.tsx` — `useFlags()`; `statusOptions` drops `'scheduled'`
+   when the flag is off; remap `scheduled → draft` for filtering when off; reset the selected
+   filter if it was `scheduled` and the flag turns off; pass `options={statusOptions}` to `StatusFilter`.
+5. `lib/campaigns-seed.ts` — flip **APJ Expansion** (id `c3`) `status: 'draft' → 'scheduled'`;
+   update its sync comment to name 0007.
+6. Migrations via the **`add-migration`** skill: `0006_campaign_status_scheduled.sql`
+   (`alter type campaign_status add value if not exists 'scheduled';`) then
+   `0007_schedule_apj_expansion.sql` (`update public.campaigns set status = 'scheduled' where name = 'APJ Expansion';`).
+
+**Your oracle — run, don't guess:** `npm run typecheck && npm test`. `status-badge.test.ts` checks
+your new pair clears AA in both themes; `status-badge.spectrum.test.ts` checks the Spectrum mapping
+stays semantic. Only iterate the hex if AA fails.
+
+**Do NOT:** scan other directories; edit any test (the a11y + spectrum tests iterate the tokens,
+so `scheduled` is auto-covered — adding one is wasted work and weakening one is forbidden); touch
+other statuses/tokens; hand-add your status to the derived `STATUS_FILTER_OPTIONS`/`CAMPAIGN_STATUSES`;
+or author a new component (reuse `@/components/ui`).
+
 ## Self-verify (required before the PR)
 
 Follow [`.cursor/prompts/cloud-agent-self-verify.md`](cloud-agent-self-verify.md):
