@@ -1,12 +1,14 @@
-# Stage the Scheduled PR (201 pre-room setup)
+# Stage the Scheduled PR — Cloud Agent fallback (201 pre-room setup)
 
-Stage the 201's one ticketed PR: branch **`PIG-206`** cut from clean `main`, carrying the
-**Scheduled implementation** (`.demo/scheduled.patch`) **plus the INJURY A drift**
-(`.demo/injury-a.patch`) in a single commit — "Priya missed it". Push, open the PR
-**ready for review** so Bugbot runs. Tests stay **green** on this push; Bugbot catches the
-drift, the presenter fixes it live, then **`replay-b`** lands INJURY B as a follow-up commit.
+**Fallback** for the 201 Cloud-Agent spine. The **primary** path is a native @Cursor Cloud Agent
+building PIG-206 (Jira To Do → In Progress → assign @Cursor → PR). Use this only when a live
+dispatch isn't ready: it **fabricates the Cloud Agent's clean PR** — branch **`PIG-206`** cut from
+clean `main` carrying the **Scheduled implementation** (`.demo/scheduled.patch`) in one commit,
+review token left at baseline `#E0A24E`. Push, open the PR **ready for review**. The INJURY A
+drift is **not** baked here — it rides the PR next via **`land-a`** (Loop 1).
 
-Reference: [`docs/DEMO-INJURIES.md`](../../docs/DEMO-INJURIES.md) ·
+Reference: [`docs/CLOUD-AGENTS.md`](../../docs/CLOUD-AGENTS.md) ·
+[`docs/DEMO-INJURIES.md`](../../docs/DEMO-INJURIES.md) ·
 [`docs/DEMO-RUNBOOK.md`](../../docs/DEMO-RUNBOOK.md) (201 section)
 
 ## Steps
@@ -15,23 +17,25 @@ Reference: [`docs/DEMO-INJURIES.md`](../../docs/DEMO-INJURIES.md) ·
    rehearsal (run **`/demo-reset`** first if there is); Jira story **PIG-206** exists with the
    plan comment; LaunchDarkly flag **`scheduled-status`** exists and is **OFF in production**.
 
-2. **Run the script** (it guards all of the above except Jira/LD):
+2. **Run the script** (fabricates the clean PR; guards all of the above except Jira/LD):
    ```bash
    ./.github/scripts/stage-scheduled-pr.sh
    ```
 
-3. **Verify the staged state:**
-   - PR open, base `main`, ready for review (not draft).
-   - `check` goes **green** (INJURY A is a design violation, not a test failure).
-   - **Bugbot comments** on the raw `bg-pink-500` button (cite `.cursor/BUGBOT.md`'s
-     tokens-never-literals standard). If Bugbot hasn't commented in ~5 min, re-check the
-     Bugbot install on the repo.
+3. **Land the Loop 1 drift on the PR:**
+   ```bash
+   git checkout PIG-206 && ./.github/scripts/demo-injury.sh land-a && git push
+   ```
+   - `check` stays **green** (INJURY A is a design violation, not a test failure).
+   - **Bugbot Autofix** commits the `<Button variant="ghost">` fix on the raw `bg-pink-500`
+     button (cite `.cursor/BUGBOT.md`). If nothing lands in ~10–15 min, re-check the Bugbot
+     install + **Autofix** setting on the repo.
 
-4. **Jira** — move PIG-206 to **In Progress** (`transitionJiraIssue`) and link the PR on the
-   story if not already done.
+4. **Jira** — PIG-206 stays in **To Do** for the live trigger beat (moving it → In Progress is the
+   demo action that would dispatch the real agent); link the PR on the story.
 
-5. **Stop.** The room takes it from here: Bugbot beat → live fix → `replay-b` → red CI →
-   `fix-ci` self-heal → human merge → `/release-flag scheduled-status`.
+5. **Stop.** The room takes it from here: Loop 1 (Bugbot Autofix) → `replay-b` → red CI →
+   `fix-ci` self-heal (Loop 2) → human merge → `/release-flag scheduled-status`.
 
 ## Notes
 

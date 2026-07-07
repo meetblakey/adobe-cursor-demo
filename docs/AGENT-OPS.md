@@ -6,9 +6,11 @@ cursor.com/docs — names and gating move fast, so **re-verify day-of** (you're 
 team that ships these).
 
 **Live-demo vs configure-and-narrate (depth over breadth):**
-- **LIVE (must-work):** Bugbot on the PR (catches INJURY A) + the headless `cursor-agent` fixing CI (INJURY B).
-- **LIVE (optional — pre-staged + fallback recording):** Cloud Agents via **`/cloud-ticket`**; Sentry
-  Automation via **`/sentry-incident`** replay or dashboard trigger (see [`SENTRY-AUTOMATION.md`](SENTRY-AUTOMATION.md)).
+- **LIVE (must-work):** the **@Cursor Cloud Agent** builds the PIG-206 PR (Jira trigger); **Bugbot
+  Autofix** on that PR commits the INJURY A fix (Loop 1); the headless `cursor-agent` fixes CI (INJURY B, Loop 2).
+- **LIVE (optional — pre-staged + fallback recording):** the pre-baked PIG-206 PR (timing fallback);
+  `/cloud-ticket` for other stories; Sentry Automation via **`/sentry-incident`** replay or dashboard
+  trigger (see [`SENTRY-AUTOMATION.md`](SENTRY-AUTOMATION.md)).
 - **Configure-and-narrate:** Security Agents, Approval Agents at org scale.
 
 **Plan reality — you're on the Individual plan.** What you can actually *run*: **Bugbot** (PR
@@ -37,7 +39,9 @@ a merge-ready PR. The **same** agent runs headless as the **`cursor-agent`** CLI
   4. Wire **HTTP MCP** (proxied): **atlassian**, **sentry**, **vercel** as needed — stdio
      [`.cursor/mcp.json`](.cursor/mcp.json) is editor-only.
   5. Launch from IDE Cloud dropdown, dashboard, or Automations trigger.
-- **CI:** invoke `cursor-agent -p "…"` with **`CURSOR_API_KEY`** (service account on Teams).
+- **CI:** invoke `cursor-agent -p "…"` with **`CURSOR_API_KEY`** (service account on Teams). Deny
+  floor = the `beforeShellExecution` hook **+ [`.cursor/cli.json`](../.cursor/cli.json)** (`deny
+  Shell(git)` / `Write(.env*)`) — the agent fixes; the workflow owns git.
 - **Loop:** stage 2→3 (author → PR) and stage 4 (CI self-heal). **Sentry Automation** (stage 6→2)
   also runs on Cloud Agents — see [`SENTRY-AUTOMATION.md`](SENTRY-AUTOMATION.md).
 
@@ -49,8 +53,12 @@ dashboard rules, no analytics (Teams-only).
 - **Settings (in `cursor.com/dashboard/bugbot`, when you enable it):** install the GitHub App at
   **org/repo** scope (enterprise-account scope means PR webhooks never fire). Effort = **Default**
   (cheaper than High), **Incremental Review** ON, **"Run only once per PR"** ON. Triggers are the PR
-  comments **`cursor review`** / **`bugbot run`** (distinct from the in-editor `/review`). Autofix OFF.
-- **Loop:** stage 3 — reviews the diff before the human + CI; cites `.cursor/BUGBOT.md` on INJURY A.
+  comments **`cursor review`** / **`bugbot run`** (distinct from the in-editor `/review`).
+  **Autofix ON for the demo** (Loop 1 — it commits the INJURY A fix), **scoped OFF
+  `components/ui/status-tokens.ts`** so CI owns Loop 2. (Autofix needs usage pricing; keep Bugbot
+  disabled during the pre-app build per the cost note below.)
+- **Loop:** stage 3 (**Loop 1**) — reviews the agent's PR before the human + CI and, with Autofix
+  ON, **commits** the INJURY A fix per `.cursor/BUGBOT.md`.
 
 > **💸 Cost-safe during the build (the lean setup you asked for).** Bugbot bills *only when it
 > actually reviews* (included usage first, then on-demand), and enable/disable + run-trigger are

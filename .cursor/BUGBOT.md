@@ -24,3 +24,14 @@ violated.
 ## Don't
 - Re-flag unchanged code (Incremental Review is on).
 - Block on style the linter/formatter owns.
+
+## Autofix scope — loop ownership
+Autofix is **ON**. Bugbot owns **Loop 1 (design-system drift at review)** — it commits the fix
+for hardcoded colors / raw `<button>`s / Spectrum `UNSAFE_*` overrides directly to the PR
+branch (e.g. the `bg-pink-500` Duplicate button in `components/campaigns/campaign-card.tsx`).
+
+**Do NOT autofix WCAG/contrast changes in `components/ui/status-tokens.ts`.** That is **Loop 2**,
+owned by the CI a11y gate (`components/ui/status-badge.test.ts`) and the headless **`fix-ci`**
+job — the two fixers must stay distinct so CI, not review, heals the contrast regression. Report
+the failing pair + ratio if you see it, but leave the token edit to CI. (The enforceable path
+exclude / mention-only setting lives in the Bugbot dashboard; this file records the intent.)

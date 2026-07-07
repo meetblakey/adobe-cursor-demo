@@ -8,12 +8,15 @@ flags (see [`LAUNCHDARKLY.md`](LAUNCHDARKLY.md) and [`PIPELINE.md`](PIPELINE.md)
 
 | Tier | Where | `VERCEL_ENV` | LaunchDarkly | Supabase | Seed fallback |
 |------|-------|--------------|--------------|----------|---------------|
-| **Development** | `npm run dev`, `vercel dev` | unset / `development` | **test** env | Dev project URL + anon key | Yes |
-| **Preview** | PR / branch deploy | `preview` | **test** env | Staging project URL + anon key | Yes on error |
-| **Production** | Production URL | `production` | **production** env | Prod project URL + anon key | **No** — log error |
+| **Development** | `npm run dev`, `vercel dev` | unset / `development` | **test** env | (unset → seed) or the shared project | Yes |
+| **Preview** | PR / branch deploy | `preview` | **test** env | the shared project | Yes on error |
+| **Production** | Production URL | `production` | **production** env | the shared project | **No** — log error |
 
-**Rule:** never point Preview or local dev at LaunchDarkly **production** or Supabase **production**
-credentials.
+**One Supabase project backs every tier in this demo.** The real tier separation is
+**LaunchDarkly `test` vs `production`** plus **seed-vs-live** (dev/preview fall back to in-app
+seed; production requires the live DB). **Rule:** never point Preview or local dev at
+LaunchDarkly **production**. (At Adobe scale you'd split Supabase per tier too — see *Future*
+below — but the demo runs one project.)
 
 ## Environment variables
 
@@ -25,8 +28,8 @@ Set per tier in the [Vercel project settings](https://vercel.com/meetblakeys-pro
 | `LAUNCHDARKLY_SDK_KEY` | test key | test key | production key |
 | `NEXT_PUBLIC_LAUNCHDARKLY_CLIENT_SIDE_ID` | test client ID | test client ID | production client ID |
 | `EDGE_CONFIG` | test store (auto on Vercel) | test store | production store |
-| `NEXT_PUBLIC_SUPABASE_URL` | dev project | staging project | prod project |
-| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | dev anon key | staging anon key | prod anon key |
+| `NEXT_PUBLIC_SUPABASE_URL` | shared project (or unset → seed) | shared project | shared project |
+| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | shared anon key (or unset → seed) | shared anon key | shared anon key |
 | `NEXT_PUBLIC_VERCEL_ENV` | `local` (via `next.config.ts`) | `preview` | `production` |
 
 Sync local Development vars from Vercel:
@@ -50,21 +53,22 @@ LaunchDarkly detail: [`LAUNCHDARKLY.md`](LAUNCHDARKLY.md).
 GitHub Actions **does not** set Supabase or LaunchDarkly secrets. CI runs on in-app seed data and
 LD graceful defaults — `npm test`, typecheck, and build stay green without `.env*`.
 
-## Migrations across tiers
+## Migrations
 
-Apply schema changes **staging first**, then production:
-
-1. Run the new SQL against the **staging** Supabase project (Preview tier).
-2. Validate on a Vercel preview deploy.
-3. Apply the same migration to **production** before or after merge — never skip staging.
+This demo runs **one Supabase project**, so a migration is applied once, to that project, and
+validated on a Vercel preview deploy (which reads the same DB) before you rely on it in
+production. The `add-migration` discipline still holds: enum changes are the **two-step** pair
+(`0006` add value → `0007` backfill), and at Adobe scale you'd run that **staging-first** across
+separate per-tier projects. Never skip the preview validation.
 
 See [`.cursor/skills/add-migration/SKILL.md`](../.cursor/skills/add-migration/SKILL.md).
 
-## Future: Supabase Branching
+## Future: per-tier isolation (Supabase Branching)
 
-[Supabase Branching](https://supabase.com/docs/guides/platform/branching) can attach preview DB
-branches to PRs. This repo documents the three-project model for clarity in demos; branching is
-an optional upgrade path.
+This demo runs **one Supabase project** across all tiers. At Adobe scale you'd isolate per tier —
+either separate dev/staging/prod projects or [Supabase Branching](https://supabase.com/docs/guides/platform/branching),
+which attaches a preview DB branch to each PR. That's the upgrade path; the demo keeps one project
+for simplicity.
 
 ## Deploy policy
 

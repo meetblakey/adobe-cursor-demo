@@ -5,7 +5,8 @@
 # Usage:
 #   ./.github/scripts/demo-injury.sh apply a|b       # apply injury to working tree (not on main)
 #   ./.github/scripts/demo-injury.sh start-101       # 101 start state: INJURY A on main, UNCOMMITTED
-#   ./.github/scripts/demo-injury.sh replay-b        # commit INJURY B on top of HEAD (mid-room CI beat)
+#   ./.github/scripts/demo-injury.sh land-a          # commit INJURY A on the Cloud Agent's PIG-206 PR (Loop 1 staging)
+#   ./.github/scripts/demo-injury.sh replay-b        # commit INJURY B on top of HEAD (Loop 2 / mid-room CI beat)
 #   ./.github/scripts/demo-injury.sh reset           # restore demo files from main baseline
 #   ./.github/scripts/demo-injury.sh verify baseline|a|b
 #   ./.github/scripts/demo-injury.sh check-patches   # all .demo patches apply to HEAD (drift gate; run on clean main)
@@ -13,10 +14,11 @@
 #   ./.github/scripts/demo-injury.sh reset-branch-b  # BETWEEN REHEARSALS ONLY: hard-reset to that tag
 #
 # MID-ROOM RULE — the branch tip must NEVER move backwards during a session.
-# On the staged PIG-206 PR, the live INJURY A fix is a pushed commit; a
-# reset-branch-b + force-push after it would wipe that fix from the PR — and
-# merging would ship the magenta button to production. Mid-room, only add
-# state forward: `replay-b` commits the INJURY B flip on top of HEAD.
+# With Bugbot Autofix ON, its Loop 1 fix commit lands on the REMOTE PIG-206 PR
+# branch; `land-a`/`replay-b` fetch + fast-forward the remote first (sync_remote_ff)
+# so that autofix commit is ingested and the follow-up push stays a fast-forward.
+# A reset-branch-b + force-push would wipe the autofix from the PR — and merging
+# would ship the magenta button to production. Mid-room, only add state forward.
 # tag-broken / reset-branch-b exist for BETWEEN-REHEARSAL resets only.
 set -euo pipefail
 
@@ -64,6 +66,19 @@ scheduled_absent() {
     && [ ! -f "$MIG_6" ] && [ ! -f "$MIG_7" ]
 }
 
+# Ingest any commits already on the remote branch (e.g. Bugbot's Loop 1 autofix)
+# before adding a forward commit — else the later `git push` is rejected
+# non-fast-forward and a force-push would wipe them. (bugbot-autofix-races-pushes)
+sync_remote_ff() {
+  local branch
+  branch="$(git -C "$ROOT" rev-parse --abbrev-ref HEAD)"
+  git -C "$ROOT" ls-remote --exit-code origin "refs/heads/$branch" >/dev/null 2>&1 || return 0
+  git -C "$ROOT" fetch --quiet origin "$branch" \
+    || die "git fetch origin $branch failed — needed to ingest any Bugbot autofix commit before pushing"
+  git -C "$ROOT" merge --ff-only FETCH_HEAD \
+    || die "local $branch is behind origin/$branch and not fast-forwardable — reconcile the remote (e.g. Bugbot's Loop 1 autofix) with 'git pull --ff-only'; never force-push mid-room"
+}
+
 cmd="${1:-}"
 sub="${2:-}"
 
@@ -101,12 +116,32 @@ case "$cmd" in
     echo "  Do NOT commit. 'scheduled' verified absent from tokens/seed/migrations."
     echo "  After the session (or to restart): demo-injury.sh reset"
     ;;
+  land-a)
+    # Loop 1 staging: land the INJURY A design drift on the Cloud Agent's PIG-206
+    # PR as its OWN commit — "a design-system violation that rode in on this PR".
+    # Bugbot Autofix repairs it at review. Retires stage-scheduled-pr.sh's old job
+    # of baking INJURY A into a hand-authored branch. Never on main; the tip only
+    # moves forward.
+    on_main && die "refuse to commit INJURY A on main — checkout the PIG-206 branch first"
+    { git -C "$ROOT" diff --quiet && git -C "$ROOT" diff --cached --quiet; } \
+      || die "working tree dirty (worktree or index) — commit or reset first"
+    sync_remote_ff   # ingest any prior remote commits before adding INJURY A
+    git -C "$ROOT" apply --check "$PATCH_DIR/injury-a.patch" \
+      || die "INJURY A patch does not apply — has Bugbot already autofixed the button on this branch?"
+    git -C "$ROOT" apply "$PATCH_DIR/injury-a.patch"
+    # pathspec commit: only the card file can ride this commit, whatever the index holds
+    git -C "$ROOT" commit -m "PIG-206: add Duplicate action to the campaign card" -- "$CARD"
+    echo "→ INJURY A committed on top of HEAD (bg-pink-500 Duplicate button on the PIG-206 PR)."
+    echo "  Push to let Bugbot Autofix catch + repair it (Loop 1): git push"
+    ;;
   replay-b)
-    # Mid-room CI beat on the staged PIG-206 PR: commit the INJURY B flip ON TOP
-    # of HEAD. Never moves the tip backwards, so the live INJURY A fix survives.
+    # Loop 2 / mid-room CI beat on the PIG-206 PR: commit the INJURY B flip ON TOP
+    # of HEAD, AFTER Bugbot's Loop 1 autofix has landed. Never moves the tip
+    # backwards, so Bugbot's autofix (and any live fix) survives.
     on_main && die "refuse to commit INJURY B on main — checkout the PIG-206 branch first"
     { git -C "$ROOT" diff --quiet && git -C "$ROOT" diff --cached --quiet; } \
       || die "working tree dirty (worktree or index) — commit or reset first"
+    sync_remote_ff   # ingest Bugbot's Loop 1 autofix commit before adding INJURY B
     git -C "$ROOT" apply --check "$PATCH_DIR/injury-b.patch" \
       || die "INJURY B patch does not apply — has fix-ci already changed the token on this branch?"
     git -C "$ROOT" apply "$PATCH_DIR/injury-b.patch"
@@ -218,7 +253,8 @@ Usage: demo-injury.sh <command> [arg]
 Commands:
   apply a|b             Apply INJURY A or B patch to the working tree (not on main)
   start-101             101 start state: INJURY A on main, UNCOMMITTED ('scheduled' verified absent)
-  replay-b              Commit INJURY B on top of HEAD (mid-room CI beat; tip never moves backwards)
+  land-a                Commit INJURY A on the Cloud Agent's PIG-206 PR (Loop 1 staging; Bugbot Autofix repairs it)
+  replay-b              Commit INJURY B on top of HEAD (Loop 2 CI beat; tip never moves backwards)
   reset                 Restore demo files from main baseline + remove migrations 0006/0007
   verify baseline|a|b   Check baseline clean (incl. 'scheduled' absent) or injury applied
   check-patches         All .demo/*.patch apply to HEAD (drift gate; run on clean main)
