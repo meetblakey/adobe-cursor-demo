@@ -27,13 +27,16 @@ do not replace Bugbot or the CI `fix-ci` job.
 ## Dashboard setup (one-time)
 
 1. **[cursor.com/agents](https://cursor.com/agents)** — connect the `adobe-cursor-demo` GitHub repo.
-2. **VM snapshot** — after first successful `npm install` + `npm run dev`, save a snapshot (fastest
-   boot and most reliable self-verify).
+2. **VM snapshot** — after first successful `npm install` + `npm run dev` (`/campaigns` returns 200),
+   save a snapshot from the [environment dashboard](https://cursor.com/dashboard/cloud-agents/environments/r/github.com/meetblakey/adobe-cursor-demo)
+   and optionally commit the snapshot ID to `.cursor/environment.json` (fastest boot and most reliable self-verify).
 3. **Secrets** — match CI: no Supabase or LaunchDarkly **production** keys in the Cloud Agent
    environment. Seed data + LD graceful defaults are enough ([`ENVIRONMENTS.md`](ENVIRONMENTS.md)).
 4. **HTTP MCP** (dashboard, proxied server-side): wire **atlassian** (Jira comments on agent PRs),
-   **sentry**, **vercel** as needed. Local stdio entries in [`.cursor/mcp.json`](../.cursor/mcp.json)
-   apply to the editor only; Cloud Agents use dashboard MCP config.
+   **sentry**, **vercel**, and **launchdarkly** (flag-gated `/cloud-ticket` work). Pre-authenticate
+   each server in the [environment dashboard](https://cursor.com/dashboard/cloud-agents/environments/r/github.com/meetblakey/adobe-cursor-demo)
+   before launching agents or saving Automations. URLs match [`.cursor/mcp.json`](../.cursor/mcp.json).
+   Local stdio entries apply to the editor only; Cloud Agents use dashboard MCP config.
 
 ## Self-verify contract
 

@@ -28,8 +28,9 @@ For local editor work, use **`/start-ticket`** instead.
    Paste the story key, plan summary, and instruct the agent to follow:
    [`.cursor/prompts/cloud-agent-self-verify.md`](../prompts/cloud-agent-self-verify.md).
 
-   Dashboard prerequisites: repo connected, VM snapshot saved, HTTP MCP (atlassian) if the
-   agent must update Jira — see [`docs/CLOUD-AGENTS.md`](../../docs/CLOUD-AGENTS.md).
+   Dashboard prerequisites: repo connected, VM snapshot saved, HTTP MCP pre-authenticated
+   (**atlassian**, **sentry**, **vercel**, **launchdarkly** as needed) — see
+   [`docs/DASHBOARD-SETUP.md`](../../docs/DASHBOARD-SETUP.md) and [`docs/CLOUD-AGENTS.md`](../../docs/CLOUD-AGENTS.md).
 
 6. When the agent opens a PR, **human review** the diff and screenshots. Run **`/open-pr`**
    gates if you need to fix or push follow-ups (`/review-bugbot` before push).

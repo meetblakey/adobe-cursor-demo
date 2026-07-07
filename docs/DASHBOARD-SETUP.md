@@ -17,10 +17,29 @@ Repo artifacts are on disk; these steps run in the Cursor UI.
    - `install`: `npm install`
    - `dev`: `npm run dev`
    - `verify`: `npm run typecheck && npm test && npm run build`
-3. Run once manually: wait for install + dev server on port 3000.
-4. **Save VM snapshot** (Settings → snapshot after successful boot).
+3. Run once manually: wait for install + dev server on port 3000 (`http://localhost:3000/campaigns` returns 200).
+4. **Save VM snapshot** — open the [environment dashboard](https://cursor.com/dashboard/cloud-agents/environments/r/github.com/meetblakey/adobe-cursor-demo) → **Save snapshot** (or **Update with Agent** after a healthy boot). Copy the snapshot ID into `.cursor/environment.json` when prompted:
+
+   ```json
+   {
+     "snapshot": "snapshot-YYYYMMDD-…",
+     "install": "npm install",
+     "terminals": [ … ]
+   }
+   ```
+
 5. **Secrets:** do not add Supabase or LaunchDarkly **production** keys (seed + graceful defaults).
-6. **HTTP MCP** (Agents environment settings): enable **atlassian**, **sentry**, **vercel** as needed.
+6. **HTTP MCP** (environment → **MCP** or [cursor.com/agents](https://cursor.com/agents) → environment settings; Team plan: [dashboard integrations](https://cursor.com/dashboard/integrations)). Pre-authenticate **before** saving Automations. Enable:
+
+   | Server | URL (from [`.cursor/mcp.json`](../.cursor/mcp.json)) |
+   |--------|------------------------------------------------------|
+   | **atlassian** | `https://mcp.atlassian.com/v1/sse` |
+   | **sentry** | `https://mcp.sentry.dev/mcp/adobe-cursor-demo/sentry-cerulean-flask` |
+   | **vercel** | `https://mcp.vercel.com` |
+   | **launchdarkly** | `https://mcp.launchdarkly.com/mcp/launchdarkly` |
+   | supabase (optional, read-only) | stdio in `.cursor/mcp.json` is **editor-only**; add hosted Supabase MCP in dashboard if schema work is needed |
+
+   Stdio entries in `.cursor/mcp.json` apply to the **editor** only; Cloud Agents use dashboard HTTP MCP.
 
 ## 2. Sentry Automation
 

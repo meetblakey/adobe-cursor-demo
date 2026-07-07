@@ -34,8 +34,8 @@ a merge-ready PR. The **same** agent runs headless as the **`cursor-agent`** CLI
   1. Connect the GitHub repo.
   2. Save VM snapshot (post-`npm install` + dev server up).
   3. Scope secrets: **no** Supabase/LD production keys (seed + LD defaults, same as CI).
-  4. Wire **HTTP MCP** (proxied): **atlassian**, **sentry**, **vercel** as needed — stdio
-     [`.cursor/mcp.json`](.cursor/mcp.json) is editor-only.
+  4. Wire **HTTP MCP** (proxied): **atlassian**, **sentry**, **vercel**, **launchdarkly** — stdio
+     [`.cursor/mcp.json`](.cursor/mcp.json) is editor-only; pre-authenticate in the environment dashboard.
   5. Launch from IDE Cloud dropdown, dashboard, or Automations trigger.
 - **CI:** invoke `cursor-agent -p "…"` with **`CURSOR_API_KEY`** (service account on Teams).
 - **Loop:** stage 2→3 (author → PR) and stage 4 (CI self-heal). **Sentry Automation** (stage 6→2)
