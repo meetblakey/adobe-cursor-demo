@@ -32,7 +32,7 @@ verified reference scaffold is included, but the spec docs are the source of tru
 | [`docs/TEAMWORK-SKILLS.md`](docs/TEAMWORK-SKILLS.md) | the installed `twg` Teamwork-Graph skills mapped to the loop (synthesis layer over the MCP) |
 | [`docs/TOOLCHAIN.md`](docs/TOOLCHAIN.md) | one tool per SDLC stage (MCP/CLI/skill) — and what's deliberately excluded |
 | [`docs/AGENT-OPS.md`](docs/AGENT-OPS.md) | the governed setup for Cloud Agents · Bugbot · Security Agents · Approval Agents |
-| [`docs/CLOUD-AGENTS.md`](docs/CLOUD-AGENTS.md) | Cloud Agent parallel path — `/cloud-ticket`, VM self-verify, dashboard snapshot |
+| [`docs/CLOUD-AGENTS.md`](docs/CLOUD-AGENTS.md) | Cloud Agent **primary path** for ticketed work (trigger-first) — `/cloud-ticket`, VM self-verify, dashboard snapshot |
 | [`docs/SENTRY-AUTOMATION.md`](docs/SENTRY-AUTOMATION.md) | Sentry Automation — issueCreated → Jira + draft PR; `/sentry-incident` replay |
 | [`docs/DASHBOARD-SETUP.md`](docs/DASHBOARD-SETUP.md) | one-time Cursor dashboard checklist (VM snapshot + Automation) |
 | `AGENTS.md` · `.cursor/rules/*.mdc` | durable context + rules: `project`/`planning` (Always) + `design-system` (Auto-Attach via globs) |

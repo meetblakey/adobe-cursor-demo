@@ -9,7 +9,7 @@ platform team's rules/gates make it safe at 100+-engineer scale.*
 
 | Story | Branch/PR | Flag | Gates it exercises |
 |---|---|---|---|
-| **PIG-206** — Add a `scheduled` campaign status | `PIG-206` (staged by **`/stage-scheduled-pr`**: `.demo/scheduled.patch` + the INJURY A drift) | **`scheduled-status`** (OFF in prod; released via `/release-flag`) | **Bugbot** on the re-introduced drift (checks green) → live fix → **INJURY B** follow-up commit (`replay-b`) → red CI → **`fix-ci`** self-heal → human merge → dark deploy → flag release → Sentry |
+| **PIG-206** — Add a `scheduled` campaign status | `PIG-206` — built by a native **@Cursor Cloud Agent** (Jira To Do → In Progress → assign @Cursor); `stage-scheduled-pr.sh` fabricates its clean PR as the fallback | **`scheduled-status`** (OFF in prod; released via `/release-flag`) | **Loop 1 — Bugbot Autofix** on the drift that rides the PR (`land-a`, checks green) → **Loop 2 — INJURY B** follow-up commit (`replay-b`) → red CI → **`fix-ci`** self-heal → human merge → dark deploy → flag release → Sentry |
 
 (**PIG-204** — the `archived` status — is the *shipped* predecessor story; its trail in
 Jira/Confluence and migrations 0004/0005 are the worked example the agent mirrors.)
@@ -23,20 +23,20 @@ Jira/Confluence and migrations 0004/0005 are the worked example the agent mirror
 ```
         ┌────────────────────────────────────────────────────────────────────────┐
         ▼                                                                        │
-1.PLAN  2.CODE    2alt.CLOUD 2b.IDE REV  3.REVIEW  4.CI   5.DEPLOY  5b.RELEASE │ 6.OBSERVE
- Jira→  Cursor→  /cloud-   /review-   PR+      GH     Vercel   LaunchDarkly    Sentry
- ticket  (flag)   ticket    bugbot     Bugbot   Actions preview  rollout         Automation
+1.PLAN   2.BUILD      2alt.EDIT 2b.IDE-REV 3.REVIEW    4.CI    5.DEPLOY 5b.REL  │ 6.OBSERVE
+ Jira     @Cursor      /start-   /review-   PR+Bugbot   GH      Vercel   Launch  Sentry
+ trigger  Cloud Agent  ticket    bugbot     Autofix     Actions preview  Darkly  Automation
         └────  Sentry issueCreated → Jira + draft PR (human merge)  ─────────────┘
 ```
 
 | # | Stage | Tool (demo) | Tool (Adobe, talk-track) | Where Cursor inserts |
 |---|---|---|---|---|
 | 1 | Plan | **Jira + Confluence** | Jira + Confluence | Atlassian **MCP** pulls the ticket + acceptance criteria; create/link LD flag key in AC for feature work |
-| 2 | Code | Cursor editor + **LaunchDarkly SDK** | Cursor editor | Wrap new features behind flags (default **OFF** in LD production); `launchdarkly-flag-create` skill |
-| **2alt** | **Code (parallel)** | **Cloud Agent** + **`/cloud-ticket`** | Cloud Agents | VM self-verify (screenshots on `/campaigns`); see [`CLOUD-AGENTS.md`](CLOUD-AGENTS.md) |
+| **2** | **Build** | **Jira trigger → @Cursor Cloud Agent** | Cloud Agents | Move PIG-206 → In Progress → assign @Cursor; VM builds + self-verifies + opens PR (flags **OFF** in prod); see [`CLOUD-AGENTS.md`](CLOUD-AGENTS.md) |
+| 2alt | Build (editor) | Cursor editor + **`/start-ticket`** + **LaunchDarkly SDK** | Cursor editor | Pair-programming / platform work; wrap features behind flags (`launchdarkly-flag-create`) |
 | 2b | IDE review | **`/review-bugbot`** (+ **`/review-security`**) | — | Pre-push review — see [`open-pr`](../.cursor/commands/open-pr.md) |
-| 3 | Review | GitHub PR | GitHub/Bitbucket PR | **Bugbot** + Security + Approval; validate flag wiring on preview |
-| 4 | CI | **GitHub Actions** | Jenkins → Spinnaker | **`cursor-agent`** fixes red pipeline (INJURY B); runs without LD/Supabase secrets |
+| 3 | Review | GitHub PR + **Bugbot Autofix** | GitHub/Bitbucket PR | **Loop 1:** Bugbot **commits** the design-system fix on the PR; + Security + Approval; validate flag wiring on preview |
+| 4 | CI | **GitHub Actions** | Jenkins → Spinnaker | **Loop 2: `cursor-agent`** (`fix-ci`) fixes red pipeline (INJURY B) on the same PR; runs without LD/Supabase secrets |
 | 5 | Deploy | **Vercel** | Spinnaker → K8s | Preview per PR; **prod auto-deploy on merge** (dark — flag OFF in production) |
 | **5b** | **Release** | **LaunchDarkly MCP** + **`/release-flag`** | LD / similar | Human toggles prod rollout after preview validation in LD **test** env |
 | **5c** | **Cleanup** | **`launchdarkly-flag-cleanup`** | — | Remove flag code after 100% rollout |
@@ -57,8 +57,9 @@ rollout** — not Vercel promote.
 ## Slash-command spine
 
 ```
-/start-ticket → build (behind flag) → /open-pr → merge → /release-flag → /ship-ticket
-/cloud-ticket → Cloud Agent PR → /open-pr → merge → /release-flag → /ship-ticket
+Jira In Progress → @Cursor Cloud Agent PR → Bugbot Autofix → fix-ci → merge → /release-flag → /ship-ticket
+/cloud-ticket → Cloud Agent PR (any PIG story) → /open-pr → merge → /release-flag → /ship-ticket
+/start-ticket → build in editor (behind flag) → /open-pr → merge → /release-flag → /ship-ticket
 /sentry-incident (or Sentry Automation) → draft PR → human merge → /ship-ticket
                                                       ↘ launchdarkly-flag-cleanup (after rollout)
 ```
@@ -75,10 +76,12 @@ rollout** — not Vercel promote.
 
 ## Where the demo scenarios live
 
-- **INJURY A** (off-brand button) — stage 3 (Bugbot): baked into the staged PIG-206 commit,
-  caught on push 1 with checks green. (101: pre-applied uncommitted on `main` via `start-101`.)
-- **INJURY B** (a11y contrast) — stage 4 (CI + `cursor-agent`): `replay-b` commits it on top
-  of the PIG-206 tip mid-room; `fix-ci` self-heals on the same PR.
+- **INJURY A** (off-brand button) — stage 3, **Loop 1 (Bugbot Autofix)**: rides the Cloud Agent's
+  PIG-206 PR as its own commit (`demo-injury.sh land-a`), checks green; Bugbot commits the fix.
+  (101: pre-applied uncommitted on `main` via `start-101`, healed in-editor.)
+- **INJURY B** (a11y contrast) — stage 4, **Loop 2 (CI + `cursor-agent`)**: `replay-b` commits it
+  on top of the PIG-206 tip *after* Bugbot's autofix; CI reddens and `fix-ci` self-heals on the
+  same PR.
 - **Release beat** (`scheduled-status` on `/campaigns`) — stage 5b: merge ships dark (OFF in
   production); `/release-flag scheduled-status` = validate in LD test on preview, then the human
   prod toggle reveals the Scheduled chip + filter. (`my-first-flag` stays as the demo card only.)
@@ -88,5 +91,10 @@ rollout** — not Vercel promote.
 
 - Verify Atlassian, Sentry, LaunchDarkly MCP availability day-of at each vendor's docs.
 - Cursor touches stages 1–4, 5b documentation, and 6 directly; **prod flag rollout (5b) is a
-  human gate in LaunchDarkly**, not an autonomous agent action.
+  human gate in LaunchDarkly**, not an autonomous agent action. **No agent merges or deploys.**
+- The INJURY A drift is a **seeded demo condition injected onto the agent's PR** (`land-a`), not
+  code the Cloud Agent authored — describe it honestly on stage. Bugbot is **scoped off** the
+  a11y token so Loop 1 (Bugbot) and Loop 2 (`fix-ci`) never fix the same thing.
+- Beta posture: Cloud Agents API **public beta**; Cursor-in-Jira app **GA**; Approval/Security
+  agents **Teams/Enterprise beta**.
 - For Adobe: same *shape* on GitHub Actions + Vercel + LaunchDarkly + Sentry.

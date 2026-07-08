@@ -1,0 +1,15 @@
+{
+  "permissions": {
+    "allow": [
+      "Shell(*)",
+      "Read(**)",
+      "Write(**)"
+    ],
+    "deny": [
+      "Shell(git)",
+      "Shell(git *)",
+      "Write(.env*)",
+      "Write(**/.env*)"
+    ]
+  }
+}
