@@ -1,9 +1,9 @@
 {
   "permissions": {
     "allow": [
+      "Shell(*)",
       "Read(**)",
-      "Write(**)",
-      "Shell(npm *)"
+      "Write(**)"
     ],
     "deny": [
       "Shell(git)",
