@@ -12,8 +12,8 @@ Page under demo for both: **`/campaigns`** → `app/campaigns/page.tsx`.
 
 | | 101 (editor) | 201 (pipeline) |
 |---|---|---|
-| **A** | Pre-applied on `main`, uncommitted (`start-101`); fixed live with Cmd-K; never pushed | Baked into the PIG-206 commit ("Priya missed it"); **Bugbot** catches it on push 1; fixed live on the PR |
-| **B** | not used | Landed mid-room as a follow-up commit (`replay-b`); CI goes red; **`fix-ci`** self-heals |
+| **A** | Pre-applied on `main`, uncommitted (`start-101`); fixed live with Cmd-K; never pushed | Rides the Cloud Agent's PIG-206 PR as its own commit (`land-a`); **Bugbot Autofix** commits the fix (Loop 1) |
+| **B** | not used | Landed as a follow-up commit after Loop 1 (`replay-b`); CI goes red; **`fix-ci`** self-heals (Loop 2) |
 
 **The PIG-206 PR is the ONE injury-carrying branch that ever merges** — by merge time both
 injuries have been fixed *on the branch* (that's the story: the gates caught them). After the
@@ -34,8 +34,8 @@ campaign card.
 > the rule + Bugbot catch it the moment they fight the system. The fix is the same: use the
 > Pigment `<Button variant="ghost">` (which renders Spectrum by default).
 
-**Apply** — `.demo/injury-a.patch` (via `start-101` on main for the 101; baked into
-`stage-scheduled-pr.sh` for the 201):
+**Apply** — `.demo/injury-a.patch` (via `start-101` on main for the 101; landed on the Cloud
+Agent's PR via `demo-injury.sh land-a` for the 201):
 ```diff
 -        <Button variant="ghost" size="sm" className="h-11 w-full sm:h-8 sm:w-auto">
 +        <button className="h-11 w-full rounded-md bg-pink-500 px-2.5 text-[0.8rem] font-medium text-white hover:bg-pink-600 sm:h-8 sm:w-auto">
@@ -52,13 +52,13 @@ brand — and it won't respond to dark mode. "One product engineer's shortcut, m
 moment the page loads. `npm test` stays **green** — no test catches a design-token violation;
 only review does.
 
-**The exact fix prompt (Cmd-K on the file — the 101 fix and the 201 live fix are the same):**
+**The exact fix prompt (Cmd-K — the 101 in-editor fix; in the 201 Bugbot Autofix makes the same change on the PR with no human prompt):**
 > "In `components/campaigns/campaign-card.tsx`, the **Duplicate** action is a raw `<button>`
 > using `bg-pink-500 hover:bg-pink-600`. That bypasses the Pigment design system and won't
 > theme. Replace it with our `<Button variant="ghost" size="sm" className="h-11 w-full sm:h-8 sm:w-auto">`
 > so it inherits the design tokens, per `.cursor/rules/design-system`."
 
-**What Bugbot should comment on the PIG-206 PR (rehearse that it does):**
+**What Bugbot Autofix should commit on the PIG-206 PR (rehearse that it does):**
 > `components/campaigns/campaign-card.tsx` — hardcoded color `bg-pink-500` bypasses the design
 > system (*tokens & system components, never literals* — the standard in `.cursor/BUGBOT.md`).
 > Use `<Button variant="ghost">` so the control inherits `--primary`/theme tokens and dark mode.
@@ -114,8 +114,9 @@ afterwards. Standalone rehearsal PRs are closed, never merged.
 | Action | Shortcut |
 |--------|----------|
 | 101 start state (A on main, uncommitted) | `./.github/scripts/demo-injury.sh start-101` |
-| Stage the 201 PR (scheduled + A) | **`/stage-scheduled-pr`** |
-| Mid-room INJURY B (commit on top) | `./.github/scripts/demo-injury.sh replay-b` |
+| Fabricate the clean PIG-206 PR (fallback) | **`/stage-scheduled-pr`** |
+| Loop 1: land INJURY A on the PIG-206 PR | `./.github/scripts/demo-injury.sh land-a` |
+| Loop 2: INJURY B on top of HEAD | `./.github/scripts/demo-injury.sh replay-b` |
 | Restore clean files | **`/reset-injuries`** or `demo-injury.sh reset` |
 | Apply A / B on a branch | **`/apply-injury-a`** · **`/apply-injury-b`** |
 | Standalone rehearsals | **`/rehearse-injury-a`** · **`/rehearse-injury-b`** |

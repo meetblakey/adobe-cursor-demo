@@ -43,10 +43,12 @@ and out of role out loud, runs Tell-Show-Tell, and choreographs the round as a C
 commercial-teaching pitch.
 
 **The two seeded demo injuries:**
-- **INJURY A** (101, live fix) — *design-system drift in the product.* In
+- **INJURY A** (design-system drift in the product) — In
   `components/campaigns/campaign-card.tsx` the Duplicate button is a raw `<button>` with hardcoded
-  `bg-pink-500` instead of the system's `<Button variant="ghost">`. Off-brand, won't theme. Bugbot
-  catches it on the PR; you fix it live with Cmd-K.
+  `bg-pink-500` instead of the system's `<Button variant="ghost">`. Off-brand, won't theme.
+  **101:** uncommitted on `main`, fixed live with Cmd-K (no PR). **201:** rides the agent's PIG-206
+  PR via `land-a`, repaired by **Bugbot Autofix** (Loop 1). *(Superseded framing — see the
+  cloud-agent 201 spine in [`DEMO-RUNBOOK.md`](DEMO-RUNBOOK.md).)*
 - **INJURY B** (201) — *WCAG AA dark-mode contrast failure in the design system.* In
   `components/ui/status-tokens.ts` the `review` token's `dark.fg` is set to `#6A4A1E` on `#3A2A12`
   (≈1.7:1, below 4.5:1) so `npm test` goes red; a headless `cursor-agent` (the `fix-ci` job)

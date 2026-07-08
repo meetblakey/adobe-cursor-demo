@@ -23,16 +23,21 @@ that runs the whole outer loop: Bugbot → CI self-heal → merge → dark deplo
 - [ ] `npm test` green on `main`; Actions enabled; **Bugbot enabled**; `CURSOR_API_KEY` repo
       secret for the CI agent job; Supabase project + env set (or leave seed data); deploy
       preview on **Vercel**.
-- [ ] **Disable Bugbot AUTOFIX** (Cursor dashboard) — rehearsal-proven: with autofix on,
-      Bugbot pushes its own fix commit to the PIG-206 PR ~10–15 min after the PR opens,
-      stealing the live-fix beat AND rewriting the staged Scheduled diff. Bugbot *review
-      comments* stay on; only the auto-push must be off.
+- [ ] **Enable Bugbot AUTOFIX ON** (Cursor dashboard) — this is now the **Loop 1** beat: Bugbot
+      autofixes the design-system drift (the raw `bg-pink-500` Duplicate button) directly on the
+      Cloud Agent's PIG-206 PR, ~10–15 min after the drift lands. **Scope Bugbot OFF the a11y
+      token** (`components/ui/status-tokens.ts` — path-exclude or mention-only) so it does NOT
+      also autofix INJURY B: **Loop 2** must be healed by `fix-ci` in CI, not by Bugbot. See
+      `.cursor/BUGBOT.md` (loop ownership) + [`DASHBOARD-SETUP.md`](DASHBOARD-SETUP.md).
 - [ ] **Patches still apply:** `./.github/scripts/demo-injury.sh check-patches` on clean `main`
       (CI also runs this on every push to `main`). If a patch has drifted, regenerate it against
       `main` before anything else.
-- [ ] **Jira/Confluence trail exists:** story **PIG-206** ("Add a scheduled campaign status")
-      with acceptance criteria + the agent plan posted as a comment, linked Confluence design
-      page. The 201's Plan beat shows this trail — don't skip it.
+- [ ] **Jira → Cloud Agent trigger wired:** the **Cursor-in-Jira** app installed, a **@Cursor**
+      assignee created, and a no-code **Jira Automation** rule — *when a PIG issue moves to
+      In Progress → assign @Cursor* — enabled (pre-authenticate the spawned agent's Atlassian so
+      it doesn't stall on `needsAuth`). Story **PIG-206** sits in **To Do** with acceptance
+      criteria + the build plan posted as a comment + linked Confluence design page. The 201's
+      Plan beat moves it To Do → In Progress live and the agent picks it up — don't skip it.
 - [ ] **LaunchDarkly:** flag **`scheduled-status`** exists (envs test + production), **OFF in
       both** at start of day. `my-first-flag` stays as-is (it gates the demo card only).
 - [ ] **Know your reveal URL's data source.** The Supabase DBs do NOT have `scheduled` yet
@@ -44,11 +49,13 @@ that runs the whole outer loop: Bugbot → CI self-heal → merge → dark deplo
       `./.github/scripts/disable-preview-sso.sh` so preview URLs are public in the browser; keep
       `./.github/scripts/enable-preview-protection-bypass.sh` for CI when SSO is re-enabled
       post-demo.
-- [ ] **Rehearse the 201 outer loop once end-to-end** (see the 201 section):
-      `/stage-scheduled-pr` → Bugbot comments on the drift (checks green) → live fix →
-      `demo-injury.sh replay-b` → red CI → `fix-ci` self-heals → optionally `tag-broken` at the
-      injury commit (between-rehearsal replays only) → close the rehearsal PR WITHOUT merging.
-      Between runs: **`/demo-reset`**. Guide: [`docs/DEMO-INJURIES.md`](DEMO-INJURIES.md).
+- [ ] **Rehearse the 201 outer loop once end-to-end** (see the 201 section): dispatch the Cloud
+      Agent on PIG-206 (or `/stage-scheduled-pr` to fabricate its clean PR as the fallback) →
+      `demo-injury.sh land-a && git push` → **Bugbot Autofix** repairs the drift (Loop 1, checks
+      green) → `demo-injury.sh replay-b` → red CI → **`fix-ci`** self-heals (Loop 2) → optionally
+      `tag-broken` at the injury commit (between-rehearsal replays only) → close the rehearsal PR
+      WITHOUT merging. Between runs: **`/demo-reset`**. Guide:
+      [`docs/DEMO-INJURIES.md`](DEMO-INJURIES.md).
 - [ ] **101 start state (set this LAST, right before the room):**
       ```bash
       git checkout main && git pull --ff-only origin main
@@ -60,10 +67,12 @@ that runs the whole outer loop: Bugbot → CI self-heal → merge → dark deplo
       `rg "'scheduled'" components/ui/status-tokens.ts lib/campaigns-seed.ts supabase/migrations/`
       → no hits.
 - [ ] **Cloud Agent + Sentry artifacts** ([`docs/DASHBOARD-SETUP.md`](DASHBOARD-SETUP.md)):
-      Cloud Agent PR artifact saved (diff, tests, screenshots); Sentry Automation rehearsed only
-      if you plan to trigger it; fallback **video** of trigger → Jira → draft PR.
-- [ ] Pre-bake a **fallback PR** (Bugbot comment already posted) + a screen recording of the
-      201 loop, for network/timing lag.
+      a **pre-baked PIG-206 Cloud Agent PR** saved (diff, tests, light/dark/filtered
+      `/campaigns` screenshots) as the fallback for the ~10–15 min live dispatch, plus a
+      **healed post-autofix / post-`fix-ci` state**; Sentry Automation rehearsed only if you plan
+      to trigger it; fallback **video** of trigger → Jira → agent → PR.
+- [ ] Pre-bake a **fallback PR** (Bugbot Autofix commit already landed + a healed post-`fix-ci`
+      state) + a screen recording of the 201 loop, so the merge beat never waits on a spinner.
 - [ ] **Re-verify volatile facts day-of:** live Adobe stock vs 52-wk high; current Cursor
       enterprise/security claims, Bugbot specifics, and any Cloud Agent or CI execution boundary
       you plan to mention at cursor.com/docs.
@@ -187,11 +196,17 @@ pipeline — not the presenter — hold the standard."
 
 ## 201 — Deep dive (20 min). SDLC at 100+-dev scale; CI/CD is the hero.
 
-**The spine: one ticketed PR carries the whole loop.** Before the room, **`/stage-scheduled-pr`**
-cut branch **`PIG-206`** from clean `main` and opened the PR: the Scheduled implementation
-(`.demo/scheduled.patch`) **plus the INJURY A drift** (`.demo/injury-a.patch`) in one commit —
-*Priya missed it*. Checks are green (drift isn't a test failure); **Bugbot has already
-commented on the drift** by the time you present.
+**The spine: a Cloud Agent builds the ticket; one PR carries the whole loop.** The work enters
+as **PIG-206** in Jira. Moving it **To Do → In Progress** assigns **@Cursor**, and a native
+Cloud Agent builds the Scheduled feature in a VM, self-verifies in a browser, and opens the
+**`PIG-206`** PR against `main` (review token left at baseline `#E0A24E`). A design-system
+violation then **rides in on that PR** — the raw `bg-pink-500` Duplicate button
+(`demo-injury.sh land-a`, standing in for the drift that ships at scale). Checks stay green
+(drift isn't a test failure); **Bugbot Autofix** repairs it at review (Loop 1) by the time you
+present. *(Dispatch early — build + autofix take ~10–15 min each; narrate over the pre-baked PR
+if timing lags. **Honest framing:** the drift is a seeded condition injected onto the PR, not
+authored by the agent — the governance point is that every PR, including an agent's, passes the
+same gate.)*
 
 **Opening hook:**
 > "Your own AEM docs already list Cursor, Claude Code and Copilot and ship AGENTS.md + MCP
@@ -202,29 +217,39 @@ commented on the drift** by the time you present.
 > that flows into them. Two insertions: the PR, and the CI job."
 
 1. **Map to the pipeline — the LOOP, not a line** (diagram; see [`PIPELINE.md`](PIPELINE.md)):
-   **Jira** ticket → **Cursor** editor → **PR + Bugbot** → **GitHub Actions + Cursor CLI
-   agent** → **Vercel** (preview + auto prod, **dark**) → **LaunchDarkly** human gate → **Sentry**
-   fallback → next Jira ticket. Human owns PR merge and LD prod rollout — not Vercel promote.
-2. **Plan: the ticket trail** — open **PIG-206** in Jira: acceptance criteria (statuses derive
-   from `STATUS_TOKENS`; AA both themes; semantic Spectrum variant; behind `scheduled-status`,
-   OFF in prod; enum two-step migrations staging-first), the **agent's plan posted back as a
-   comment**, the linked Confluence design page. "Session one you watched this get built at a
-   desk; here's the same work entering the system of record."
-3. **Bugbot as the governance gate** — open the staged PR. Bugbot's comment is already on the
-   drift: the raw `bg-pink-500` button, flagged against the platform standard (`.cursor/BUGBOT.md`
-   — Bugbot reviews from that root+nested file plus dashboard/learned rules, the same standard
-   the editor rule encodes). **Fix it live**: Cmd-K on `campaign-card.tsx` (same prompt as the
-   101), commit, push. Checks stay green. "The engineer missed it, the reviewer-bot didn't —
-   before a human spent a minute."
-4. **Cursor CLI agent in CI — the red build heals itself** — land INJURY B as a follow-up
-   commit **on top of HEAD**:
+   **Jira** ticket → **Cursor** Cloud Agent → **PR + Bugbot Autofix** → **GitHub Actions +
+   Cursor CLI agent** → **Vercel** (preview + auto prod, **dark**) → **LaunchDarkly** human gate
+   → **Sentry** fallback → next Jira ticket. Human owns PR merge and LD prod rollout — not Vercel
+   promote.
+2. **Trigger: the ticket dispatches the agent** — open **PIG-206** in Jira: acceptance criteria
+   (statuses derive from `STATUS_TOKENS`; AA both themes; semantic Spectrum variant; behind
+   `scheduled-status`, OFF in prod; enum two-step migrations staging-first), the build plan
+   posted back as a comment, the linked Confluence design page. Move it **To Do → In Progress**:
+   the Jira Automation rule assigns **@Cursor** and the Cloud Agent starts building — no editor,
+   no presenter typing. "Session one you watched this built at a desk; here the ticket itself
+   dispatches the agent — the same work entering the system of record, hands-free."
+3. **Loop 1 — Bugbot Autofix (the review gate) heals the drift itself** — open the agent's PR.
+   Bugbot reviewed the `bg-pink-500` Duplicate button against the platform standard
+   (`.cursor/BUGBOT.md` — root+nested file plus dashboard/learned rules, the same standard the
+   editor rule encodes) and, with **Autofix ON**, **committed the fix to the PR branch**:
+   `<Button variant="ghost">` restored, theming back. No human touched the code. Checks stay
+   green. "The engineer's shortcut — or an agent's — never reached a human reviewer; the gate
+   repaired it first, across 200 teams." *(If the live autofix lags, show the pre-baked autofix
+   commit.)*
+4. **Loop 2 — headless `fix-ci` in CI — the red build heals itself** — *after* Bugbot's autofix
+   commit has landed, land INJURY B as a follow-up commit **on top of HEAD** (the sequence is
+   what keeps the two fixers from colliding; Bugbot is scoped off the token so it won't grab
+   this one — CI owns it):
    ```bash
    ./.github/scripts/demo-injury.sh replay-b && git push
    ```
-   (**Never** `reset-branch-b`/force-push mid-room — the tip must never move backwards or the
-   fix you just pushed is gone.) `check` goes **red**: *StatusBadge "review" meets WCAG AA in
-   dark mode* fails at ~1.7:1. The `fix-ci` job calls `agent -p --force`, restores a passing
-   token, **commits to the same PR**, and comments its diagnosis. Green-build time + MTTR.
+   (`replay-b` first fetches + fast-forwards the remote so **Bugbot's Loop 1 autofix commit is
+   ingested**, then commits INJURY B on top — so the push is a clean fast-forward. **Never**
+   `reset-branch-b`/force-push mid-room — the tip must never move backwards or Bugbot's autofix
+   commit is gone.) `check` goes **red**: *StatusBadge "review" meets WCAG AA
+   in dark mode* fails at ~1.7:1. The **`fix-ci`** job calls `agent -p --force`, restores a
+   passing token (baseline `#E0A24E`), **commits to the same PR**, and comments its diagnosis.
+   Green-build time + MTTR.
    *Rehearsal note:* the fix commit lands via `GITHUB_TOKEN`, so the workflow re-dispatches
    the required `check` on it automatically (green in ~1 min). GitHub may also show one
    **"workflow awaiting approval"** run on the fixed commit — click **Re-run** on it (or
@@ -253,9 +278,10 @@ commented on the drift** by the time you present.
    **PIG-*** Jira story + **draft PR** (human merge). Narrate while Automation runs (~2–3 min);
    cut to pre-recorded fallback if timing fails. Manual replay: **`/sentry-incident`**. Spec:
    [`SENTRY-AUTOMATION.md`](SENTRY-AUTOMATION.md).
-7b. **Cloud Agent path (artifact)** — show the **`/cloud-ticket`** PR you dispatched before the
-   room: branch, diff, test result, and browser screenshots on `/campaigns`. See
-   [`CLOUD-AGENTS.md`](CLOUD-AGENTS.md). Do not wait for a live dispatch.
+7b. **Cloud Agent path — this WAS the spine.** The PIG-206 PR in steps 2–4 is itself the Cloud
+   Agent's work (branch, diff, tests, and light/dark/filtered `/campaigns` screenshots attached
+   to the PR). **`/cloud-ticket`** generalizes the same trigger-first path to any PIG story; the
+   pre-baked PR is your timing fallback. See [`CLOUD-AGENTS.md`](CLOUD-AGENTS.md).
 8. **Governance + model optionality** — repo rules, review gates, audit, allow-lists, Privacy
    Mode/no-training wording, and model support from Anthropic, OpenAI, Gemini, Cursor, and more.
    Document any Cloud Agent or CI execution boundary before the pilot rather than improvising it.
@@ -270,21 +296,22 @@ Tag `main` as **`pre-201`** before a full rehearsal or the room
    time, never `git reset --hard` on `main`. The `check-patches` drift gate stands down while
    `scheduled` is on `main` and re-arms once the revert lands.
 2. **Flags OFF** in both LD envs (`scheduled-status`).
-3. **Staging Supabase:** revert the 0007 backfill (`update public.campaigns set status =
+3. **Supabase (the one project):** revert the 0007 backfill (`update public.campaigns set status =
    'draft' where name = 'APJ Expansion';`). Postgres can't drop enum values — leaving
-   `'scheduled'` in the staging enum between rehearsals is acceptable and additive.
+   `'scheduled'` in the enum between rehearsals is acceptable and additive.
 Details: [`DEMO-INJURIES.md`](DEMO-INJURIES.md#post-201-reset).
 
 ---
 
 ## The two injuries in one line each (see `docs/INJURIES.md` for diffs + prompts)
 
-- **A — Bugbot:** `components/campaigns/campaign-card.tsx`, Duplicate button → raw `<button>`
-  with `bg-pink-500` → fix to `<Button variant="ghost">`. *(101: the room walks in on it;
-  201: it rides the PIG-206 PR and Bugbot catches it.)*
-- **B — Cursor CLI agent in CI:** `components/ui/status-tokens.ts`, `review.dark.fg` →
-  `#6A4A1E` contrast fail → CI red → agent restores AA. *(Rendered UI stays fine — Spectrum
-  semantic variants; the drift is CI-visible in the SSR-fallback hex map.)*
+- **A — Bugbot Autofix (Loop 1):** `components/campaigns/campaign-card.tsx`, Duplicate button →
+  raw `<button>` with `bg-pink-500` → Bugbot autofixes to `<Button variant="ghost">`. *(101: the
+  room walks in on it, healed in-editor; 201: it rides the agent's PIG-206 PR via `land-a` and
+  Bugbot Autofix repairs it.)*
+- **B — headless `fix-ci` in CI (Loop 2):** `components/ui/status-tokens.ts`, `review.dark.fg` →
+  `#6A4A1E` contrast fail → CI red → `fix-ci` restores AA (baseline `#E0A24E`). *(Rendered UI
+  stays fine — Spectrum semantic variants; the drift is CI-visible in the SSR-fallback hex map.)*
 
 ---
 
