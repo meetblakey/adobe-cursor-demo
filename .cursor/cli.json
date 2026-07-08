@@ -1,10 +1,18 @@
 {
   "permissions": {
+    "allow": [
+      "Shell(npm)",
+      "Read(**)",
+      "Write(app/**)",
+      "Write(components/**)",
+      "Write(lib/**)"
+    ],
     "deny": [
       "Shell(git)",
       "Shell(git *)",
       "Write(.env*)",
-      "Write(**/.env*)"
+      "Write(**/.env*)",
+      "Write(.github/**)"
     ]
   }
 }
