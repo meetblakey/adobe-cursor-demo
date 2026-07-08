@@ -2,9 +2,6 @@
   "plugins": {
     "launchdarkly": {
       "enabled": true
-    },
-    "atlassian": {
-      "enabled": true
     }
   }
 }
