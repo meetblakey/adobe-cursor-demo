@@ -55,9 +55,9 @@ export function CampaignCard({
         >
           Open
         </Button>
-        <button className="h-11 w-full rounded-md bg-pink-500 px-2.5 text-[0.8rem] font-medium text-white hover:bg-pink-600 sm:h-8 sm:w-auto">
+        <Button variant="ghost" size="sm" className="h-11 w-full sm:h-8 sm:w-auto">
           Duplicate
-        </button>
+        </Button>
       </CardFooter>
     </Card>
   );
